@@ -1,0 +1,22 @@
+#!/bin/bash
+
+pkgname="flying-penguin"
+pkgver="0.1"
+
+basedir=`pwd`
+mkdir -p deb/DEBIAN
+mkdir -p deb/usr/share
+mkdir -p deb/usr/bin
+
+cat control | sed s/__VERSION__/$pkgver/ | sed s/__ARCH__/`uname -m`/ > "$basedir/deb/DEBIAN/control"
+tar -xf $pkgname-$pkgver.tar.gz
+cd "$basedir/$pkgname-$pkgver/proj/"
+codeblocks --rebuild --target="Release (Unix GCC)" flying-penguin.cbp
+cd "$basedir/$pkgname-$pkgver/proj/linux/"
+./installer "$basedir/deb/usr"
+cd "$basedir"
+
+exit
+dpkg-deb --build deb
+
+mv deb.deb $pkgname_$pkgver_`uname -m`_.deb

@@ -1,0 +1,53 @@
+Dear gamer,
+        Hello and thank you for trying out flying-penguin. This is my
+first ever full project and so please do not be too harsh on it. :) The
+project is hosted on github so you could always get the latest files
+there. If you find any bugs you can email the maintainers (list of that
+int the AUTHORS file) with the details of the problems or post them at
+the github page.
+        Enjoy the game!
+                                                          Lee Zher Huei
+
+PS: If you got an awesome song that you want to contribute that is under
+CC-BY-SA, or less restrictive, email me if you want it to be part of the
+of the project.
+
+==== External Files ====
+This project includes files from the Liberation Font project which is
+distributed under GPLv2 with a font exception. Source files and license
+details could be found here: https://fedorahosted.org/liberation-fonts/
+
+==== Preparing ====
+For ArchLinux:
+  Run this command in the terminal (as root) and you're done:
+    pacman -S sdl sdl_image freetype2 codeblocks
+
+For Ubnutu / Debian:
+  Run this command in the terminal and you're done:
+    sudo apt-get install libSDL1.2 libSDL_image1.2 freetype2 \
+    libSDL1.2-dev libSDL_image1.2-dev freetype2-dev codeblocks
+
+For other Linux distros:
+  Install all the codeblocks, SDL and freetype2 packages including the
+  development files using your distro's package manager.
+
+For Windows:
+  1. Download and install Code::Blocks (With MinGW included) from
+    http://www.codeblocks.org/downloads/binaries
+  2. Extract proj/win32/dependencies.zip into proj/win32/. When done,
+    copy all the DLL files from proj/win32/bin/ into the build/ folder.
+
+==== BUILDING ====
+For building in Linux:
+  Open up proj/penguin-glider.cbp with Code::Blocks, select "Release
+  (Unix GCC)" and build.
+
+For building in Windows:
+  Open up proj/penguin-glider.cbp with Code::Blocks, select "Release
+  (MinGW32)" and build.
+
+==== INSTALLATION ====
+For directly installing into a Linux system (as root):
+  cd proj/linux
+  cmod rwxr-xr-x installer
+  ./installer

@@ -1,0 +1,30 @@
+# Contributor: LeeZH <lee@leezh.net>
+pkgname=flying-penguin
+pkgver=0.1
+pkgrel=1
+pkgdesc="A game where you try to fly your penguin as far as possible"
+arch=('i686')
+url="http://www.leezh.net/projects/"
+license=('GPL3')
+groups=()
+depends=(sdl sdl_image freetype2)
+makedepends=(codeblocks)
+optdepends=()
+provides=()
+conflicts=()
+replaces=()
+backup=()
+options=()
+install=
+source=($pkgname-$pkgver.tar.gz)
+noextract=()
+md5sums=() #generate with 'makepkg -g'
+
+build() {
+  cd "$srcdir/$pkgname-$pkgver/proj/"
+  codeblocks --rebuild --target="Release (Unix GCC)" flying-penguin.cbp
+  cd "$srcdir/$pkgname-$pkgver/proj/linux/"
+  ./installer "$pkgdir/usr"
+}
+
+# vim:set ts=2 sw=2 et:

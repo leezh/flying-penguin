@@ -1,0 +1,11 @@
+
+[Desktop Entry]
+Type=Application
+
+Name=Flying Penguin
+Exec=penguin-glider
+Icon=penguin-glider
+
+StartupNotify=false
+Terminal=false
+Categories=Game;

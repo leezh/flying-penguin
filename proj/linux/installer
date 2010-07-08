@@ -1,0 +1,23 @@
+#!/bin/sh
+
+prefix="$1"
+if [ -z "$1" ]; then
+    prefix=/usr
+fi
+
+mkdir -p "$prefix"/share/
+mkdir -p "$prefix"/share/applications/
+mkdir -p "$prefix"/share/pixmaps/
+mkdir -p "$prefix"/bin/
+
+cp -r ../../build "$prefix"/share/flying-penguin/
+cp ../../AUTHORS  "$prefix"/share/flying-penguin/AUTHORS
+cp ../../COPYING  "$prefix"/share/flying-penguin/COPYING
+cp ../../README   "$prefix"/share/flying-penguin/README
+
+cp flying-penguin.desktop "$prefix"/share/applications/flying-penguin.desktop
+cp flying-penguin.png "$prefix"/share/pixmaps/flying-penguin.png
+cp flying-penguin "$prefix"/bin/flying-penguin
+
+# A bit of clean-up
+rm "$prefix"/share/flying-penguin/art/*.svg

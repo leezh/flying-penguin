@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="flying-penguin" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug (Unix GCC)">
+				<Option platforms="Unix;Mac;" />
+				<Option output="../build/flying-penguin" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="../build/" />
+				<Option object_output="../" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option use_console_runner="0" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add option="-I/usr/include/SDL" />
+					<Add option="-I/usr/include/freetype2" />
+					<Add option="-DDEBUG" />
+				</Compiler>
+				<Linker>
+					<Add option="-lGL -lGLU -lSDL -lSDL_image -lSDL_mixer -lfreetype" />
+				</Linker>
+			</Target>
+			<Target title="Debug (MinGW32)">
+				<Option platforms="Windows;" />
+				<Option output="../build/flying-penguin.exe" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="../build/" />
+				<Option object_output="../" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option use_console_runner="0" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add option="-Iwin32/include" />
+					<Add option="-Iwin32/include/SDL" />
+					<Add option="-Iwin32/include/freetype2" />
+					<Add option="-DDEBUG" />
+				</Compiler>
+				<Linker>
+					<Add option="-Lwin32/lib" />
+					<Add option="-lmingw32 -lopengl32 -lglu32 -lSDLmain -lSDL -lSDL_image -lSDL_mixer -lfreetype" />
+				</Linker>
+			</Target>
+			<Target title="Release (Unix GCC)">
+				<Option platforms="Unix;Mac;" />
+				<Option output="../build/flying-penguin" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="../build/" />
+				<Option object_output="../" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-I/usr/include/SDL" />
+					<Add option="-I/usr/include/freetype2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-lGL -lGLU -lSDL -lSDL_image -lSDL_mixer -lfreetype" />
+				</Linker>
+			</Target>
+			<Target title="Release (MinGW32)">
+				<Option platforms="Windows;" />
+				<Option output="../build/flying-penguin" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="../build/" />
+				<Option object_output="../" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-Iwin32/include" />
+					<Add option="-Iwin32/include/SDL" />
+					<Add option="-Iwin32/include/freetype2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-Lwin32/lib" />
+					<Add option="-lmingw32 -lopengl32 -lglu32 -lSDLmain -lSDLmain -lSDL -lSDL_image -lSDL_mixer -lfreetype" />
+				</Linker>
+			</Target>
+		</Build>
+		<Unit filename="../src/clouds.cpp" />
+		<Unit filename="../src/fish.cpp" />
+		<Unit filename="../src/main.cpp" />
+		<Unit filename="../src/main.hpp" />
+		<Unit filename="../src/particles.cpp" />
+		<Unit filename="../src/penguin.cpp" />
+		<Unit filename="../src/sol.cpp" />
+		<Unit filename="../src/sol.hpp" />
+		<Unit filename="../src/tween.hpp" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+			<envvars />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
