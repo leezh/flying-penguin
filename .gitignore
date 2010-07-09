@@ -1,0 +1,23 @@
+# Code::Blocks breadcrumbs
+#
+# It can't really be disabled on Code::Blocks
+proj/flying-penguin.layout
+proj/flying-penguin.depend
+
+# Windows specific dependencies
+#
+# We have that compressed as a zip file already so that the non-Windows
+# users can enjoy a cleaner tree.
+proj/win32/*/
+proj/win32/*.TXT
+build/*.dll
+
+# Object files
+src/*.o
+
+# Output files
+#
+# Due to problems in dependencies it is better that each computer
+# compiles their own
+build/flying-penguin
+build/flying-penguin.exe
