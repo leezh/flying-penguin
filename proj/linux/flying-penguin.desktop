@@ -3,8 +3,8 @@
 Type=Application
 
 Name=Flying Penguin
-Exec=penguin-glider
-Icon=penguin-glider
+Exec=flying-penguin
+Icon=flying-penguin
 
 StartupNotify=false
 Terminal=false

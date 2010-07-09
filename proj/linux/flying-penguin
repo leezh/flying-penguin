@@ -6,4 +6,4 @@
 cd /usr/share/flying-penguin/
 
 # And this actually calls the program.
-/usr/share/penguin-glider/flying-penguin
+/usr/share/flying-penguin/flying-penguin
