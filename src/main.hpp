@@ -56,6 +56,7 @@ class vect {
         float dotProduct(vect v) {return i * v.i + j * v.j + k * v.k;};
         float magnitude() {return sqrt(i * i + j * j + k * k);}
         vect unitVector() {return vect(i, j, k) / magnitude();}
+        vect crossProduct(vect v) {return vect(j * v.k - k * v.j, k * v.i - i * v.k, i * v.j - j * v.i);};
 };
 
 // A few oftenly used functions I am too lazy to write all the time
