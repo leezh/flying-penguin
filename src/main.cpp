@@ -97,19 +97,34 @@ class appSimulation: public sol::app {
 			std::string text = "Distance Covered: " + intToString(penguin::position.i) + "m";
             res::font->draw(text, sol::wm::size().w - res::font->width(text) - 20, 20);
 			if (penguin::running) {
+			    std::string text;
                 res::font->draw("Height: " + intToString(penguin::position.j) + " m", 20, 20);
                 res::font->draw("Air Speed: " + intToString(penguin::airSpeed) + " m/s", 20, 40);
 
                 if (penguin::thrusters) {res::font->draw("Thrusters ON", 20, 60);}
                 else {res::font->draw("Thrusters OFF", 20, 60);}
 
-                if (penguin::underspeed) {res::font->draw("Underspeed", 90, 80);}
+                if (penguin::underspeed) {
+                    glColor4f(0.8, 0, 0, 1);
+                    text = "Underspeed";
+                    int x = (sol::wm::size().w - res::font->width(text)) / 2;
+                    int y = sol::wm::size().h / 2 - 6 * scale + 20;
+                    res::font->draw(text, x, y);
+                    glColor4f(0, 0, 0, 1);
+                }
 
-                if (penguin::stall && sol::ticks() - lastStallTime > 500) {res::font->draw("Stall", 20, 80);}
+                if (penguin::stall && sol::ticks() - lastStallTime > 500) {
+                    glColor4f(0.8, 0, 0, 1);
+                    text = "Stall";
+                    int x = (sol::wm::size().w - res::font->width(text)) / 2;
+                    int y = sol::wm::size().h / 2 - 6 * scale;
+                    res::font->draw(text, x, y);
+                    glColor4f(0, 0, 0, 1);
+                }
                 if (penguin::stall && !lastStall) {lastStallTime = sol::ticks();}
                 lastStall = penguin::stall;
 
-                std::string text = "Fuel: " + intToString(penguin::fuelRemaining) + "s";
+                text = "Fuel: " + intToString(penguin::fuelRemaining) + "s";
                 res::font->draw(text, sol::wm::size().w - res::font->width(text) - 20, 40);
 
 			    if (!penguin::takeoff) {

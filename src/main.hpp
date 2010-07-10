@@ -87,6 +87,7 @@ namespace penguin {
     extern bool takeoff;
     extern bool stall;
     extern bool underspeed;
+    extern bool crashed;
     extern float airSpeed;
 
     void doPhysics(float deltaTime);
