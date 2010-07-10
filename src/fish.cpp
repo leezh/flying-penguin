@@ -21,6 +21,10 @@
 #include "main.hpp"
 using namespace sol;
 using namespace std;
+std::string intToString(int i);
+namespace res {
+    extern sol::font *font;
+}
 
 namespace fish {
 texture *fishTex, *arrow;
@@ -62,8 +66,9 @@ void render() {
 
     glColor4f(1, 1, 1, 1);
     sol::rect target = sol::rect(2 * scale, 2 * scale);
-    target.x = wm::size().w / 2 + vtarget.i * scale - fishTex->w / 2;
-    target.y = wm::size().h / 2 - vtarget.j * scale - fishTex->h / 2;
+    target.alignCentre();
+    target.x += vtarget.i * scale - fishTex->w / 2;
+    target.y -= vtarget.j * scale + fishTex->h / 2;
     target.draw(fishTex);
 
     if (vtarget.magnitude() > 5) {
@@ -73,6 +78,15 @@ void render() {
         target.rotate(-deg(atan2(vtarget.j, vtarget.i)), -2);
         target.draw(arrow);
     }
+
+    glColor4f(0, 0, 0, 1);
+    vect vUnit = vtarget.unitVector();
+    string dist = intToString(vtarget.magnitude()) + "m";
+    target.rotate(0);
+    target.alignCentre();
+    target.x += vUnit.i * 5 * scale - res::font->width(dist) / 2;
+    target.y -= vUnit.j * 5 * scale;
+    res::font->draw(dist, target.x, target.y);
 }
 
 void reset() {

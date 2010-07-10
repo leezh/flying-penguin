@@ -80,6 +80,7 @@ void render() {
             }
         }
     } while (redo);
+    glColor4f(1, 1, 1, 1);
 
     for (it = particles.begin(); it != particles.end(); it++) {
         vect vtarget = it->pos - penguin::position;
