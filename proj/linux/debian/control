@@ -1,9 +1,10 @@
 Package: flying-penguin
+Version: __VERSION__
 Priority: standard
 Section: games
 Maintainer: Lee Zher Huei <lee@leezh.net>
 Architecture: __ARCH__
-Depends: libSDL1.2 libSDL_image1.2 freetype2
+Depends: libsdl1.2debian,libsdl-image1.2,libsdl-mixer1.2,libfreetype6
 Description: A game where you try to fly your penguin as far as possible
  This is a native OpenGL game inspired by the flash game Hedgehog
  Launch. The aim of the game is to launch and glide your penguin as far

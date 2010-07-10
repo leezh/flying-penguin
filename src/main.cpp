@@ -36,13 +36,13 @@ namespace res {
     sol::font *font;
 }
 
-inline std::string intToString(int i) {
+std::string intToString(int i) {
     std::stringstream out;
     out << i;
     return out.str();
 }
 
-inline std::string floatToString(float f, int p = 2) {
+std::string floatToString(float f, int p = 2) {
     // Resetting the stream is faster than allocating one
     static std::stringstream out;
     out.str("");

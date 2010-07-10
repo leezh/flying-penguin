@@ -2,9 +2,9 @@ Dear gamer,
         Hello and thank you for trying out flying-penguin. This is my
 first ever full project and so please do not be too harsh on it. :) The
 project is hosted on github so you could always get the latest files
-there. If you find any bugs you can email the maintainers (list of that
-int the AUTHORS file) with the details of the problems or post them at
-the github page.
+there. If you find any bugs you can email the maintainers (listed in the
+AUTHORS file) with the details of the problems, or post them at the
+Issues section of the github page.
         Enjoy the game!
                                                           Lee Zher Huei
 
@@ -20,12 +20,13 @@ details could be found here: https://fedorahosted.org/liberation-fonts/
 ==== Preparing ====
 For ArchLinux:
   Run this command in the terminal (as root) and you're done:
-    pacman -S sdl sdl_image freetype2 codeblocks
+    pacman -S sdl sdl_image sdl_mixer freetype2 g++ codeblocks
 
 For Ubnutu / Debian:
   Run this command in the terminal and you're done:
-    sudo apt-get install libSDL1.2 libSDL_image1.2 freetype2 \
-    libSDL1.2-dev libSDL_image1.2-dev freetype2-dev codeblocks
+    sudo apt-get install libsdl1.2debian libsdl-image1.2 libsdl1.2-dev \
+    libsdl-image1.2-dev libsdl-mixer1.2 libsdl-mixer1.2-dev libfreetype6 \
+    libfreetype6-dev g++ codeblocks
 
 For other Linux distros:
   Install all the codeblocks, SDL and freetype2 packages including the
@@ -47,7 +48,7 @@ For building in Windows:
   (MinGW32)" and build.
 
 ==== INSTALLATION ====
-For directly installing into a Linux system (as root):
+For installing directly into a Linux system (as root):
   cd proj/linux
-  cmod rwxr-xr-x installer
+  chmod rwxr-xr-x installer
   ./installer

@@ -102,12 +102,10 @@ void doPhysics(float deltaTime) {
     }
 
     // Lift
-    vect vlift;
     if (velocity.magnitude() != 0) {
         float angleOfAttack = atan2(velocity.j, velocity.i) - angle + wingAngle;
         float liftForce = lift(angleOfAttack, velocity.magnitude() * cos(angleOfAttack));
-        vlift = vect(-liftForce * sin(angle), liftForce * cos(angle)) / mass;
-        acceleration += vlift;
+        acceleration += vect(-liftForce * sin(angle), liftForce * cos(angle)) / mass;
     }
 
     velocity += (acceleration * deltaTime);
@@ -116,14 +114,34 @@ void doPhysics(float deltaTime) {
     if (position.j < 0) {
         position.j = 0;
 
-        // Oh dear...
-        if (velocity.j < -3 || angle < rad(-40) || takeoff) {
+        // Oh dear ..,
+        if (velocity.j < -5 || angle < rad(-40)) {
             running = false;
             return;
-        } else if (velocity.j < 0 ) {
-            // Newton's Elastic Coefficient
+        }
+
+        if (velocity.j < 0) {
             velocity.j = 0;
         }
+
+        // Brakes
+        if (!thrusters) {
+            if (velocity.i > 1 * deltaTime) {
+                velocity.i -= 1 * deltaTime;
+            } else if (velocity.i < -1 * deltaTime) {
+                velocity.i += 1 * deltaTime;
+            } else {
+                velocity.i = 0;
+            }
+        }
+
+        if (takeoff && velocity.magnitude() < 0.2) {
+                running = false;
+                return;
+        }
+
+        if (angle < 0) angle += 0.1 * deltaTime;
+        if (angle > 0) angle -= 0.1 * deltaTime;
     }
 
     if (position.j > 2) {
@@ -134,8 +152,6 @@ void doPhysics(float deltaTime) {
         // Limit the angle on the ground
         if (angle > rad(2)) angle = rad(2);
         if (angle < rad(-20)) angle = rad(-20);
-        if (angle < 0) angle += 0.1 * deltaTime;
-        if (angle > 0) angle -= 0.1 * deltaTime;
 
         // Also, you can't stall on the ground :)
         stall = false;
