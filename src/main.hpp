@@ -21,6 +21,7 @@
 #define _MAIN_HEADER_
 #include <cmath>
 #include <cstdlib>
+#include <string>
 #define PI 3.14159265359
 
 #ifdef DEBUG
@@ -30,6 +31,12 @@
 #else
     #define ERR(x)
     #define LOG(X)
+#endif
+
+#ifdef RES_DIR
+    const std::string resDir = RES_DIR;
+#else
+	const std::string resDir = "";
 #endif
 
 // A vector class that I have created that can handle between one and

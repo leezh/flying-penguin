@@ -19,36 +19,33 @@ details could be found here: https://fedorahosted.org/liberation-fonts/
 
 ==== Preparing ====
 For ArchLinux:
-  Run this command in the terminal (as root) and you're done:
-    pacman -S sdl sdl_image sdl_mixer freetype2 g++ codeblocks
+  You could grab the PKGBUILD file from the AUR and build it. Refer to
+  the ArchWiki for details if you don't know what this is about.
+  
+  Alternatively, run this command (as root) and you're done:
+    pacman -S sdl sdl_image sdl_mixer freetype2 g++ cmake
 
 For Ubnutu / Debian:
-  Run this command in the terminal and you're done:
-    sudo apt-get install libsdl1.2debian libsdl-image1.2 libsdl1.2-dev \
-    libsdl-image1.2-dev libsdl-mixer1.2 libsdl-mixer1.2-dev libfreetype6 \
-    libfreetype6-dev g++ codeblocks
+  Run this command and you're done:
+    sudo apt-get install libsdl-image1.2 libsdl-mixer1.2 libsdl1.2-dev \
+    libsdl-image1.2-dev libsdl-mixer1.2-dev libfreetype6 \
+    libfreetype6-dev g++ cmake
 
 For other Linux distros:
   Install all the codeblocks, SDL and freetype2 packages including the
   development files using your distro's package manager.
 
 For Windows:
-  1. Download and install Code::Blocks (With MinGW included) from
-    http://www.codeblocks.org/downloads/binaries
-  2. Extract proj/win32/dependencies.zip into proj/win32/. When done,
-    copy all the DLL files from proj/win32/bin/ into the build/ folder.
+  TODO
 
-==== BUILDING ====
+==== BUILDING  AND INSTALLING ====
 For building in Linux:
-  Open up proj/penguin-glider.cbp with Code::Blocks, select "Release
-  (Unix GCC)" and build.
+  In the parent directory, run:
+      mkdir build
+      cd build
+      cmake ..
+      make
+      make install
 
 For building in Windows:
-  Open up proj/penguin-glider.cbp with Code::Blocks, select "Release
-  (MinGW32)" and build.
-
-==== INSTALLATION ====
-For installing directly into a Linux system (as root):
-  cd proj/linux
-  chmod rwxr-xr-x installer
-  ./installer
+  TODO

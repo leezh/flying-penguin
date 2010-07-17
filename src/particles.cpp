@@ -54,7 +54,7 @@ void createStar() {
 }
 
 void init() {
-    star = new texture("art/star.png");
+    star = new texture("images/star.png");
 }
 
 void uninit() {

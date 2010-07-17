@@ -280,17 +280,17 @@ class appSplash: public sol::app {
 
 int main(int argc, char *argv[]) {
 	if (sol::init(800, 600)) {
-	    sol::wm::caption("The Flying Penguin", "art/icon.png");
+	    sol::wm::caption("The Flying Penguin", "images/icon.png");
 		scale = sol::wm::size().w / size;
 
 		cloud::init();
 		fish::init();
 		particle::init();
-		res::title = new sol::texture("art/title.png");
-		res::penguin = new sol::texture("art/penguin.png");
-		res::font = new sol::font("fonts/LiberationSans-Regular.ttf", 16);
+		res::title = new sol::texture(resDir + "images/title.png");
+		res::penguin = new sol::texture(resDir + "images/penguin.png");
+		res::font = new sol::font(resDir + "fonts/LiberationSans-Regular.ttf", 16);
 		res::font->preloadASCII();
-		splashImages.push_back(sol::texture("art/leezh.net.png"));
+		splashImages.push_back(sol::texture(resDir + "images/leezh.net.png"));
 
 		sol::activate(&splash);
 		sol::run();

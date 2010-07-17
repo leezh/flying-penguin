@@ -70,9 +70,9 @@ vector<Block> blocks;
 
 void init() {
     srand(sol::ticks());
-    textures.push_back(texture("art/cloud1.png"));
-    textures.push_back(texture("art/cloud2.png"));
-    textures.push_back(texture("art/cloud3.png"));
+    textures.push_back(texture(resDir + "images/cloud1.png"));
+    textures.push_back(texture(resDir + "images/cloud2.png"));
+    textures.push_back(texture(resDir + "images/cloud3.png"));
 }
 
 void uninit() {

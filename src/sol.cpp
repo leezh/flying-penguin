@@ -253,7 +253,7 @@ namespace wm {
 	}
 }
 //======================================================== Textures ====
-texture::texture(): texid(0), w(0), h(0) {}
+texture::texture(): texid(whiteTex), w(0), h(0) {}
 texture::texture(const texture& t) {
 	texid = t.texid;
 	w = t.w;
@@ -261,7 +261,7 @@ texture::texture(const texture& t) {
 	texAdd(t.texid);
 }
 texture::texture(GLuint t): texid(t) {texAdd(t);}
-texture::texture(std::string filename): texid(0), w(0), h(0) {open(filename);}
+texture::texture(std::string filename): texid(whiteTex), w(0), h(0) {open(filename);}
 texture::~texture() {texDelete(texid);}
 texture& texture::operator =(const texture& t){
 	if (texid != 0) {
