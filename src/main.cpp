@@ -280,7 +280,7 @@ class appSplash: public sol::app {
 
 int main(int argc, char *argv[]) {
 	if (sol::init(800, 600)) {
-	    sol::wm::caption("The Flying Penguin", "images/icon.png");
+	    sol::wm::caption("The Flying Penguin", resDir + "images/icon.png");
 		scale = sol::wm::size().w / size;
 
 		cloud::init();
