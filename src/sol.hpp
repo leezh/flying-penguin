@@ -97,12 +97,14 @@ struct rect {
 	rect();
 	rect(float w, float h);
 	rect(float x, float y, float w, float h);
+	rect(const rect &r);
 	void draw();
 	void draw(texture* tex);
 	void draw(texture* tex, const rect& texcoord);
 
 	void alignCentre();
 	void rotate(float angle, float centreX = 0.5, float centreY = 0.5);
+	bool encloses(int X, int Y);
 };
 //=========================================================== Fonts ====
 class glyph {

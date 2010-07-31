@@ -342,6 +342,15 @@ rect::rect(float x, float y, float w, float h): centreX(0), centreY(0), angle(0)
 	this->w = w;
 	this->h = h;
 }
+rect::rect(const rect &r) {
+	x = r.x;
+	y = r.y;
+	w = r.w;
+	h = r.h;
+	centreX = r.centreX;
+	centreY = r.centreY;
+	angle = r.angle;
+}
 void rect::draw() {
     glPushMatrix();
     glTranslatef(x + centreX * w, y + centreY * h, 0);
@@ -390,6 +399,9 @@ void rect::rotate(float angle, float centreX, float centreY) {
     this->angle = angle;
     this->centreX = centreX;
     this->centreY = centreY;
+}
+bool rect::encloses(int X, int Y) {
+	return (x < X && X < x + w) && (y < Y && Y < y + h);
 }
 //=========================================================== Fonts ====
 glyph::glyph(GLuint t): tex(t) {
