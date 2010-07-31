@@ -30,6 +30,7 @@
 #include <list>
 #include <stack>
 #include <algorithm>
+#include "config.h"
 
 #ifdef DEBUG
     #include <iostream>

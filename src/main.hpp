@@ -23,6 +23,7 @@
 #include <cstdlib>
 #include <string>
 #define PI 3.14159265359
+#include "config.h"
 
 #ifdef DEBUG
     #include <iostream>
@@ -33,8 +34,8 @@
     #define LOG(X)
 #endif
 
-#ifdef RES_DIR
-    const std::string resDir = RES_DIR;
+#ifdef RESOURCE_DIR
+    const std::string resDir = RESOURCE_DIR;
 #else
 	const std::string resDir = "";
 #endif

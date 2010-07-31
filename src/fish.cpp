@@ -33,8 +33,8 @@ int count = 0;
 vect position;
 
 void init() {
-    fishTex = new sol::texture(resDir + "art/fish.png");
-    arrow = new sol::texture(resDir + "art/arrow.png");
+    fishTex = new sol::texture(resDir + "images/fish.png");
+    arrow = new sol::texture(resDir + "images/arrow.png");
 }
 
 void uninit() {
