@@ -43,8 +43,7 @@ const float stallAngle = rad(20);
 const float wingAngle = rad(10);
 const float wingArea = 3;
 const float mass = 50;
-const float dragConst = 10;
-const float turbulentVel = 40;
+const float dragConst = 0.5;
 const float underspeedVel = 12; // Obtained experimentally
 
 // References to find the lift coefficient below stall point.
@@ -84,12 +83,8 @@ void doPhysics(float deltaTime) {
     // Gravity
     vect acceleration(0, -9.81);
 
-    // Drag (Stoke's Law)
-    if (velocity.magnitude() < turbulentVel) {
-        acceleration -= velocity * dragConst / mass;
-    } else {
-        acceleration -= velocity * dragConst * velocity.magnitude() / mass;
-    }
+    // Drag
+    acceleration -= velocity * dragConst * velocity.magnitude() / mass;
 
     // Thrusters
     if (thrusters && fuelRemaining > 0) {
