@@ -49,3 +49,9 @@ For building in Linux:
 
 For building in Windows:
   TODO
+
+==== WHAT IS SOL ====
+SOL: Object-orientated Loop-based Game Framework is a C++ wrapper for
+SDL and Freetype2 that I wrote such that it may easily be reused in some
+other project. However, I haven't bothered writing out the documentation
+and it still isn't as complete as I would like it to be.
