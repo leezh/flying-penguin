@@ -43,7 +43,10 @@ const float stallAngle = rad(20);
 const float wingAngle = rad(10);
 const float wingArea = 3;
 const float mass = 50;
-const float dragConst = 0.5;
+const float dragConst = 0.75;
+const float thrustForce = 9.81 * 0.9;
+const float crashVel = 8;
+const float takeoffHeight = 2;
 const float underspeedVel = 12; // Obtained experimentally
 
 // References to find the lift coefficient below stall point.
@@ -88,7 +91,7 @@ void doPhysics(float deltaTime) {
 
     // Thrusters
     if (thrusters && fuelRemaining > 0) {
-        float boostForce = 9.81 * 0.8;
+        float boostForce = thrustForce;
         fuelRemaining -= deltaTime;
         acceleration += vect(boostForce * cos(angle), boostForce * sin(angle));
     }
@@ -110,7 +113,7 @@ void doPhysics(float deltaTime) {
         position.j = 0;
 
         // Oh dear ..,
-        if (velocity.j < -5 || angle < rad(-40)) {
+        if (velocity.j < -crashVel || angle < rad(-40)) {
             running = false;
             return;
         }
@@ -139,7 +142,7 @@ void doPhysics(float deltaTime) {
         if (angle > 0) angle -= 0.1 * deltaTime;
     }
 
-    if (position.j > 2) {
+    if (position.j > takeoffHeight) {
         takeoff = true;
     }
 

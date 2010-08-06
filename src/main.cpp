@@ -101,9 +101,6 @@ class appSimulation: public sol::app {
                 res::font->draw("Height: " + intToString(penguin::position.j) + " m", 20, 20);
                 res::font->draw("Air Speed: " + intToString(penguin::airSpeed) + " m/s", 20, 40);
 
-                if (penguin::thrusters) {res::font->draw("Thrusters ON", 20, 60);}
-                else {res::font->draw("Thrusters OFF", 20, 60);}
-
                 if (penguin::underspeed) {
                     glColor4f(0.8, 0, 0, 1);
                     text = "Underspeed";
@@ -288,7 +285,7 @@ int main(int argc, char *argv[]) {
 		particle::init();
 		res::title = new sol::texture(resDir + "images/title.png");
 		res::penguin = new sol::texture(resDir + "images/penguin.png");
-		res::font = new sol::font(resDir + "fonts/LiberationSans-Regular.ttf", 16);
+		res::font = new sol::font(resDir + "fonts/LiberationSans-Regular.ttf", 18);
 		res::font->preloadASCII();
 		splashImages.push_back(sol::texture(resDir + "images/leezh.net.png"));
 
