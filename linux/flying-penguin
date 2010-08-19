@@ -1,9 +1,0 @@
-#!/bin/sh
-
-# This sets the working directory so that the resource files could be
-# found. Distributions which puts this folder elsewhere should change
-# accordingly.
-cd /usr/share/flying-penguin/
-
-# And this actually calls the program.
-/usr/share/flying-penguin/flying-penguin
