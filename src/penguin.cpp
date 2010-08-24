@@ -45,7 +45,7 @@ const float wingArea = 3;
 const float mass = 50;
 const float dragConst = 0.75;
 const float thrustForce = 9.81 * 0.9;
-const float crashVel = 8;
+const float restitution = 0.2;
 const float takeoffHeight = 2;
 const float underspeedVel = 12; // Obtained experimentally
 
@@ -112,14 +112,8 @@ void doPhysics(float deltaTime) {
     if (position.j < 0) {
         position.j = 0;
 
-        // Oh dear ..,
-        if (velocity.j < -crashVel || angle < rad(-40)) {
-            running = false;
-            return;
-        }
-
         if (velocity.j < 0) {
-            velocity.j = 0;
+            velocity.j = -velocity.j * restitution;
         }
 
         // Brakes
