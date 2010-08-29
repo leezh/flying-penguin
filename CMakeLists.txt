@@ -36,7 +36,7 @@ target_link_libraries (flying-penguin
 	${OPENGL_LIBRARIES}
 	${FREETYPE_LIBRARIES})
 
-set(DEBUG OFF CACHE BOOL "Whether to include debugging messages")
+set(DEBUG_MSG OFF CACHE BOOL "Whether to include debugging messages")
 
 if (WIN32)
 	install (TARGETS flying-penguin DESTINATION flying-penguin)

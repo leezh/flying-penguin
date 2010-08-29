@@ -1,2 +1,2 @@
-#cmakedefine DEBUG
+#cmakedefine DEBUG_MSG
 #cmakedefine RESOURCE_DIR "${RESOURCE_DIR}/"

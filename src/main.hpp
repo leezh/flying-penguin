@@ -25,7 +25,7 @@
 #define PI 3.14159265359
 #include "config.h"
 
-#ifdef DEBUG
+#ifdef DEBUG_MSG
     #include <iostream>
     #define ERR(x) std::cout << "Error: " << x << std::endl;
     #define LOG(x) std::cout << x << std::endl;
