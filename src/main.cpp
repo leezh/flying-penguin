@@ -69,7 +69,7 @@ class appSimulation: public sol::app {
 		}
 
 		bool init() {
-			rectPenguin = sol::rect(2 * scale, 2 * scale);
+			rectPenguin = sol::rect(2.5 * scale, 2.5 * scale);
 			rectPenguin.alignCentre();
 
             finished = false;
@@ -79,8 +79,8 @@ class appSimulation: public sol::app {
 		void loop() {
 			float deltaTime = 1 / fpslimit.tick(100);
 			if (penguin::running) {
-                if (goDown) penguin::angle -= 0.8 * deltaTime;
-                if (goUp) penguin::angle += 0.8 * deltaTime;
+                if (goDown) penguin::angle -= 1 * deltaTime;
+                if (goUp) penguin::angle += 1 * deltaTime;
 			}
 			penguin::doPhysics(deltaTime);
 			particle::createStar();
@@ -162,7 +162,7 @@ class appTitle: public sol::app {
 		bool init() {
 			rectTitle = res::title->size();
 			rectTitle.alignCentre();
-            rectPenguin = sol::rect(2 * scale, 2 * scale);
+            rectPenguin = sol::rect(2.5 * scale, 2.5 * scale);
 			rectPenguin.alignCentre();
 
 			fadeIn = new tween_decel(1000, sol::ticks());

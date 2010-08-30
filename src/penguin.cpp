@@ -132,8 +132,8 @@ void doPhysics(float deltaTime) {
                 return;
         }
 
-        if (angle < 0) angle += 0.1 * deltaTime;
-        if (angle > 0) angle -= 0.1 * deltaTime;
+        if (angle < 0) angle += 0.8 * deltaTime;
+        if (angle > 0) angle -= 0.8 * deltaTime;
     }
 
     if (position.j > takeoffHeight) {
