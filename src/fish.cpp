@@ -71,22 +71,22 @@ void render() {
     target.y -= vtarget.j * scale + fishTex->h / 2;
     target.draw(fishTex);
 
-    if (vtarget.magnitude() > 5) {
+    if (vtarget.magnitude() > 6) {
         target = rect(1.6 * scale, 0.4 * scale);
         target.alignCentre();
         target.x += target.w * 2;
         target.rotate(-deg(atan2(vtarget.j, vtarget.i)), -2);
         target.draw(arrow);
+        
+        glColor4f(0, 0, 0, 1);
+        vect vUnit = vtarget.unitVector();
+        string dist = intToString(vtarget.magnitude()) + "m";
+        target.rotate(0);
+        target.alignCentre();
+        target.x += vUnit.i * 5 * scale - res::font->width(dist) / 2;
+        target.y -= vUnit.j * 5 * scale;
+        res::font->draw(dist, target.x, target.y);
     }
-
-    glColor4f(0, 0, 0, 1);
-    vect vUnit = vtarget.unitVector();
-    string dist = intToString(vtarget.magnitude()) + "m";
-    target.rotate(0);
-    target.alignCentre();
-    target.x += vUnit.i * 5 * scale - res::font->width(dist) / 2;
-    target.y -= vUnit.j * 5 * scale;
-    res::font->draw(dist, target.x, target.y);
 }
 
 void reset() {
