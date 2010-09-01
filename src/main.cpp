@@ -57,12 +57,8 @@ class appSimulation: public sol::app {
 		sol::rect rectPenguin;
 		bool finished;
 		bool goUp, goDown;
-		bool lastStall;
-		unsigned int lastStallTime;
 
 		void reset() {
-            lastStall = false;
-            lastStallTime = sol::ticks();
             penguin::reset();
             fish::reset();
             particle::reset();
@@ -78,30 +74,31 @@ class appSimulation: public sol::app {
 		}
 		void loop() {
 			float deltaTime = 1 / fpslimit.tick(100);
-			if (penguin::running) {
-                if (goDown) penguin::angle -= 1 * deltaTime;
-                if (goUp) penguin::angle += 1 * deltaTime;
+			if (mpenguin.isAlive()) {
+                mpenguin.elevatorAngle = 0;
+                if (goDown) mpenguin.elevatorAngle -= rad(10);
+                if (goUp) mpenguin.elevatorAngle += rad(10);
 			}
 			penguin::doPhysics(deltaTime);
 			particle::createStar();
 
 			sol::clear2d();
-			cloud::render();
+			cloud::render(mpenguin.pos);
 			fish::render();
 			particle::render();
 			glColor4f(1, 1, 1, 1);
-			rectPenguin.rotate(-deg(penguin::angle));
+			rectPenguin.rotate(-deg(mpenguin.angle));
 			rectPenguin.draw(res::penguin);
 
 			glColor4f(0, 0, 0, 1);
-			std::string text = "Distance Covered: " + intToString(penguin::position.i) + "m";
+			std::string text = "Distance Covered: " + intToString(mpenguin.pos.i) + "m";
             res::font->draw(text, sol::wm::size().w - res::font->width(text) - 20, 20);
-			if (penguin::running) {
+			if (mpenguin.isAlive()) {
 			    std::string text;
-                res::font->draw("Height: " + intToString(penguin::position.j) + " m", 20, 20);
-                res::font->draw("Air Speed: " + intToString(penguin::airSpeed) + " m/s", 20, 40);
+                res::font->draw("Height: " + intToString(mpenguin.pos.j) + " m", 20, 20);
+                res::font->draw("Air Speed: " + intToString(mpenguin.windSpeed()) + " m/s", 20, 40);
 
-                if (penguin::underspeed) {
+                if (mpenguin.isUnderspeed()) {
                     glColor4f(0.8, 0, 0, 1);
                     text = "Underspeed";
                     int x = (sol::wm::size().w - res::font->width(text)) / 2;
@@ -110,7 +107,7 @@ class appSimulation: public sol::app {
                     glColor4f(0, 0, 0, 1);
                 }
 
-                if (penguin::stall && sol::ticks() - lastStallTime > 500) {
+                if (mpenguin.isStalling()) {
                     glColor4f(0.8, 0, 0, 1);
                     text = "Stall";
                     int x = (sol::wm::size().w - res::font->width(text)) / 2;
@@ -118,8 +115,6 @@ class appSimulation: public sol::app {
                     res::font->draw(text, x, y);
                     glColor4f(0, 0, 0, 1);
                 }
-                if (penguin::stall && !lastStall) {lastStallTime = sol::ticks();}
-                lastStall = penguin::stall;
 
                 text = "Fuel: " + intToString(penguin::fuelRemaining) + "s";
                 res::font->draw(text, sol::wm::size().w - res::font->width(text) - 20, 40);
@@ -133,7 +128,7 @@ class appSimulation: public sol::app {
 			} else {
 			    res::font->draw("Press R to reset", 25, sol::wm::size().h - 40);
 			}
-            #ifdef DEBUG
+            #ifdef DEBUG_MSG
 			std::string frameRate = intToString(1 / deltaTime) + "FPS";
             res::font->draw(frameRate, sol::wm::size().w - res::font->width(frameRate) - 20,  sol::wm::size().h - 40);
             #endif
@@ -183,8 +178,8 @@ class appTitle: public sol::app {
 			}
 			fpslimit.tick(100);
 			sol::clear2d();
-			penguin::position.j = 10 - 10 * slideTo->value();
-			cloud::render();
+            float cameraHeight = 10 - 10 * slideTo->value();
+			cloud::render(vect(0, cameraHeight));
 
 			glColor4f(1, 1, 1, 1 - fadeOut->value());
 			rectTitle.draw(res::title);
@@ -200,7 +195,7 @@ class appTitle: public sol::app {
 			dx += res::font->draw(" 2010 Lee Zher Huei", 20 + dx, 20);
 			res::font->draw("Licensed under GNU GPLv3", 20, 40);
 
-            float groundh = sol::wm::size().h / 2 + penguin::position.j * scale;
+            float groundh = sol::wm::size().h / 2 + cameraHeight * scale;
 			glColor4f(1, 1, 1, 1);
             rectPenguin.y = groundh - rectPenguin.h / 2;
 			rectPenguin.rotate(-deg(penguin::angle));

@@ -80,7 +80,7 @@ void uninit() {
     blocks.clear();
 }
 
-void render() {
+void render(vect pos) {
     int w = wm::size().w;
     int h = wm::size().h;
     glBegin(GL_QUADS);
@@ -91,7 +91,7 @@ void render() {
     glEnd();
     glColor4f(1, 1, 1, 1);
     glBegin(GL_QUADS);
-    float groundh = h / 2 + penguin::position.j * scale + 0.4 * scale;
+    float groundh = h / 2 + pos.j * scale + 0.4 * scale;
     glVertex2i(0, groundh); glVertex2i(w, groundh);
     glVertex2i(w, h); glVertex2i(0, h);
     glEnd();
@@ -99,8 +99,8 @@ void render() {
 
     vector<Block> ::iterator it;
     // Current X and Y
-    int cx = floor(penguin::position.i / size);
-    int cy = floor(penguin::position.j / size);
+    int cx = floor(pos.i / size);
+    int cy = floor(pos.j / size);
     bool redo = false;
     do {
         redo = false;
@@ -119,14 +119,14 @@ void render() {
             for (it = blocks.begin(); it != blocks.end(); it++) {
                 if (it->posX == X && it->posY == Y) {
                     found = true;
-                    it->render(penguin::position);
+                    it->render(pos);
                     break;
                 }
             }
             if (!found) {
                 Block newBlock;
                 newBlock.create(4, X, Y);
-                newBlock.render(penguin::position);
+                newBlock.render(pos);
                 blocks.push_back(newBlock);
             }
     }

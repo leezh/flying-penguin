@@ -19,6 +19,28 @@
 
 #include "main.hpp"
 
+Penguin mpenguin;
+
+// In the future, I plan to add an in-game console to modify the values
+// without recompiling.
+
+float stallAngle = rad(20);
+float wingAngle = rad(10);
+float gravityAccel = 9.81;
+float thrustAccel = 7;
+float brakeAccel = 1;
+float liftConst = 0.19;
+float dragConst = 0.015;
+float restitution = 0.2;
+
+float startingFuel = 15;
+float underspeedVel = 10;
+float takeoffHeight = 2;
+float stopSpeed = 0.3;
+
+bool infiniteFuel = true;
+bool invincible = true;
+
 namespace penguin {
 
 vect position;
@@ -29,138 +51,142 @@ float fuelRemaining;
 
 bool running;
 bool takeoff;
-bool stall;
-bool underspeed;
-float airSpeed;
-
-// Note that everything is using SI units. That also means angles are
-// in radians.
-
-// These values are tweaked over several play-tests and is designed
-// such that it is still reasonable for those who do not conservere
-// fuel (Average ~1000m)
-const float stallAngle = rad(20);
-const float wingAngle = rad(10);
-const float wingArea = 3;
-const float mass = 50;
-const float dragConst = 0.75;
-const float thrustForce = 9.81 * 0.9;
-const float restitution = 0.2;
-const float takeoffHeight = 2;
-const float underspeedVel = 12; // Obtained experimentally
-
-// References to find the lift coefficient below stall point.
-// http://www.grc.nasa.gov/WWW/K-12/airplane/incline.html
-//
-// c = 2 * pi * angle(rad)
-// c = 6.28318530718 * angle(rad)
-inline float liftCoef(float a) {
-    if (a < stallAngle && a > 0) {
-        stall = false;
-        return 2 * PI * a;
-    } else {
-        stall = true;
-        return 0;
-    }
-}
-
-// References to find lift as a function of angle, velocity and
-// wing area
-// http://wright.nasa.gov/airplane/lifteq.html
-//
-// lift = coefficient * density * vel^2 * wing area / 2
-// By the way, calculating vel^2 is slower than vel * vel
-// Also, a here is angle of wing relative to windspeed
-inline float lift(float a, float vel) {
-    airSpeed = vel;
-    underspeed = (vel < underspeedVel);
-    return liftCoef(a) * 1.293 * vel * vel * wingArea / 2;
-}
 
 void doPhysics(float deltaTime) {
-    if (angle > PI) angle -= 2 * PI;
-    if (angle < -PI) angle += 2 * PI;
-
-    if (!running) return;
-
-    // Gravity
-    vect acceleration(0, -9.81);
-
-    // Drag
-    acceleration -= velocity * dragConst * velocity.magnitude() / mass;
-
-    // Thrusters
-    if (thrusters && fuelRemaining > 0) {
-        float boostForce = thrustForce;
-        fuelRemaining -= deltaTime;
-        acceleration += vect(boostForce * cos(angle), boostForce * sin(angle));
-    }
-    if (fuelRemaining <= 0) {
-        fuelRemaining = 0;
-    }
-
-    // Lift
-    if (velocity.magnitude() != 0) {
-        float angleOfAttack = atan2(velocity.j, velocity.i) - angle + wingAngle;
-        float liftForce = lift(angleOfAttack, velocity.magnitude() * cos(angleOfAttack));
-        acceleration += vect(-liftForce * sin(angle), liftForce * cos(angle)) / mass;
-    }
-
-    velocity += (acceleration * deltaTime);
-    position += (velocity * deltaTime);
-    // If we're crashing into the ground
-    if (position.j < 0) {
-        position.j = 0;
-
-        if (velocity.j < 0) {
-            velocity.j = -velocity.j * restitution;
-        }
-
-        // Brakes
-        if (!thrusters) {
-            if (velocity.i > 1 * deltaTime) {
-                velocity.i -= 1 * deltaTime;
-            } else if (velocity.i < -1 * deltaTime) {
-                velocity.i += 1 * deltaTime;
-            } else {
-                velocity.i = 0;
-            }
-        }
-
-        if (takeoff && velocity.magnitude() < 0.2) {
-                running = false;
-                return;
-        }
-
-        if (angle < 0) angle += 0.8 * deltaTime;
-        if (angle > 0) angle -= 0.8 * deltaTime;
-    }
-
-    if (position.j > takeoffHeight) {
-        takeoff = true;
-    }
-
-    if (!takeoff) {
-        // Limit the angle on the ground
-        if (angle > rad(2)) angle = rad(2);
-        if (angle < rad(-20)) angle = rad(-20);
-
-        // Also, you can't stall on the ground :)
-        stall = false;
-        underspeed = false;
-    }
+    mpenguin.thrust = thrusters;
+    mpenguin.fuel = fuelRemaining;
+    
+    mpenguin.doPhysics(deltaTime);
+    position = mpenguin.pos;
+    velocity = mpenguin.vel;
+    angle = mpenguin.angle;
+    fuelRemaining = mpenguin.fuel;
+    running = mpenguin.isAlive();
+    takeoff = mpenguin.isFlying();
 }
 
 void reset() {
-    position = vect(0, 0);
-    velocity = vect(0, 0);
+    mpenguin.reset();
+    fuelRemaining = startingFuel;
     angle = 0;
-    thrusters = false;
-    fuelRemaining = 15;
+}
+}
 
+
+bool Penguin::isAlive() {return running;}
+bool Penguin::isFlying() {return takeoff;}
+
+bool Penguin::isStalling() {
+    if (windAngle() > stallAngle || windAngle() < -wingAngle) {
+        return true;
+    }
+    return false;
+}
+bool Penguin::isUnderspeed() {
+    if (vel.magnitude() < underspeedVel) {
+        return true;
+    }
+    return false;
+}
+
+float Penguin::windAngle() {
+    return angle - atan2(vel.j, vel.i);
+}
+float Penguin::windSpeed() {
+    return vel.magnitude() * cos(windAngle());
+}
+
+void Penguin::reset() {
+    pos = vect(0, 0);
+    vel = vect(0, 0);
+    angle = 0;
     running = true;
     takeoff = false;
-    stall = false;
-    underspeed = false;
+    thrust = false;
+    fuel = startingFuel;
+    elevatorAngle = 0;
 }
+
+void Penguin::doPhysics(float deltaTime) {
+    if (angle > PI) angle -= 2 * PI;
+    if (angle < -PI) angle += 2 * PI;
+    
+    if (!running) return;
+    vect accel;
+    
+    // Gravity
+    accel += vect(0, -gravityAccel);
+    
+    // Drag
+    accel -= vel * vel.magnitude() * dragConst;
+    
+    // Thrusters
+    if (thrust && fuel > 0) {
+        accel += vect(thrustAccel * cos(angle), thrustAccel * sin(angle));
+        if (!infiniteFuel) {
+            fuel -= deltaTime;
+        }
+    }
+    if (fuel < 0) {
+        fuel = 0;
+    }
+    
+    // Lift
+    if (!isStalling()) {
+        float speed = windSpeed();
+        float lift = speed * speed * liftConst * (windAngle() + wingAngle + elevatorAngle);
+        accel += vect(-lift * sin(angle), lift * cos(angle));
+    }
+    
+    vel += (accel * deltaTime);
+    pos += (vel * deltaTime);
+    
+    // Collision with the ground
+    if (pos.j <= 0) {
+        pos.j = 0;
+        
+        // Bounce
+        if (vel.j < 0) {
+            vel.j = -vel.j * restitution;
+        }
+        
+        // Brakes
+        if (!(thrust && fuel > 0)) {
+            float deltaVel = brakeAccel * deltaTime;
+            if (vel.i > deltaVel) {
+                vel.i -= deltaVel;
+            } else if (vel.i < -deltaVel) {
+                vel.i += deltaVel;
+            } else {
+                vel.i = 0;
+            }
+            
+            // Seems like it has stopped
+            if (takeoff && vel.magnitude() < stopSpeed && !invincible) {
+                running = false;
+                return;
+            }
+        }
+    }
+    
+    if (pos.j > takeoffHeight) {
+        takeoff = true;
+    }
+    
+    if (vel.magnitude() > stopSpeed) {
+        float vAngle = atan2(vel.j, vel.i);
+        if (abs(angle - vAngle) < PI) {
+            if (angle > vAngle) {
+                angle -= 0.5 * deltaTime;
+            } else {
+                angle += 0.5 * deltaTime;
+            }
+        } else {
+            if (angle > vAngle) {
+                angle += 0.5 * deltaTime;
+            } else {
+                angle -= 0.5 * deltaTime;
+            }
+        }
+    }
 }

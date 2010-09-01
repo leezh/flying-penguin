@@ -97,11 +97,37 @@ namespace penguin {
     extern bool underspeed;
     extern bool crashed;
     extern float airSpeed;
+    extern float elevatorAngle;
 
     void doPhysics(float deltaTime);
     void reset();
     void launch();
 }
+class Penguin {
+    private:
+        bool running;
+        bool takeoff;
+    public:
+        vect pos;
+        vect vel;
+        float angle;
+        bool thrust;
+        float fuel;
+        float elevatorAngle;
+        
+        bool isAlive();
+        bool isFlying();
+        bool isUnderspeed();
+        bool isStalling();
+        float windSpeed();
+        float windAngle();
+        
+        void reset();
+        void doPhysics(float deltaTime);
+        void render();
+};
+
+extern Penguin mpenguin;
 
 // The factor to convert a metre into a pixel.
 extern float scale;
@@ -110,7 +136,7 @@ extern int size;
 namespace cloud {
     void init();
     void uninit();
-    void render();
+    void render(vect pos);
 }
 
 namespace fish {
