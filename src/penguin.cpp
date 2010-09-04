@@ -24,22 +24,25 @@ Penguin mpenguin;
 // In the future, I plan to add an in-game console to modify the values
 // without recompiling.
 
-float stallAngle = rad(20);
-float wingAngle = rad(10);
-float gravityAccel = 9.81;
-float thrustAccel = 7;
-float brakeAccel = 1;
-float liftConst = 0.19;
-float dragConst = 0.015;
-float restitution = 0.2;
+// Physics related variables
+float stallAngle = rad(20); // Angle when the wings stall
+float wingAngle = rad(10); // Angle the wings make relative to body
+float gravityAccel = 9.81; // Acceleration due to free-fall
+float thrustAccel = 7; // Acceleration component of thrust
+float brakeAccel = 1; // Braking deceleration when on the ground
+float liftConst = 0.19; // 2 * pi * air density *  wing area
+float dragConst = 0.015; // 0.5 * drag coefficient * air density * reference area
+float restitution = 0.2; // Restitution coefficient when bouncing
+float turningConst = 2; // 1 / Rotational damping
 
-float startingFuel = 15;
-float underspeedVel = 10;
-float takeoffHeight = 2;
-float stopSpeed = 0.3;
+float startingFuel = 15; // Seconds of fuel given initially
+float underspeedVel = 10; // When to give the warning that lift is low
+float takeoffHeight = 2; // Height at which to hide the instructions
+float stopSpeed = 0.1; // Solves the rounding errors when slowing down
+float speedToTurn = 2; // Solves the jerkiness when lift-off
 
-bool infiniteFuel = true;
-bool invincible = true;
+bool infiniteFuel = true; // DEBUG: Infinite fuel
+bool invincible = true; // DEBUG: Never die
 
 namespace penguin {
 
@@ -74,7 +77,7 @@ void reset() {
 
 
 bool Penguin::isAlive() {return running;}
-bool Penguin::isFlying() {return takeoff;}
+bool Penguin::isFlying() {return pos.j > takeoffHeight;}
 
 bool Penguin::isStalling() {
     if (windAngle() > stallAngle || windAngle() < -wingAngle) {
@@ -169,23 +172,22 @@ void Penguin::doPhysics(float deltaTime) {
         }
     }
     
-    if (pos.j > takeoffHeight) {
-        takeoff = true;
-    }
-    
-    if (vel.magnitude() > stopSpeed) {
+    if (isFlying() || vel.magnitude() > speedToTurn) {
         float vAngle = atan2(vel.j, vel.i);
+        if (abs(angle - vAngle) < turningConst * deltaTime) {
+            angle = vAngle;
+        }
         if (abs(angle - vAngle) < PI) {
             if (angle > vAngle) {
-                angle -= 0.5 * deltaTime;
+                angle -= turningConst * deltaTime;
             } else {
-                angle += 0.5 * deltaTime;
+                angle += turningConst * deltaTime;
             }
         } else {
             if (angle > vAngle) {
-                angle += 0.5 * deltaTime;
+                angle += turningConst * deltaTime;
             } else {
-                angle -= 0.5 * deltaTime;
+                angle -= turningConst * deltaTime;
             }
         }
     }
