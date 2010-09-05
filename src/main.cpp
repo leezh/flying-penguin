@@ -17,31 +17,19 @@
 //  MA 02110-1301, USA.
 //
 
-#include <iostream>
+#include <SFML/Graphics.hpp>
 #include <sstream>
 #include <vector>
 
-#define TWEEN_TIME_FUNC = sol::ticks()
+//#define TWEEN_TIME_FUNC = sol::ticks()
 
-#include "sol.hpp"
-#include "tween.hpp"
+//#include "tween.hpp"
 #include "main.hpp"
+#include "resources.hpp"
+#include "loops.hpp"
 
 int size = 20;
-sol::limiter fpslimit;
 float scale;
-namespace res {
-    sol::texture *penguin;
-    sol::texture *title;
-    sol::font *font;
-}
-
-std::string intToString(int i) {
-    std::stringstream out;
-    out << i;
-    return out.str();
-}
-
 std::string floatToString(float f, int p = 2) {
     // Resetting the stream is faster than allocating one
     static std::stringstream out;
@@ -51,46 +39,59 @@ std::string floatToString(float f, int p = 2) {
     out << f;
     return out.str();
 }
+std::string intToString(int i) {
+    static std::stringstream out;
+    out.str("");
+    out << i;
+    return out.str();
+}
 
-class appSimulation: public sol::app {
+class appSimulation: public loops::app {
 	public:
-		sol::rect rectPenguin;
 		bool finished;
-		bool goUp, goDown;
-
 		void reset() {
-            penguin::reset();
-            fish::reset();
+            mpenguin.reset();
+            //fish::reset();
             particle::reset();
 		}
-
 		bool init() {
-			rectPenguin = sol::rect(2.5 * scale, 2.5 * scale);
-			rectPenguin.alignCentre();
-
             finished = false;
             reset();
 			return true;
 		}
 		void loop() {
-			float deltaTime = 1 / fpslimit.tick(100);
-			if (mpenguin.isAlive()) {
-                mpenguin.elevatorAngle = 0;
-                if (goDown) mpenguin.elevatorAngle -= rad(10);
-                if (goUp) mpenguin.elevatorAngle += rad(10);
-			}
-			penguin::doPhysics(deltaTime);
+            sf::Event Event;
+            const sf::Input& input = res::window.GetInput();
+            while (res::window.GetEvent(Event))
+            {
+                if (Event.Type == sf::Event::Closed)
+                    loops::deactivate();
+                if (Event.Type == sf::Event::KeyPressed) {
+                    switch (Event.Key.Code) {
+                        case sf::Key::Escape:
+                        case sf::Key::Q:
+                            loops::deactivate();
+                            break;
+                        case sf::Key::R:
+                            reset();
+                            break;
+                    }
+                }
+            }
+            mpenguin.elevatorAngle = 0;
+            if (input.IsKeyDown(sf::Key::Left)) mpenguin.elevatorAngle += rad(10);
+            if (input.IsKeyDown(sf::Key::Right)) mpenguin.elevatorAngle -= rad(10);
+            mpenguin.thrust = input.IsKeyDown(sf::Key::Space);
+			mpenguin.doPhysics(res::window.GetFrameTime());
 			particle::createStar();
 
-			sol::clear2d();
+			res::window.Clear();
 			cloud::render(mpenguin.pos);
-			fish::render();
+			//fish::render();
 			particle::render();
-			glColor4f(1, 1, 1, 1);
-			rectPenguin.rotate(-deg(mpenguin.angle));
-			rectPenguin.draw(res::penguin);
+            mpenguin.render();
 
-			glColor4f(0, 0, 0, 1);
+			/*glColor4f(0, 0, 0, 1);
 			std::string text = "Distance Covered: " + intToString(mpenguin.pos.i) + "m";
             res::font->draw(text, sol::wm::size().w - res::font->width(text) - 20, 20);
 			if (mpenguin.isAlive()) {
@@ -131,26 +132,16 @@ class appSimulation: public sol::app {
             #ifdef DEBUG_MSG
 			std::string frameRate = intToString(1 / deltaTime) + "FPS";
             res::font->draw(frameRate, sol::wm::size().w - res::font->width(frameRate) - 20,  sol::wm::size().h - 40);
-            #endif
-
-
-			sol::refresh();
-		}
-		void onKeyboard(int button, bool value)  {
-			if (button == SDLK_ESCAPE && !value) {sol::deactivate();}
-			if (button == SDLK_q && !value) {sol::deactivate();}
-			if (button == SDLK_LEFT) {goUp = value;}
-			if (button == SDLK_RIGHT) {goDown = value;}
-			if (button == SDLK_SPACE) {penguin::thrusters = value;}
-            if (button == SDLK_r && !value) {reset();}
+            #endif*/
+            
+			res::window.Display();
 		}
 } simulation;
-
+/*
 class appTitle: public sol::app {
 	public:
 		tween *fadeIn, *fadeOut, *slideTo;
-		sol::rect rectTitle;
-        sol::rect rectPenguin;
+		sf::Sprite title;
 		unsigned long int end;
 		bool finished;
 
@@ -269,33 +260,22 @@ class appSplash: public sol::app {
 			if (value) {nextImage();}
 		}
 } splash;
-
+*/
 int main(int argc, char *argv[]) {
-	if (sol::init(800, 600)) {
-	    sol::wm::caption("The Flying Penguin", resDir + "images/icon.png");
-		scale = sol::wm::size().w / size;
+        res::window.Create(sf::VideoMode(800, 600, 32), "The Flying Penguin");
+        res::window.UseVerticalSync(true);
+		scale = res::window.GetWidth() / size;
 
 		cloud::init();
-		fish::init();
+		//fish::init();
 		particle::init();
-		res::title = new sol::texture(resDir + "images/title.png");
-		res::penguin = new sol::texture(resDir + "images/penguin.png");
-		res::font = new sol::font(resDir + "fonts/LiberationSans-Regular.ttf", 18);
-		res::font->preloadASCII();
-		splashImages.push_back(sol::texture(resDir + "images/leezh.net.png"));
 
-		sol::activate(&splash);
-		sol::run();
+		loops::activate(&simulation);
+		loops::run();
 
-		splashImages.clear();
-		delete res::title;
-		delete res::penguin;
-		delete res::font;
+		//splashImages.clear();
 		particle::uninit();
-		fish::uninit();
+		//fish::uninit();
 		cloud::uninit();
-
-		sol::uninit();
-	}
 	return 0;
 }

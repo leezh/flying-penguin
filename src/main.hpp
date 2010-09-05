@@ -19,9 +19,12 @@
 
 #ifndef _MAIN_HEADER_
 #define _MAIN_HEADER_
+
 #include <cmath>
 #include <cstdlib>
 #include <string>
+#include <SFML/Graphics.hpp>
+
 #define PI 3.14159265359
 #include "config.h"
 
@@ -34,37 +37,37 @@
     #define LOG(X)
 #endif
 
-#ifdef RESOURCE_DIR
-    const std::string resDir = RESOURCE_DIR;
-#else
-	const std::string resDir = "";
-#endif
-
 // A vector class that I have created that can handle between one and
 // three dimensions. Being completely independent from the rest of the
 // code it could be reused in other projects if needed.
 class vect {
     public:
-        float i, j, k;
-        vect(float x = 0, float y = 0, float z = 0): i(x), j(y), k(z) {}
+        float x, y, z;
+        vect(float X = 0, float Y = 0, float Z = 0): x(X), y(Y), z(Z) {}
 
         // Unary operators
-        vect operator+() {return vect(i, j, k);}
-        vect operator-() {return vect(-i, -j, -k);}
+        vect operator+() {return vect(x, y, z);}
+        vect operator-() {return vect(-x, -y, -z);}
 
         // Binary operators
-        vect operator+(vect v) {return vect(i + v.i, j + v.j, k + v.k);}
-        vect operator-(vect v) {return vect(i - v.i, j - v.j, k - v.k);}
-        vect operator+=(vect v) {*this = *this + v; return *this;}
-        vect operator-=(vect v) {*this = *this - v; return *this;}
-        vect operator*(float v) {return vect(i * v, j * v, k * v);}
-        vect operator/(float v) {return vect(i / v, j / v, k / v);}
+        vect operator+(const vect &v) {return vect(x + v.x, y + v.y, z + v.z);}
+        vect operator-(const vect &v) {return vect(x - v.x, y - v.y, z - v.z);}
+        vect operator*(const float &v) {return vect(x * v, y * v, z * v);}
+        vect operator/(const float &v) {return vect(x / v, y / v, z / v);}
+        
+        vect operator+=(const vect &v) {*this = *this + v; return *this;}
+        vect operator-=(const vect &v) {*this = *this - v; return *this;}
+        vect operator*=(const float &v) {*this = *this * v; return *this;}
+        vect operator/=(const float &v) {*this = *this / v; return *this;}
+        
+        bool operator==(const vect &v) {if(x == v.x && y == v.y && z == v.z) {return true;} return false;}
+        bool operator!=(const vect &v) {return !(*this == v);}
 
         // Other functions
-        float dotProduct(vect v) {return i * v.i + j * v.j + k * v.k;};
-        float magnitude() {return sqrt(i * i + j * j + k * k);}
-        vect unitVector() {return vect(i, j, k) / magnitude();}
-        vect crossProduct(vect v) {return vect(j * v.k - k * v.j, k * v.i - i * v.k, i * v.j - j * v.i);};
+        float dotProduct(vect v) {return x * v.x + y * v.y + z * v.z;};
+        float magnitude() {return sqrt(x * x + y * y + z * z);}
+        vect unitVector() {if (magnitude() != 0.f) {return vect(x, y, z) / magnitude();} return vect();}
+        vect crossProduct(vect v) {return vect(y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x);};
 };
 
 // A few oftenly used functions I am too lazy to write all the time
@@ -103,10 +106,13 @@ namespace penguin {
     void reset();
     void launch();
 }
+
 class Penguin {
     private:
         bool running;
         bool takeoff;
+        sf::Sprite sprite;
+        
     public:
         vect pos;
         vect vel;
@@ -114,6 +120,8 @@ class Penguin {
         bool thrust;
         float fuel;
         float elevatorAngle;
+        
+        Penguin();
         
         bool isAlive();
         bool isFlying();

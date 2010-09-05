@@ -17,7 +17,9 @@
 //  MA 02110-1301, USA.
 //
 
+#include <SFML/Graphics.hpp>
 #include "main.hpp"
+#include "resources.hpp"
 
 Penguin mpenguin;
 
@@ -75,9 +77,12 @@ void reset() {
 }
 }
 
+Penguin::Penguin() {
+    sprite.SetImage(res::img("penguin"));
+}
 
 bool Penguin::isAlive() {return running;}
-bool Penguin::isFlying() {return pos.j > takeoffHeight;}
+bool Penguin::isFlying() {return pos.y > takeoffHeight;}
 
 bool Penguin::isStalling() {
     if (windAngle() > stallAngle || windAngle() < -wingAngle) {
@@ -93,7 +98,7 @@ bool Penguin::isUnderspeed() {
 }
 
 float Penguin::windAngle() {
-    return angle - atan2(vel.j, vel.i);
+    return angle - atan2(vel.y, vel.x);
 }
 float Penguin::windSpeed() {
     return vel.magnitude() * cos(windAngle());
@@ -145,23 +150,23 @@ void Penguin::doPhysics(float deltaTime) {
     pos += (vel * deltaTime);
     
     // Collision with the ground
-    if (pos.j <= 0) {
-        pos.j = 0;
+    if (pos.y <= 0) {
+        pos.y = 0;
         
         // Bounce
-        if (vel.j < 0) {
-            vel.j = -vel.j * restitution;
+        if (vel.y < 0) {
+            vel.y = -vel.y * restitution;
         }
         
         // Brakes
         if (!(thrust && fuel > 0)) {
             float deltaVel = brakeAccel * deltaTime;
-            if (vel.i > deltaVel) {
-                vel.i -= deltaVel;
-            } else if (vel.i < -deltaVel) {
-                vel.i += deltaVel;
+            if (vel.x > deltaVel) {
+                vel.x -= deltaVel;
+            } else if (vel.x < -deltaVel) {
+                vel.x += deltaVel;
             } else {
-                vel.i = 0;
+                vel.x = 0;
             }
             
             // Seems like it has stopped
@@ -173,7 +178,7 @@ void Penguin::doPhysics(float deltaTime) {
     }
     
     if (isFlying() || vel.magnitude() > speedToTurn) {
-        float vAngle = atan2(vel.j, vel.i);
+        float vAngle = atan2(vel.y, vel.x);
         if (abs(angle - vAngle) < turningConst * deltaTime) {
             angle = vAngle;
         }
@@ -191,4 +196,13 @@ void Penguin::doPhysics(float deltaTime) {
             }
         }
     }
+}
+
+void Penguin::render() {    
+    sprite.SetCenter(res::img("penguin").GetWidth() * 0.5, res::img("penguin").GetHeight() * 0.5);
+    sprite.SetPosition(res::window.GetWidth() / 2, res::window.GetHeight() / 2);
+    sprite.SetRotation(deg(angle));
+    sprite.Resize(scale * 3, scale * 3);
+    
+    res::window.Draw(sprite);
 }

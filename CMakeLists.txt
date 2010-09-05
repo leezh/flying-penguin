@@ -3,38 +3,23 @@ cmake_minimum_required (VERSION 2.6)
 
 set (project_sources
 	src/clouds.cpp
-	src/fish.cpp
+    src/loops.cpp
+    src/loops.hpp
 	src/main.cpp
 	src/main.hpp
 	src/particles.cpp
 	src/penguin.cpp
-	src/sol.cpp
-	src/sol.hpp
+	src/resources.cpp
+	src/resources.hpp
 	src/tween.hpp)
-
 configure_file("${PROJECT_SOURCE_DIR}/src/config.h.in" "${PROJECT_BINARY_DIR}/config.h")
-
 add_executable (flying-penguin ${project_sources})
 
-find_package (SDL REQUIRED)
-find_package (SDL_image REQUIRED)
-find_package (SDL_mixer REQUIRED)
-
-find_package (OpenGL REQUIRED)
-find_package (Freetype REQUIRED)
-
-include_directories (
-	${SDL_INCLUDE_DIR}
-	${FREETYPE_INCLUDE_DIRS}
-	${OPENGL_INCLUDE_DIR}
-	${PROJECT_BINARY_DIR})
-
-target_link_libraries (flying-penguin
-	${SDL_LIBRARIES}
-	${SDLIMAGE_LIBRARY}
-	${SDLMIXER_LIBRARY}
-	${OPENGL_LIBRARIES}
-	${FREETYPE_LIBRARIES})
+set (CMAKE_BUILD_TYPE Release)
+set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/misc/cmake")
+find_package (SFML REQUIRED)
+include_directories (${SFML_INCLUDE_DIR} ${PROJECT_BINARY_DIR})
+target_link_libraries (flying-penguin ${SFML_LIBRARY})
 
 set(DEBUG_MSG OFF CACHE BOOL "Whether to include debugging messages")
 
@@ -46,8 +31,8 @@ else ()
 	set(RESOURCE_DIR "${CMAKE_INSTALL_PREFIX}/share/flying-penguin/" CACHE FILEPATH "Directory to look for resources")
 	
 	install (TARGETS flying-penguin DESTINATION bin)
-	install (FILES linux/flying-penguin.desktop DESTINATION share/applications)
-	install (FILES linux/flying-penguin.png DESTINATION share/pixmaps)
+	install (FILES misc/linux/flying-penguin.desktop DESTINATION share/applications)
+	install (FILES misc/linux/flying-penguin.png DESTINATION share/pixmaps)
 
 	install (DIRECTORY res/ DESTINATION share/flying-penguin)
 	install (FILES AUTHORS COPYING README DESTINATION share/flying-penguin)

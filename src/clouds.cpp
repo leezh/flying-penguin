@@ -18,14 +18,15 @@
 //
 
 #include <vector>
-#include "sol.hpp"
+#include <SFML/Graphics.hpp>
 #include "main.hpp"
-using namespace sol;
+#include "resources.hpp"
 using namespace std;
 
 namespace cloud {
 
-vector<texture> textures;
+vector<sf::Sprite> sprites;
+sf::Image background;
 
 class Cloud {
     public:
@@ -36,32 +37,25 @@ class Cloud {
 class Block {
     public:
         vector<Cloud> clouds;
-        int posX, posY;
+        vect pos;
 
         void create(int num, int x, int y) {
             for (int i = 0; i < num; i++) {
                 Cloud newCloud;
                 newCloud.pos = vect(size * rnd(), size * rnd());
-                newCloud.type = textures.size() * rnd();
+                newCloud.type = sprites.size() * rnd();
                 clouds.push_back(newCloud);
             }
-            posX = x;
-            posY = y;
+            pos = vect(x, y);
         }
-        bool inRange(int x, int y) {
-            if (abs(posX - x) < 2 && abs(posY - y) < 2) return true;
-            return false;
-        }
-
-        void render(vect p) {
-            vect pos = vect(posX * size, + posY * size);
+        void render(vect cameraPos) {
+            vect blockPos = vect(pos.x * size, + pos.y * size);
             vector<Cloud>::iterator it;
             for (it = clouds.begin(); it != clouds.end(); it++) {
-                vect vtarget = (it->pos + pos) - p;
-                sol::rect target = textures[it->type].size();
-                target.x = vtarget.i * scale;
-                target.y = wm::size().h / 2 - vtarget.j * scale;
-                target.draw(&textures[it->type]);
+                vect target = ((it->pos + blockPos) - cameraPos) * scale;
+                target.y = res::window.GetWidth() / 2 - target.y;
+                sprites[it->type].SetPosition(target.x, target.y);
+                res::window.Draw(sprites[it->type]);
             }
         }
 };
@@ -69,43 +63,34 @@ class Block {
 vector<Block> blocks;
 
 void init() {
-    srand(sol::ticks());
-    textures.push_back(texture(resDir + "images/cloud1.png"));
-    textures.push_back(texture(resDir + "images/cloud2.png"));
-    textures.push_back(texture(resDir + "images/cloud3.png"));
+    srand(res::clock.GetElapsedTime());
+    sprites.push_back(sf::Sprite(res::img("cloud1")));
+    sprites.push_back(sf::Sprite(res::img("cloud2")));
+    sprites.push_back(sf::Sprite(res::img("cloud3")));
+    background.Create(2, 2, sf::Color(224, 240, 244));
 }
 
 void uninit() {
-    textures.clear();
+    sprites.clear();
     blocks.clear();
 }
 
 void render(vect pos) {
-    int w = wm::size().w;
-    int h = wm::size().h;
-    glBegin(GL_QUADS);
-    glColor4f(181./256., 205./256., 202./256., 1);
-    glVertex2i(0, 0); glVertex2i(w, 0);
-    glColor4f(234./256., 241./246., 241./246., 1);
-    glVertex2i(w, h); glVertex2i(0, h);
-    glEnd();
-    glColor4f(1, 1, 1, 1);
-    glBegin(GL_QUADS);
-    float groundh = h / 2 + pos.j * scale + 0.4 * scale;
-    glVertex2i(0, groundh); glVertex2i(w, groundh);
-    glVertex2i(w, h); glVertex2i(0, h);
-    glEnd();
-    glColor4f(1, 1, 1, 1);
-
+    sf::Sprite backsprite;
+    backsprite.SetImage(background);
+    backsprite.SetPosition(0, 0);
+    backsprite.SetCenter(1, 1);
+    backsprite.SetScale(800, 600);
+    res::window.Draw(backsprite);
+    
     vector<Block> ::iterator it;
-    // Current X and Y
-    int cx = floor(pos.i / size);
-    int cy = floor(pos.j / size);
+    int screenX = floor(pos.x / size);
+    int screenY = floor(pos.y / size);
     bool redo = false;
     do {
         redo = false;
         for (it = blocks.begin(); it != blocks.end(); it++) {
-            if (!it->inRange(cx, cy)) {
+            if (abs(it->pos.x - screenX) > 2 && abs(it->pos.y - screenY) > 2) {
                 blocks.erase(it);
                 redo = true;
                 break;
@@ -113,11 +98,11 @@ void render(vect pos) {
         }
     } while (redo);
 
-    for (int X = cx - 1; X <= cx + 1; X++)
-        for (int Y = cy - 1; Y <= cy + 1; Y++) {
+    for (int X = screenX - 1; X <= screenX + 1; X++)
+        for (int Y = screenY - 1; Y <= screenY + 1; Y++) {
             bool found = false;
             for (it = blocks.begin(); it != blocks.end(); it++) {
-                if (it->posX == X && it->posY == Y) {
+                if (it->pos.x == X && it->pos.y == Y) {
                     found = true;
                     it->render(pos);
                     break;

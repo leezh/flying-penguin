@@ -18,48 +18,45 @@
 //
 
 #include <vector>
-#include "sol.hpp"
+#include <SFML/Graphics.hpp>
 #include "main.hpp"
-using namespace penguin;
-using namespace sol;
+#include "resources.hpp"
 using namespace std;
 
 namespace particle {
 
-texture *star;
-texture *flash;
+sf::Sprite star;
 
 class Particle {
     public:
         float angle;
-        int size;
+        float size;
         vect pos;
-        texture *tex;
+        sf::Sprite* sprite;
 };
 vector <Particle> particles;
 
 unsigned int lastCreation = 0;
 void createStar() {
-    if (!running || fuelRemaining <= 0 || !thrusters || lastCreation + 100 > sol::ticks())
+    if (!mpenguin.isFlying() || mpenguin.fuel <= 0 || !mpenguin.thrust || lastCreation + 100 > res::clock.GetElapsedTime())
         return;
-    lastCreation = sol::ticks();
+    lastCreation = res::clock.GetElapsedTime();
     Particle newParticle;
     newParticle.size = (0.2 + 0.3 * rnd()) * scale;
     newParticle.angle = 360 * rnd();
-    newParticle.pos = penguin::position;
-    newParticle.pos.i += 0.2 * rnd();
-    newParticle.pos.j += 0.2 * rnd();
-    newParticle.tex = star;
+    newParticle.pos = mpenguin.pos;
+    newParticle.pos.x += 0.2 * rnd();
+    newParticle.pos.y += 0.2 * rnd();
+    newParticle.sprite = &star;
     particles.push_back(newParticle);
 }
 
 void init() {
-    star = new texture(resDir + "images/star.png");
+    star.SetImage(res::img("star"));
 }
 
 void uninit() {
-    delete star;
-    particles.clear();
+    reset();
 }
 
 void reset() {
@@ -73,22 +70,22 @@ void render() {
     do {
         redo = false;
         for (it = particles.begin(); it != particles.end(); it++) {
-            if (it->pos.i - penguin::position.i < -20) {
+            if (it->pos.x - mpenguin.pos.x < -20) {
                 particles.erase(it);
                 redo = true;
                 break;
             }
         }
     } while (redo);
-    glColor4f(1, 1, 1, 1);
 
     for (it = particles.begin(); it != particles.end(); it++) {
-        vect vtarget = it->pos - penguin::position;
-        sol::rect target = rect(it->size, it->size);
-        target.x = wm::size().w / 2 + vtarget.i * scale - target.w / 2;
-        target.y = wm::size().h / 2 - vtarget.j * scale - target.h / 2;
-        target.rotate(it->angle);
-        target.draw(it->tex);
+        vect target = (it->pos - mpenguin.pos) * scale;
+        target.x += res::window.GetWidth() / 2;
+        target.y -= res::window.GetHeight() / 2;
+        it->sprite->SetScale(it->size, it->size);
+        it->sprite->SetRotation(it->angle);
+        it->sprite->SetCenter(res::img("star").GetWidth() / 2, res::img("star").GetHeight() / 2);
+        res::window.Draw(*it->sprite);
     }
 }
 
