@@ -26,7 +26,8 @@ using namespace std;
 namespace cloud {
 
 vector<sf::Sprite> sprites;
-sf::Image background;
+sf::Shape background;
+sf::Shape ground;
 
 class Cloud {
     public:
@@ -63,11 +64,17 @@ class Block {
 vector<Block> blocks;
 
 void init() {
-    srand(res::clock.GetElapsedTime());
+    int w = res::window.GetWidth();
+    int h = res::window.GetHeight();
     sprites.push_back(sf::Sprite(res::img("cloud1")));
     sprites.push_back(sf::Sprite(res::img("cloud2")));
     sprites.push_back(sf::Sprite(res::img("cloud3")));
-    background.Create(2, 2, sf::Color(224, 240, 244));
+    // I'm not using the standard functions because I want gradients
+    background.AddPoint(0, 0, sf::Color(181, 205, 202));
+    background.AddPoint(w, 0, sf::Color(181, 205, 202));
+    background.AddPoint(w, h, sf::Color(234, 241, 241));
+    background.AddPoint(0, h, sf::Color(234, 241, 241));
+    ground = sf::Shape::Rectangle(0, h/2, w, h, sf::Color(255, 255, 255));
 }
 
 void uninit() {
@@ -76,12 +83,8 @@ void uninit() {
 }
 
 void render(vect pos) {
-    sf::Sprite backsprite;
-    backsprite.SetImage(background);
-    backsprite.SetPosition(0, 0);
-    backsprite.SetCenter(1, 1);
-    backsprite.SetScale(800, 600);
-    res::window.Draw(backsprite);
+    srand(res::clock.GetElapsedTime() * 1000);
+    res::window.Draw(background);
     
     vector<Block> ::iterator it;
     int screenX = floor(pos.x / size);
@@ -110,10 +113,13 @@ void render(vect pos) {
             }
             if (!found) {
                 Block newBlock;
-                newBlock.create(4, X, Y);
+                newBlock.create(3, X, Y);
                 newBlock.render(pos);
                 blocks.push_back(newBlock);
             }
     }
+    
+    ground.SetPosition(0, mpenguin.pos.y * scale + 0.4 * scale);
+    res::window.Draw(ground);
 }
 }

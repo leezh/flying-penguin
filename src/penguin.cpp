@@ -79,6 +79,8 @@ void reset() {
 
 Penguin::Penguin() {
     sprite.SetImage(res::img("penguin"));
+    sprite.SetCenter(res::img("penguin").GetWidth() * 0.5, res::img("penguin").GetHeight() * 0.5);
+    sprite.Resize(scale * 3, scale * 3);
 }
 
 bool Penguin::isAlive() {return running;}
@@ -198,11 +200,9 @@ void Penguin::doPhysics(float deltaTime) {
     }
 }
 
-void Penguin::render() {    
-    sprite.SetCenter(res::img("penguin").GetWidth() * 0.5, res::img("penguin").GetHeight() * 0.5);
+void Penguin::render() {
     sprite.SetPosition(res::window.GetWidth() / 2, res::window.GetHeight() / 2);
     sprite.SetRotation(deg(angle));
-    sprite.Resize(scale * 3, scale * 3);
     
     res::window.Draw(sprite);
 }

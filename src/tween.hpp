@@ -59,8 +59,10 @@
 #include <ctime>
 #include <cmath>
 
-// Typing "unsigned long int" so many times is annoying
-#define ulint unsigned long int
+// Change this if you are not using float
+#ifndef TWEEN_UNIT
+#define TWEEN_UNIT float
+#endif
 
 // Make life easier by defining a default time function before including this
 // header file
@@ -73,17 +75,17 @@ class tween {
 	virtual float calculate(float x) {return x;}
 
 	public:
-		ulint duration, start, end;
+		TWEEN_UNIT duration, start, end;
 
 		tween(ulint d, ulint s) {reset(d, s);}
 
-		void reset(ulint duration, ulint now) {
+		void reset(TWEEN_UNIT duration, TWEEN_UNIT now) {
 			this->duration = duration;
 			start = now;
 			end = start + duration;
 		}
 
-		float value(ulint now TWEEN_TIME_FUNC) {
+		float value(TWEEN_UNIT now TWEEN_TIME_FUNC) {
 			if (now < start || duration == 0){
 				return 0.f;
 			}

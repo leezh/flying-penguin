@@ -26,33 +26,43 @@ using namespace std;
 namespace particle {
 
 sf::Sprite star;
+float starInterval = 0.1; // Delay between stars created
+float starJitter = 0.2; // Max random offset in position
+float starLifespan = 0.5; // Lifespan of one star in seconds
+float starSizeMax = 0.7; // Maxium size of the star
+float starSizeMin = 0.5; // Minimum size of the star
 
 class Particle {
     public:
         float angle;
         float size;
+        float birthTime;
+        float lifespan;
         vect pos;
         sf::Sprite* sprite;
 };
 vector <Particle> particles;
 
-unsigned int lastCreation = 0;
+float lastCreation = 0;
 void createStar() {
-    if (!mpenguin.isFlying() || mpenguin.fuel <= 0 || !mpenguin.thrust || lastCreation + 100 > res::clock.GetElapsedTime())
+    if (!mpenguin.isAlive() || mpenguin.fuel <= 0 || !mpenguin.thrust)
+        return;
+    if (lastCreation + starInterval > res::clock.GetElapsedTime())
         return;
     lastCreation = res::clock.GetElapsedTime();
     Particle newParticle;
-    newParticle.size = (0.2 + 0.3 * rnd()) * scale;
+    newParticle.size = (starSizeMin + (starSizeMax - starSizeMin) * rnd());
     newParticle.angle = 360 * rnd();
-    newParticle.pos = mpenguin.pos;
-    newParticle.pos.x += 0.2 * rnd();
-    newParticle.pos.y += 0.2 * rnd();
+    newParticle.pos = mpenguin.pos + vect(starJitter, starJitter) * rnd();
     newParticle.sprite = &star;
+    newParticle.birthTime = res::clock.GetElapsedTime();
+    newParticle.lifespan = starLifespan;
     particles.push_back(newParticle);
 }
 
 void init() {
     star.SetImage(res::img("star"));
+    star.SetCenter(res::img("star").GetWidth() / 2, res::img("star").GetHeight() / 2);
 }
 
 void uninit() {
@@ -65,12 +75,13 @@ void reset() {
 
 void render() {
     vector<Particle>::iterator it;
+    float now = res::clock.GetElapsedTime();
 
     bool redo = false;
     do {
         redo = false;
         for (it = particles.begin(); it != particles.end(); it++) {
-            if (it->pos.x - mpenguin.pos.x < -20) {
+            if (it->birthTime + it->lifespan < now) {
                 particles.erase(it);
                 redo = true;
                 break;
@@ -81,10 +92,12 @@ void render() {
     for (it = particles.begin(); it != particles.end(); it++) {
         vect target = (it->pos - mpenguin.pos) * scale;
         target.x += res::window.GetWidth() / 2;
-        target.y -= res::window.GetHeight() / 2;
+        target.y = res::window.GetHeight() / 2 - target.y;
+        float fadeFactor = 1 - (now - it->birthTime) / it->lifespan;
         it->sprite->SetScale(it->size, it->size);
+        it->sprite->SetPosition(target.x, target.y);
         it->sprite->SetRotation(it->angle);
-        it->sprite->SetCenter(res::img("star").GetWidth() / 2, res::img("star").GetHeight() / 2);
+        it->sprite->SetColor(sf::Color(255, 255, 255, 255 * fadeFactor));
         res::window.Draw(*it->sprite);
     }
 }
