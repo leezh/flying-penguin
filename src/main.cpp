@@ -90,6 +90,33 @@ class appSimulation: public loops::app {
 			//fish::render();
 			particle::render();
             mpenguin.render();
+            
+            sf::String str;
+            str.SetFont(res::fnt("regular", 18));
+            str.SetSize(18);
+            str.SetColor(sf::Color(0, 0 ,0));
+            
+            str.SetText("Distance Covered: " + intToString(mpenguin.pos.x) + "m");
+            str.SetCenter(str.GetRect().GetWidth(), 0);
+            str.SetPosition(res::window.GetWidth() - 20, 20);
+            res::window.Draw(str);
+            
+            if (mpenguin.isAlive()) {
+                str.SetText("Fuel: " + intToString(mpenguin.fuel) + "s");
+                str.SetCenter(str.GetRect().GetWidth(), 0);
+                str.SetPosition(res::window.GetWidth() - 20, 40);
+                res::window.Draw(str);
+            
+                str.SetCenter(0, 0);
+                
+                str.SetText("Height: " + intToString(mpenguin.pos.y) + " m");
+                str.SetPosition(20, 20);
+                res::window.Draw(str);
+                
+                str.SetText("Air Speed: " + intToString(mpenguin.windSpeed()) + " m/s");
+                str.SetPosition(20, 40);
+                res::window.Draw(str);
+            }
 
 			/*glColor4f(0, 0, 0, 1);
 			std::string text = "Distance Covered: " + intToString(mpenguin.pos.i) + "m";

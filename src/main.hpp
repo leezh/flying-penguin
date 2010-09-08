@@ -87,26 +87,6 @@ inline float rnd() {
     return float(rand()) / float(RAND_MAX);
 }
 
-namespace penguin {
-    extern vect position;
-    extern vect velocity;
-    extern float angle;
-    extern bool thrusters;
-    extern float fuelRemaining;
-
-    extern bool running;
-    extern bool takeoff;
-    extern bool stall;
-    extern bool underspeed;
-    extern bool crashed;
-    extern float airSpeed;
-    extern float elevatorAngle;
-
-    void doPhysics(float deltaTime);
-    void reset();
-    void launch();
-}
-
 class Penguin {
     private:
         bool running;

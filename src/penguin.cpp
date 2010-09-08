@@ -35,7 +35,7 @@ float brakeAccel = 1; // Braking deceleration when on the ground
 float liftConst = 0.19; // 2 * pi * air density *  wing area
 float dragConst = 0.015; // 0.5 * drag coefficient * air density * reference area
 float restitution = 0.2; // Restitution coefficient when bouncing
-float turningConst = 2; // 1 / Rotational damping
+float turningConst = 0.8; // 1 / Rotational damping
 
 float startingFuel = 15; // Seconds of fuel given initially
 float underspeedVel = 10; // When to give the warning that lift is low
@@ -45,37 +45,6 @@ float speedToTurn = 2; // Solves the jerkiness when lift-off
 
 bool infiniteFuel = true; // DEBUG: Infinite fuel
 bool invincible = true; // DEBUG: Never die
-
-namespace penguin {
-
-vect position;
-vect velocity;
-float angle;
-bool thrusters;
-float fuelRemaining;
-
-bool running;
-bool takeoff;
-
-void doPhysics(float deltaTime) {
-    mpenguin.thrust = thrusters;
-    mpenguin.fuel = fuelRemaining;
-    
-    mpenguin.doPhysics(deltaTime);
-    position = mpenguin.pos;
-    velocity = mpenguin.vel;
-    angle = mpenguin.angle;
-    fuelRemaining = mpenguin.fuel;
-    running = mpenguin.isAlive();
-    takeoff = mpenguin.isFlying();
-}
-
-void reset() {
-    mpenguin.reset();
-    fuelRemaining = startingFuel;
-    angle = 0;
-}
-}
 
 Penguin::Penguin() {
     sprite.SetImage(res::img("penguin"));

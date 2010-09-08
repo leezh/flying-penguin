@@ -1,0 +1,7 @@
+The fonts have been renamed so that they don't need to be hardcoded into
+the program. Here is the list of the original names:
+
+regular.ttf
+    Liberation Sans Regular
+bold.ttf
+    Liberation Sans Bold

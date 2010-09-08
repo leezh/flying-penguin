@@ -12,10 +12,10 @@ using namespace std;
 #endif
 
 namespace res {
-    std::string imgDir = "images/";
     sf::RenderWindow window;
     sf::Clock clock;
     
+    std::string imgDir = "images/";
     std::map<string, sf::Image> images;
     
     sf::Image& img(std::string name, std::string extension) {
@@ -26,5 +26,31 @@ namespace res {
             }
         }
         return images[name];
+    }
+    
+    struct FontDesc {
+        std::string name;
+        int size;
+        FontDesc(std::string n, int s): name(n), size(s) {}
+    };
+    // Requred font use in std::map
+    bool operator< (const FontDesc& c1, const FontDesc& c2) {
+        if (c1.name < c2.name || (c1.name == c2.name && c1.size < c2.size)) {
+            return true;
+        }
+        return false;
+    }
+    std::string fntDir = "fonts/";
+    std::map<FontDesc, sf::Font> fonts;
+    
+    sf::Font& fnt(std::string name, int size, std::string extension) {
+        FontDesc desc(name, size);
+        if (fonts.find(desc) == fonts.end()) {
+            fonts[desc] = sf::Font();
+            if (!fonts[desc].LoadFromFile(resDir + fntDir + name + extension, size)) {
+                // ERROR MESSAGE
+            }
+        }
+        return fonts[desc];
     }
 }
