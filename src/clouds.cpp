@@ -44,10 +44,10 @@ class Block {
             for (int i = 0; i < num; i++) {
                 Cloud newCloud;
                 newCloud.pos = vect(size * rnd(), size * rnd());
-                newCloud.type = sprites.size() * rnd();
+                newCloud.type = (int)(sprites.size() * rnd());
                 clouds.push_back(newCloud);
             }
-            pos = vect(x, y);
+            pos = vect((float)x, (float)y);
         }
         void render(vect cameraPos) {
             vect blockPos = vect(pos.x * size, + pos.y * size);
@@ -64,8 +64,8 @@ class Block {
 vector<Block> blocks;
 
 void init() {
-    int w = res::window.GetWidth();
-    int h = res::window.GetHeight();
+    float w = (float)res::window.GetWidth();
+    float h = (float)res::window.GetHeight();
     sprites.push_back(sf::Sprite(res::img("cloud1")));
     sprites.push_back(sf::Sprite(res::img("cloud2")));
     sprites.push_back(sf::Sprite(res::img("cloud3")));
@@ -83,12 +83,12 @@ void uninit() {
 }
 
 void render(vect pos) {
-    srand(res::clock.GetElapsedTime() * 1000);
+    srand((int)res::clock.GetElapsedTime());
     res::window.Draw(background);
     
     vector<Block> ::iterator it;
-    int screenX = floor(pos.x / size);
-    int screenY = floor(pos.y / size);
+    int screenX = (int)floor(pos.x / size);
+    int screenY = (int)floor(pos.y / size);
     bool redo = false;
     do {
         redo = false;
@@ -119,7 +119,7 @@ void render(vect pos) {
             }
     }
     
-    ground.SetPosition(0, mpenguin.pos.y * scale + 0.4 * scale);
+    ground.SetPosition(0, penguin.pos.y * scale + 0.4f * scale);
     res::window.Draw(ground);
 }
 }

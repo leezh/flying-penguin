@@ -26,11 +26,11 @@ using namespace std;
 namespace particle {
 
 sf::Sprite star;
-float starInterval = 0.1; // Delay between stars created
-float starJitter = 0.2; // Max random offset in position
-float starLifespan = 0.5; // Lifespan of one star in seconds
-float starSizeMax = 0.7; // Maxium size of the star
-float starSizeMin = 0.5; // Minimum size of the star
+float starInterval = 0.1f; // Delay between stars created
+float starJitter = 0.2f; // Max random offset in position
+float starLifespan = 0.8f; // Lifespan of one star in seconds
+float starSizeMax = 0.7f; // Maxium size of the star
+float starSizeMin = 0.5f; // Minimum size of the star
 
 class Particle {
     public:
@@ -45,7 +45,7 @@ vector <Particle> particles;
 
 float lastCreation = 0;
 void createStar() {
-    if (!mpenguin.isAlive() || mpenguin.fuel <= 0 || !mpenguin.thrust)
+    if (!penguin.isAlive() || penguin.fuel <= 0 || !penguin.thrust)
         return;
     if (lastCreation + starInterval > res::clock.GetElapsedTime())
         return;
@@ -53,7 +53,7 @@ void createStar() {
     Particle newParticle;
     newParticle.size = (starSizeMin + (starSizeMax - starSizeMin) * rnd());
     newParticle.angle = 360 * rnd();
-    newParticle.pos = mpenguin.pos + vect(starJitter, starJitter) * rnd();
+    newParticle.pos = penguin.pos + vect(starJitter, starJitter) * rnd();
     newParticle.sprite = &star;
     newParticle.birthTime = res::clock.GetElapsedTime();
     newParticle.lifespan = starLifespan;
@@ -62,7 +62,7 @@ void createStar() {
 
 void init() {
     star.SetImage(res::img("star"));
-    star.SetCenter(res::img("star").GetWidth() / 2, res::img("star").GetHeight() / 2);
+    star.SetCenter(res::img("star").GetWidth() / 2.f, res::img("star").GetHeight() / 2.f);
 }
 
 void uninit() {
@@ -90,14 +90,14 @@ void render() {
     } while (redo);
 
     for (it = particles.begin(); it != particles.end(); it++) {
-        vect target = (it->pos - mpenguin.pos) * scale;
+        vect target = (it->pos - penguin.pos) * scale;
         target.x += res::window.GetWidth() / 2;
         target.y = res::window.GetHeight() / 2 - target.y;
         float fadeFactor = 1 - (now - it->birthTime) / it->lifespan;
         it->sprite->SetScale(it->size, it->size);
         it->sprite->SetPosition(target.x, target.y);
         it->sprite->SetRotation(it->angle);
-        it->sprite->SetColor(sf::Color(255, 255, 255, 255 * fadeFactor));
+        it->sprite->SetColor(sf::Color(255, 255, 255, int(255 * fadeFactor)));
         res::window.Draw(*it->sprite);
     }
 }

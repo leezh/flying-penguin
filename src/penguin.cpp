@@ -21,7 +21,7 @@
 #include "main.hpp"
 #include "resources.hpp"
 
-Penguin mpenguin;
+Penguin penguin;
 
 // In the future, I plan to add an in-game console to modify the values
 // without recompiling.
@@ -29,34 +29,27 @@ Penguin mpenguin;
 // Physics related variables
 float stallAngle = rad(20); // Angle when the wings stall
 float wingAngle = rad(10); // Angle the wings make relative to body
-float gravityAccel = 9.81; // Acceleration due to free-fall
-float thrustAccel = 7; // Acceleration component of thrust
-float brakeAccel = 1; // Braking deceleration when on the ground
-float liftConst = 0.19; // 2 * pi * air density *  wing area
-float dragConst = 0.015; // 0.5 * drag coefficient * air density * reference area
-float restitution = 0.2; // Restitution coefficient when bouncing
-float turningConst = 0.8; // 1 / Rotational damping
+float gravityAccel = 9.81f; // Acceleration due to free-fall
+float thrustAccel = 3.f; // Acceleration component of thrust
+float brakeAccel = 1.f; // Brakeing deceleration when on the ground
+float liftConst = 0.19f; // 2 * pi * air density *  wing area / mass
+float dragConst = 0.005f; // 0.5 * drag coefficient * air density * reference area / mass
+float restitution = 0.2f; // Restitution coefficient when bouncing
+float turningConst = 3.f; // 1 / Rotational damping
 
-float startingFuel = 15; // Seconds of fuel given initially
-float underspeedVel = 10; // When to give the warning that lift is low
-float takeoffHeight = 2; // Height at which to hide the instructions
-float stopSpeed = 0.1; // Solves the rounding errors when slowing down
-float speedToTurn = 2; // Solves the jerkiness when lift-off
+float startingFuel = 15.f; // Seconds of fuel given initially
+float underspeedVel = 10.f; // When to give the warning that lift is low
+float takeoffHeight = 2.f; // Height at which to hide the instructions
+float stopSpeed = 0.1f; // Solves the rounding errors when slowing down
 
 bool infiniteFuel = true; // DEBUG: Infinite fuel
-bool invincible = true; // DEBUG: Never die
-
-Penguin::Penguin() {
-    sprite.SetImage(res::img("penguin"));
-    sprite.SetCenter(res::img("penguin").GetWidth() * 0.5, res::img("penguin").GetHeight() * 0.5);
-    sprite.Resize(scale * 3, scale * 3);
-}
+bool invincible = false; // DEBUG: Never die
 
 bool Penguin::isAlive() {return running;}
-bool Penguin::isFlying() {return pos.y > takeoffHeight;}
+bool Penguin::isFlying() {return takeoff;}
 
 bool Penguin::isStalling() {
-    if (windAngle() > stallAngle || windAngle() < -wingAngle) {
+    if (windAngle() > stallAngle || windAngle() < -stallAngle) {
         return true;
     }
     return false;
@@ -73,6 +66,13 @@ float Penguin::windAngle() {
 }
 float Penguin::windSpeed() {
     return vel.magnitude() * cos(windAngle());
+}
+float Penguin::liftAccel(float angle) {
+    if (angle > stallAngle || angle < -stallAngle) {
+        float speed = windSpeed();
+        return speed * speed * liftConst * (angle);
+    }
+    return 0;
 }
 
 void Penguin::reset() {
@@ -92,6 +92,7 @@ void Penguin::doPhysics(float deltaTime) {
     
     if (!running) return;
     vect accel;
+    float speed = windSpeed();
     
     // Gravity
     accel += vect(0, -gravityAccel);
@@ -112,9 +113,9 @@ void Penguin::doPhysics(float deltaTime) {
     
     // Lift
     if (!isStalling()) {
-        float speed = windSpeed();
         float lift = speed * speed * liftConst * (windAngle() + wingAngle + elevatorAngle);
-        accel += vect(-lift * sin(angle), lift * cos(angle));
+        accel += vect(0, 0, 1).crossProduct(vel).unitVector() * lift;
+        //accel += vect(-lift * sin(angle), lift * cos(angle));
     }
     
     vel += (accel * deltaTime);
@@ -148,29 +149,37 @@ void Penguin::doPhysics(float deltaTime) {
         }
     }
     
-    if (isFlying() || vel.magnitude() > speedToTurn) {
+    if (vel.magnitude() > 0.f) {
         float vAngle = atan2(vel.y, vel.x);
-        if (abs(angle - vAngle) < turningConst * deltaTime) {
-            angle = vAngle;
-        }
+        angularVel = 0;
         if (abs(angle - vAngle) < PI) {
             if (angle > vAngle) {
-                angle -= turningConst * deltaTime;
+                angularVel -= turningConst * speed * deltaTime;
             } else {
-                angle += turningConst * deltaTime;
+                angularVel += turningConst * speed * deltaTime;
             }
         } else {
             if (angle > vAngle) {
-                angle += turningConst * deltaTime;
+                angularVel += turningConst * speed * deltaTime;
             } else {
-                angle -= turningConst * deltaTime;
+                angularVel -= turningConst * speed * deltaTime;
             }
         }
+        angularVel += turningConst * speed * speed * liftConst * elevatorAngle * deltaTime;
+        angle += angularVel * deltaTime;
+    }
+
+    if(pos.y > takeoffHeight) {
+        takeoff = true;
     }
 }
-
+void Penguin::init() {
+    sprite.SetImage(res::img("penguin"));
+    sprite.SetCenter(res::img("penguin").GetWidth() * 0.5f, res::img("penguin").GetHeight() * 0.5f);
+}
 void Penguin::render() {
-    sprite.SetPosition(res::window.GetWidth() / 2, res::window.GetHeight() / 2);
+    sprite.Resize(scale * 3, scale * 3);
+    sprite.SetPosition(res::window.GetWidth() / 2.f, res::window.GetHeight() / 2.f);
     sprite.SetRotation(deg(angle));
     
     res::window.Draw(sprite);

@@ -25,17 +25,8 @@
 #include <string>
 #include <SFML/Graphics.hpp>
 
-#define PI 3.14159265359
+#define PI 3.14159265359f
 #include "config.h"
-
-#ifdef DEBUG_MSG
-    #include <iostream>
-    #define ERR(x) std::cout << "Error: " << x << std::endl;
-    #define LOG(x) std::cout << x << std::endl;
-#else
-    #define ERR(x)
-    #define LOG(X)
-#endif
 
 // A vector class that I have created that can handle between one and
 // three dimensions. Being completely independent from the rest of the
@@ -72,15 +63,15 @@ class vect {
 
 // A few oftenly used functions I am too lazy to write all the time
 inline float rad(float angle) {
-    return angle * PI / 180.;
+    return angle * PI / 180.f;
 }
 
 inline float deg(float angle) {
-    return angle * 180. / PI;
+    return angle * 180.f / PI;
 }
 
-inline float round(float f) {
-  return floor(f + 0.5);
+inline int round(float f) {
+  return (int)floor(f + 0.5f);
 }
 
 inline float rnd() {
@@ -92,16 +83,16 @@ class Penguin {
         bool running;
         bool takeoff;
         sf::Sprite sprite;
+		float liftAccel(float angle);
         
     public:
         vect pos;
         vect vel;
         float angle;
+		float angularVel;
         bool thrust;
         float fuel;
         float elevatorAngle;
-        
-        Penguin();
         
         bool isAlive();
         bool isFlying();
@@ -110,12 +101,13 @@ class Penguin {
         float windSpeed();
         float windAngle();
         
-        void reset();
+        void init();
+		void reset();
         void doPhysics(float deltaTime);
         void render();
 };
 
-extern Penguin mpenguin;
+extern Penguin penguin;
 
 // The factor to convert a metre into a pixel.
 extern float scale;
