@@ -143,6 +143,7 @@ class appSimulation: public loops::app {
                 }
             } else {
                 str.SetText("Press R to reset");
+                str.SetCenter(0, 0);
                 str.SetPosition(20, (float)res::window.GetHeight() - 40);
                 res::window.Draw(str);
             }
