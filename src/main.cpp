@@ -3,7 +3,7 @@
 //
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 2 of the License, or
+//  the Free Software Foundation; either version 3 of the License, or
 //  (at your option) any later version.
 //
 //  This program is distributed in the hope that it will be useful,
@@ -276,8 +276,10 @@ class appSplash: public sol::app {
 } splash;
 */
 int main(int argc, char *argv[]) {
+    sf::Image *icon = &res::img("icon");
     res::window.Create(sf::VideoMode(800, 600, 32), "The Flying Penguin");
     res::window.UseVerticalSync(true);
+    res::window.SetIcon(icon->GetWidth(), icon->GetHeight(), icon->GetPixelsPtr());
     scale = (float)res::window.GetWidth() / size;
 
     cloud::init();
