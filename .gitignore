@@ -3,3 +3,7 @@ src/*.o
 
 # Build Directory
 build/
+
+
+# Windows Dependencies
+misc/windows/sfml

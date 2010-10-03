@@ -33,7 +33,7 @@ namespace res {
         int size;
         FontDesc(std::string n, int s): name(n), size(s) {}
     };
-    // Requred font use in std::map
+    // Required for use in std::map
     bool operator< (const FontDesc& c1, const FontDesc& c2) {
         if (c1.name < c2.name || (c1.name == c2.name && c1.size < c2.size)) {
             return true;
