@@ -28,7 +28,7 @@ Penguin penguin;
 
 // Physics related variables
 float stallAngle = rad(20); // Angle when the wings stall
-float wingAngle = rad(10); // Angle the wings make relative to body
+float wingAngle = rad(8); // Angle the wings make relative to body
 float gravityAccel = 9.81f; // Acceleration due to free-fall
 float thrustAccel = 3.f; // Acceleration component of thrust
 float brakeAccel = 1.f; // Brakeing deceleration when on the ground
@@ -62,13 +62,17 @@ bool Penguin::isUnderspeed() {
 }
 
 float Penguin::windAngle() {
-    return angle - atan2(vel.y, vel.x);
+    if (vel.magnitude() > 0.f) {
+        return acuteAngleDiff(angle, atan2(vel.y, vel.x));
+    } else {
+        return 0.f;
+    }
 }
 float Penguin::windSpeed() {
     return vel.magnitude() * cos(windAngle());
 }
 float Penguin::liftAccel(float angle) {
-    if (angle > stallAngle || angle < -stallAngle) {
+    if (!isStalling()) {
         float speed = windSpeed();
         return speed * speed * liftConst * (angle);
     }
@@ -103,7 +107,7 @@ void Penguin::doPhysics(float deltaTime) {
     // Thrusters
     if (thrust && fuel > 0) {
         accel += vect(thrustAccel * cos(angle), thrustAccel * sin(angle));
-        if (!infiniteFuel) {
+        if (!infiniteFuel && takeoff) {
             fuel -= deltaTime;
         }
     }
@@ -151,22 +155,16 @@ void Penguin::doPhysics(float deltaTime) {
     
     if (vel.magnitude() > 0.f) {
         float vAngle = atan2(vel.y, vel.x);
-        angularVel = 0;
-        if (abs(angle - vAngle) < PI) {
-            if (angle > vAngle) {
-                angularVel -= turningConst * speed * deltaTime;
-            } else {
-                angularVel += turningConst * speed * deltaTime;
-            }
+        float diff = acuteAngleDiff(angle, vAngle);
+        float turnAmount = turningConst * vel.magnitude() * deltaTime * deltaTime;
+        if (abs(diff) < turnAmount) {
+            angle = vAngle;
+        } else if (diff > 0) {
+            angle -= turnAmount;
         } else {
-            if (angle > vAngle) {
-                angularVel += turningConst * speed * deltaTime;
-            } else {
-                angularVel -= turningConst * speed * deltaTime;
-            }
+            angle += turnAmount;
         }
-        angularVel += turningConst * speed * speed * liftConst * elevatorAngle * deltaTime;
-        angle += angularVel * deltaTime;
+        angle += turningConst * speed * speed * liftConst * elevatorAngle * deltaTime * deltaTime;
     }
 
     if(pos.y > takeoffHeight) {

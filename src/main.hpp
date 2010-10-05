@@ -70,6 +70,15 @@ inline float deg(float angle) {
     return angle * 180.f / PI;
 }
 
+inline float acuteAngleDiff(const float& a1, const float& a2) {
+    float diff = a1 - a2;
+    if (diff > PI)
+        return diff - 2 * PI;
+    if (diff < -PI)
+        return 2 * PI - diff;
+    return diff;
+}
+
 inline int round(float f) {
   return (int)floor(f + 0.5f);
 }
