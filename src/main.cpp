@@ -79,8 +79,8 @@ class appSimulation: public loops::app {
                 }
             }
             penguin.elevatorAngle = 0;
-            if (input.IsKeyDown(sf::Key::Left)) penguin.elevatorAngle += rad(10);
-            if (input.IsKeyDown(sf::Key::Right)) penguin.elevatorAngle -= rad(10);
+            if (input.IsKeyDown(sf::Key::Left)) penguin.elevatorAngle += rad(20);
+            if (input.IsKeyDown(sf::Key::Right)) penguin.elevatorAngle -= rad(20);
             penguin.thrust = input.IsKeyDown(sf::Key::Space);
             penguin.doPhysics(res::window.GetFrameTime());
             particle::createStar();
@@ -95,25 +95,44 @@ class appSimulation: public loops::app {
             str.SetFont(res::fnt("regular", 18));
             str.SetSize(18);
             str.SetColor(sf::Color(0, 0 ,0));
-            
-            str.SetText("Distance Covered: " + intToString(round(penguin.pos.x)) + "m");
+
+            str.SetText(intToString(round(1 / res::window.GetFrameTime())) + "FPS");
             str.SetCenter(str.GetRect().GetWidth(), 0);
-            str.SetPosition((float)res::window.GetWidth() - 20, 20);
+            str.SetPosition((float)res::window.GetWidth() - 20, (float)res::window.GetHeight() - 40);
             res::window.Draw(str);
             
-            if (penguin.isAlive()) {
-                str.SetText("Fuel: " + intToString(round(penguin.fuel)) + "s");
+            if (penguin.isFlying()) {
+                str.SetText("Distance Covered: " + intToString(round(penguin.flightDist())) + "m");
                 str.SetCenter(str.GetRect().GetWidth(), 0);
-                str.SetPosition((float)res::window.GetWidth() - 20, 40);
+                str.SetPosition((float)res::window.GetWidth() - 20, 20);
                 res::window.Draw(str);
 
-                #ifdef DEBUG_MSG
-                str.SetText(intToString(round(1 / deltaTime)) + "FPS");
-                str.SetCenter(str.GetRect().GetWidth(), 0);
-                str.SetPosition((float)res::window.GetWidth() - 20, (float)res::window.GetHeight() - 40);
+                if (penguin.isAlive()) {
+                    str.SetText("Fuel: " + intToString(round(penguin.fuel)) + "s");
+                    str.SetCenter(str.GetRect().GetWidth(), 0);
+                    str.SetPosition((float)res::window.GetWidth() - 20, 40);
+                    res::window.Draw(str);
+                }
+            } else {
+                str.SetCenter(0, 0);
+                str.SetText("Hold SPACE to use thrusters");
+                str.SetPosition(20, (float)res::window.GetHeight() - 100);
                 res::window.Draw(str);
-                #endif
+
+                str.SetText("Press LEFT and RIGHT to steer");
+                str.SetPosition(20, (float)res::window.GetHeight() - 80);
+                res::window.Draw(str);
+
+                str.SetText("Collect fish to regain fuel");
+                str.SetPosition(20, (float)res::window.GetHeight() - 60);
+                res::window.Draw(str);
+
+                str.SetText("Conserve fuel where necessary");
+                str.SetPosition(20, (float)res::window.GetHeight() - 40);
+                res::window.Draw(str);
+            }
             
+            if (penguin.isAlive()) {
                 str.SetCenter(0, 0);
                 
                 str.SetText("Height: " + intToString(round(penguin.pos.y)) + " m");
@@ -123,24 +142,6 @@ class appSimulation: public loops::app {
                 str.SetText("Air Speed: " + intToString(round(penguin.windSpeed())) + " m/s");
                 str.SetPosition(20, 40);
                 res::window.Draw(str);
-                
-                if (!penguin.isFlying()) {
-                    str.SetText("Hold SPACE to use thrusters");
-                    str.SetPosition(20, (float)res::window.GetHeight() - 100);
-                    res::window.Draw(str);
-
-                    str.SetText("Press LEFT and RIGHT to steer");
-                    str.SetPosition(20, (float)res::window.GetHeight() - 80);
-                    res::window.Draw(str);
-
-                    str.SetText("Collect fish to regain fuel");
-                    str.SetPosition(20, (float)res::window.GetHeight() - 60);
-                    res::window.Draw(str);
-
-                    str.SetText("Conserve fuel where necessary");
-                    str.SetPosition(20, (float)res::window.GetHeight() - 40);
-                    res::window.Draw(str);
-                }
             } else {
                 str.SetText("Press R to reset");
                 str.SetCenter(0, 0);

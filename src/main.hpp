@@ -92,6 +92,7 @@ class Penguin {
         bool running;
         bool takeoff;
         sf::Sprite sprite;
+        float takeoffDist;
 		float liftAccel(float angle);
         
     public:
@@ -109,6 +110,7 @@ class Penguin {
         bool isStalling();
         float windSpeed();
         float windAngle();
+        float flightDist();
         
         void init();
 		void reset();

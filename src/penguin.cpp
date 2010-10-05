@@ -71,6 +71,9 @@ float Penguin::windAngle() {
 float Penguin::windSpeed() {
     return vel.magnitude() * cos(windAngle());
 }
+float Penguin::flightDist() {
+    return pos.x - takeoffDist;
+}
 float Penguin::liftAccel(float angle) {
     if (!isStalling()) {
         float speed = windSpeed();
@@ -167,8 +170,11 @@ void Penguin::doPhysics(float deltaTime) {
         angle += turningConst * speed * speed * liftConst * elevatorAngle * deltaTime * deltaTime;
     }
 
-    if(pos.y > takeoffHeight) {
-        takeoff = true;
+    if (!takeoff) {
+        takeoffDist = pos.x;
+        if (pos.y > takeoffHeight) {
+            takeoff = true;
+        }
     }
 }
 void Penguin::init() {
