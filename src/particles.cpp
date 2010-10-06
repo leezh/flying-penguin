@@ -31,14 +31,17 @@ float starJitter = 0.2f; // Max random offset in position
 float starLifespan = 0.8f; // Lifespan of one star in seconds
 float starSizeMax = 0.7f; // Maxium size of the star
 float starSizeMin = 0.5f; // Minimum size of the star
+float starVelocity = 2.f;
 
 class Particle {
     public:
         float angle;
         float size;
-        float birthTime;
+        float life;
         float lifespan;
         vect pos;
+        vect vel;
+        vect accel;
         sf::Sprite* sprite;
 };
 vector <Particle> particles;
@@ -55,8 +58,10 @@ void createStar() {
     newParticle.angle = 360 * rnd();
     newParticle.pos = penguin.pos + vect(starJitter, starJitter) * rnd();
     newParticle.sprite = &star;
-    newParticle.birthTime = res::clock.GetElapsedTime();
+    newParticle.life = starLifespan;
     newParticle.lifespan = starLifespan;
+    newParticle.vel = vect(- starVelocity * cos(penguin.angle), - starVelocity * sin(penguin.angle));
+    newParticle.accel = vect(0, 0);
     particles.push_back(newParticle);
 }
 
@@ -73,15 +78,16 @@ void reset() {
     particles.clear();
 }
 
-void render() {
+void doPhysics(float deltaTime) {
     vector<Particle>::iterator it;
-    float now = res::clock.GetElapsedTime();
 
+    // Cull dead particles
     bool redo = false;
     do {
         redo = false;
         for (it = particles.begin(); it != particles.end(); it++) {
-            if (it->birthTime + it->lifespan < now) {
+            it->life -= deltaTime;
+            if (it->life < 0) {
                 particles.erase(it);
                 redo = true;
                 break;
@@ -89,11 +95,20 @@ void render() {
         }
     } while (redo);
 
+    // Move particles
+    for (it = particles.begin(); it != particles.end(); it++) {
+        it->vel += it->accel * deltaTime;
+        it->pos += it->vel * deltaTime;
+    }
+}
+
+void render() {
+    vector<Particle>::iterator it;
     for (it = particles.begin(); it != particles.end(); it++) {
         vect target = (it->pos - penguin.pos) * scale;
         target.x += res::window.GetWidth() / 2;
         target.y = res::window.GetHeight() / 2 - target.y;
-        float fadeFactor = 1 - (now - it->birthTime) / it->lifespan;
+        float fadeFactor = it->life / it->lifespan;
         it->sprite->SetScale(it->size, it->size);
         it->sprite->SetPosition(target.x, target.y);
         it->sprite->SetRotation(it->angle);

@@ -84,6 +84,7 @@ class appSimulation: public loops::app {
             penguin.thrust = input.IsKeyDown(sf::Key::Space);
             penguin.doPhysics(res::window.GetFrameTime());
             particle::createStar();
+            particle::doPhysics(res::window.GetFrameTime());
 
             res::window.Clear();
             cloud::render(penguin.pos);

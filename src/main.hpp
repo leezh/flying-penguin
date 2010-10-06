@@ -146,6 +146,7 @@ namespace particle {
     void uninit();
     void reset();
     void render();
+    void doPhysics(float deltaTime);
     void createStar();
 }
 
