@@ -1,10 +1,10 @@
-project (flying-penguin C CXX)
+project (flying-penguin CXX)
 cmake_minimum_required (VERSION 2.6)
 
 set (project_sources
 	src/clouds.cpp
-    src/loops.cpp
-    src/loops.hpp
+	src/loops.cpp
+	src/loops.hpp
 	src/main.cpp
 	src/main.hpp
 	src/particles.cpp
@@ -41,12 +41,25 @@ else ()
 	install (FILES AUTHORS COPYING README DESTINATION share/flying-penguin)
 endif ()
 
-set (CPACK_PACKAGE_NAME "The Flying Penguin ${CPACK_PACKAGE_VERSION}")
-set (CPACK_PACKAGE_DESCRIPTION_SUMMARY "A game where you try to fly your penguin as far as possible")
+set (CPACK_PACKAGE_NAME "${PACKAGE_NAME}")
+set (CPACK_PACKAGE_DESCRIPTION_SUMMARY "An arcade game involving a penguin, strap-on wings and flying fish")
+set (CPACK_PACKAGE_DESCRIPTION "An arcade game involving a penguin, strap-on wings and flying fish")
 set (CPACK_PACKAGE_VENDOR "Lee Zher Huei")
 set (CPACK_PACKAGE_CONTACT "lee@leezh.net")
 set (CPACK_PACKAGE_VERSION "0.2")
-set (CPACK_PACKAGE_INSTALL_DIRECTORY "${PROJECT_NAME}-${CPACK_PACKAGE_VERSION}")
+set (CPACK_PACKAGE_VERSION_MAJOR "0")
+set (CPACK_PACKAGE_VERSION_MINOR "2")
+
 set (CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
+set (CPACK_PACKAGE_INSTALL_DIRECTORY "The Flying Penguin")
+set (CPACK_PACKAGE_EXECUTABLES "flying-penguin;The Flying Penguin")
+set (CPACK_PACKAGE_INSTALL_REGISTRY_KEY "${PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}")
+set (CPACK_NSIS_DISPLAY_NAME "The Flying Penguin")
+
+set (CPACK_DEBIAN_PACKAGE_MAINTAINER "Lee Zher Huei <lee@leezh.net>")
+set (CPACK_DEBIAN_PACKAGE_SECTION "games")
+set (CPACK_DEBIAN_PRIORITY "optional")
+set (CPACK_DEBIAN_PACKAGE_DEPENDS "libsfml-system1.6, libsfml-window1.6, libsfml-graphics1.6, libsfml-audio1.6, libgl1, libglu1, libstdc++6")
+
 include (CPack)
 
