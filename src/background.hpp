@@ -17,34 +17,36 @@
 //  MA 02110-1301, USA.
 //
 
-#ifndef _MAIN_HEADER_
-#define _MAIN_HEADER_
+#ifndef _BACKGROUND_HEADER_
+#define _BACKGROUND_HEADER_
 
-#include <string>
 #include <SFML/Graphics.hpp>
-#include "ConfigFile/ConfigFile.h"
 
-#include "apps.hpp"
-#include "resources.hpp"
-#include "config.h"
+#include "util.hpp"
+#include "entities.hpp"
+class World;
 
-extern sf::RenderWindow window;
-extern ConfigFile conf;
-extern ConfigFile save;
-extern ResourceManager res;
-extern AppManager apps;
-extern std::wstring introText;
+class Background {
+    public:
+        World *parent;
+        sf::Color skyColour;
+        sf::Color groundColour;
+        
+        void render();
+        Background(World *p);
+};
 
-void resetWorld();
+class Cloud: public Entity {
+    protected:
+        sf::Sprite sprite;
+        World *parent;
+        Vect pos;
+        
+    public:
+        void resetClip();
+        void render();
+        bool alive() {return true;}
+        Cloud(World *p);
+};
 
-#ifdef CONFIG_STATIC
-    #define confVar(t,x) static t x = conf.read<t>(#x)
-#else
-    #define confVar(t,x) t x = conf.read<t>(#x)
-#endif
-
-// For convenience, use this command to list all configuration keys used
-// in this project:
-//   grep confVar -h * | grep -v "#define" | cut -f 2 -d , | cut -f 1 -d ')' | sort -u
-
-#endif // _MAIN_HEADER_
+#endif // _BACKGROUND_HEADER_

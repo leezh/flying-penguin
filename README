@@ -1,65 +1,79 @@
-Dear gamer,
-        Hello and thank you for trying out flying-penguin. This is my
-first ever full project and so please do not be too harsh on it. :) The
-project is hosted on github so you could always get the latest files
-there. If you find any bugs you can email the maintainers (listed in the
-AUTHORS file) with the details of the problems, or post them at the
-Issues section of the github page.
-        Enjoy the game!
-                                                          Lee Zher Huei
+==== Description ====
+Trouble struck the penguin community when all the fish in Antarctica
+started flying out of the water. Using canvas wings and soda-bottle
+rockets, they quickly took to the skies to collect fish to eat.
 
-PS: If you got an awesome song that you want to contribute that is under
-CC-BY-SA, or less restrictive, email me if you want it to be part of the
-of the project.
+In this game, the point is to fly as far as possible while using limited
+fuel. Extra fuel would be awarded for collecting fish.
+
+==== Instructions ====
+    Left - Turn counter-clockwise
+   Right - Turn clockwise
+   Space - Use thrusters
+   Enter - Reset
+Esc or Q - Quit
+
+To take off, hold the [Space] key down to gain speed. When about 13 m/s
+(~45 km/h) your speed is good enough for take-off. Use the [Left] and
+[Right] keys to steer.
+
+Be careful of windspeed because there wouldn't be enough lift below
+10 m/s. Stall angle is about 25 degrees. At the same time don't hold on
+to the thrusters for too long as the fuel is limited.
+
+You can actually reach the first few fish without turning off the
+thrusters, but you'll get trouble later when the fish are further apart.
+Each time you collect a fish you earn 5 seconds of fuel.
+
+There would be birds flying around that you have to avoid as there would
+be a 2 second fuel penalty on collision. As you go further, more and
+more birds would appear.
+
+==== Modifying Variables ====
+There are two ways of modifying all the variables used in the game. It
+shouldn't be difficult to figure out what the variables do from their
+names.
+
+The first way is to open up "/usr/share/flying-penguin/config" and edit
+whatever you want there. However, this isn't really recommended because
+you would need root permissions and would affect all the other users.
+
+A better alternative would be to copy the config file into
+"~/.flying-penguin" and modify it there.
+
+==== License ====
+The Flying Penguin
+Copyright (C) 2010-2011 Lee Zher Huei <lee.zh.92@gmail.com>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+==== Main Contributors ====
+Lee Zher Huei <lee@leezh.net>
+    - Project maintainer
+    - Programmer
+    - Artist
 
 ==== External Files ====
-This project includes files from the Liberation Font project which is
-distributed under GPLv2 with a font exception. Source files and license
-details could be found here: https://fedorahosted.org/liberation-fonts/
+src/ConfigFile/ConfigFile.cpp
+src/ConfigFile/ConfigFile.h
+    Configfile
+    Written by Richard J. Wagner
+    Licensed under a zlib-like license
+    http://www-personal.umich.edu/~wagnerr/ConfigFile.html
 
-==== Preparing ====
-For ArchLinux:
-  You could grab the PKGBUILD file from the AUR and build it. Refer to
-  the ArchWiki for details if you don't know what this is about.
-  TODO: Actually upload the PKGBUILD file.
-
-For Ubnutu / Debian:
-  Run this command and all the development files that you need and their
-  dependencies would be installed.
-    sudo apt-get install cmake libsfml-dev libglu-dev g++ make
-
-For other Linux distros:
-  Ensure you have all the G++, GNU Make, CMake and SFML packages
-  including the development files using your distro's package manager.
-  
-  In the case of SFML, some of the older distros wouldn't have them so
-  you might need to download, compile and install them yourself. Just
-  follow the tutorial there and you should be fine.
-    http://www.sfml-dev.org/
-
-For Windows:
-  Firstly, you would need an IDE / compiler of your choice. If you don't
-  have any, a recommended one for beginers is Code::Blocks with MinGW.
-    http://www.codeblocks.org/
-  
-  Secondly, you would need the latest SFML SDK. Download the one most
-  appropriate for your IDE / compiler:
-    http://www.sfml-dev.org/download.php
-  However, following the tutorial on that site wouldn't work with the
-  project's setup. Instead, extract the archive into misc\windows\ and
-  rename the extrated folder as "sfml".
-  
-  Finally, you need CMake, so go ahead and download the installer from:
-    http://www.cmake.org/cmake/resources/software.html
-
-==== BUILDING  AND INSTALLING ====
-For building in Linux:
-  In the parent directory, run:
-    mkdir build
-    cd build
-    cmake ..
-    make
-    make install
-
-For building in Windows:
-  TODO: Get this section of the tutorial done
+share/flying-penguin/bold.ttf
+share/flying-penguin/regular.ttf
+    Liberation Fonts
+    Licensed under GPLv2 with a font exception
+    https://fedorahosted.org/liberation-fonts/

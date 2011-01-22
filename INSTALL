@@ -1,0 +1,66 @@
+These instructions are not necessary if you already have a working
+pre-compiled binary.
+
+==== Preparing ====
+For ArchLinux:
+  You could grab the PKGBUILD file from the AUR and build it. Refer to
+  the ArchWiki for details if you don't know what this is about.
+    TODO: Actually upload the file
+
+For Ubnutu / Debian:
+  Run this command and all the development files that you need and their
+  dependencies would be installed.
+    sudo apt-get install cmake libsfml-dev libglu-dev g++ make
+
+For other Linux distros:
+  Ensure you have all the G++, GNU Make, CMake and SFML packages
+  including the development files using your distro's package manager.
+  
+  In the case of SFML, some of the older distros wouldn't have them so
+  you might need to download, compile and install them yourself. Just
+  follow the tutorial there and you should be fine.
+    http://www.sfml-dev.org/
+
+For Windows:
+  1. You need CMake, so go ahead and download the installer from:
+       http://www.cmake.org/cmake/resources/software.html
+  
+  2. You would MinGW and any IDE that uses it. A recommended one for
+     beginers is Code::Blocks. If you're daring, you could always skip
+     the IDE and use the command line.
+  
+     Note 1: If you're using the version of MinGW that is bundled
+     together with Code::Blocks, you would need to add the binary folder
+     to your PATH environment variable.
+     
+     Note 2: Currently The Flying Penguin has been known to be very
+     buggy when compiled with Visual C++ 2008, any patches to fix this
+     would be welcome.
+  
+  3. You would need the latest SFML SDK. Download the MinGW version:
+       http://www.sfml-dev.org/download.php
+     Extract the archive into "misc\windows\" and rename the extracted
+     folder as "sfml".
+
+==== Building and Installing ====
+For building in Linux:
+  In the parent directory, run:
+    mkdir build
+    cd build
+    cmake ..
+    make
+    make install
+
+For building in Windows:
+  1. Create a new folder with the name "build" in the base folder
+  2. Run CMake GUI
+  3. In Source Directory, select the base folder
+  4. In Build Directory, select the folder "build"
+  5. Click Configure and choose your current compiler
+  6. Click Generate
+  7. In the build/ folder, there should be project files for your
+     compiler. Open them.
+  8. Select compilation target to "all" and build it.
+  9. Select compilation target to "package" and build it.
+  10. In the build folder there should now be an installer executable
+      over there. Run and install it.

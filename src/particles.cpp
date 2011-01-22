@@ -1,5 +1,5 @@
 //  The Flying Penguin
-//  Copyright (C) 2010 Lee Zher Huei <lee@leezh.net>
+//  Copyright (C) 2010-2011 Lee Zher Huei <lee.zh.92@gmail.com>
 //
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,104 +17,89 @@
 //  MA 02110-1301, USA.
 //
 
-#include <vector>
-#include <SFML/Graphics.hpp>
+#include <string>
+
 #include "main.hpp"
-#include "resources.hpp"
+#include "particles.hpp"
+#include "world.hpp"
 using namespace std;
 
-namespace particle {
-
-sf::Sprite star;
-float starInterval = 0.1f; // Delay between stars created
-float starJitter = 0.2f; // Max random offset in position
-float starLifespan = 0.8f; // Lifespan of one star in seconds
-float starSizeMax = 0.7f; // Maxium size of the star
-float starSizeMin = 0.5f; // Minimum size of the star
-float starVelocity = 2.f;
-
-class Particle {
-    public:
-        float angle;
-        float size;
-        float life;
-        float lifespan;
-        vect pos;
-        vect vel;
-        vect accel;
-        sf::Sprite* sprite;
-};
-vector <Particle> particles;
-
-float lastCreation = 0;
-void createStar() {
-    if (!penguin.isAlive() || penguin.fuel <= 0 || !penguin.thrust)
-        return;
-    if (lastCreation + starInterval > res::clock.GetElapsedTime())
-        return;
-    lastCreation = res::clock.GetElapsedTime();
-    Particle newParticle;
-    newParticle.size = (starSizeMin + (starSizeMax - starSizeMin) * rnd());
-    newParticle.angle = 360 * rnd();
-    newParticle.pos = penguin.pos + vect(starJitter, starJitter) * rnd();
-    newParticle.sprite = &star;
-    newParticle.life = starLifespan;
-    newParticle.lifespan = starLifespan;
-    newParticle.vel = vect(- starVelocity * cos(penguin.angle), - starVelocity * sin(penguin.angle));
-    newParticle.accel = vect(0, 0);
-    particles.push_back(newParticle);
+Particle::Particle(): sprite() {
+    life = 0;
 }
 
-void init() {
-    star.SetImage(res::img("star"));
-    star.SetCenter(res::img("star").GetWidth() / 2.f, res::img("star").GetHeight() / 2.f);
+void Particle::doPhysics(float deltaTime) {
+    life -= deltaTime;
 }
 
-void uninit() {
-    reset();
+void Particle::render() {
+    float pixelSize = parent->metresToPixel(size);
+    sprite.Resize(pixelSize, pixelSize);
+    
+    Vect relPos = pos - parent->cameraPos;
+    sf::Vector2f pixelPos(parent->metresToPixel(relPos.x), parent->metresToPixel(relPos.y));
+    pixelPos.x += window.GetWidth() / 2;
+    pixelPos.y = window.GetHeight() / 2 - pixelPos.y;
+    sprite.SetPosition(pixelPos);
+    
+    sprite.SetRotation(util::deg(angle));
+    
+    window.Draw(sprite);
 }
 
-void reset() {
-    particles.clear();
+bool Particle::alive() {
+    return life > 0;
 }
 
-void doPhysics(float deltaTime) {
-    vector<Particle>::iterator it;
-
-    // Cull dead particles
-    bool redo = false;
-    do {
-        redo = false;
-        for (it = particles.begin(); it != particles.end(); it++) {
-            it->life -= deltaTime;
-            if (it->life < 0) {
-                particles.erase(it);
-                redo = true;
-                break;
-            }
-        }
-    } while (redo);
-
-    // Move particles
-    for (it = particles.begin(); it != particles.end(); it++) {
-        it->vel += it->accel * deltaTime;
-        it->pos += it->vel * deltaTime;
-    }
+Star::Star(World* p): Particle() {
+    confVar(float, starSpeedMax);
+    confVar(float, starSpeedMin);
+    confVar(float, starAngularSpeedMax);
+    confVar(float, starAngularSpeedMin);
+    confVar(float, starSizeMax);
+    confVar(float, starSizeMin);
+    confVar(float, starTTL);
+    
+    parent = p;
+    pos = parent->penguin->pos;
+    float speed = (starSpeedMax - starSpeedMin) * util::rnd() + starSpeedMin;
+    vel = Vect(-speed * cos(parent->penguin->angle), speed * sin(parent->penguin->angle));
+    
+    angle = (PI * 2 * util::rnd()) - PI;
+    angularSpeed = util::rad((starAngularSpeedMax - starAngularSpeedMin) * util::rnd() + starAngularSpeedMin);
+    
+    sprite.SetImage(res.img("star"));
+    sprite.SetCenter(sprite.GetSubRect().GetWidth() / 2, sprite.GetSubRect().GetHeight() / 2);
+    
+    size = (starSizeMax - starSizeMin) * util::rnd() + starSizeMin;
+    life = starTTL;
 }
 
-void render() {
-    vector<Particle>::iterator it;
-    for (it = particles.begin(); it != particles.end(); it++) {
-        vect target = (it->pos - penguin.pos) * scale;
-        target.x += res::window.GetWidth() / 2;
-        target.y = res::window.GetHeight() / 2 - target.y;
-        float fadeFactor = it->life / it->lifespan;
-        it->sprite->SetScale(it->size, it->size);
-        it->sprite->SetPosition(target.x, target.y);
-        it->sprite->SetRotation(it->angle);
-        it->sprite->SetColor(sf::Color(255, 255, 255, int(255 * fadeFactor)));
-        res::window.Draw(*it->sprite);
-    }
+void Star::doPhysics(float deltaTime) {
+    life -= deltaTime;
+    
+    pos += vel * deltaTime;
+    angle += angularSpeed * deltaTime;
 }
 
+void Puff::render() {
+    confVar(float, puffTTL);
+    
+    sprite.SetColor(sf::Color(255, 255, 255, 255 * life / puffTTL));
+    Particle::render();
+}
+
+Puff::Puff(World *p, Vect pos1, Vect pos2): Particle() {
+    confVar(float, puffSize);
+    confVar(float, puffTTL);
+    
+    parent = p;
+    pos = (pos1 + pos2) / 2;
+    
+    sprite.SetImage(res.img("puff"));
+    sprite.SetCenter(sprite.GetSubRect().GetWidth() / 2, sprite.GetSubRect().GetHeight() / 2);
+    
+    angle = (PI * 2 * util::rnd()) - PI;
+    size = puffSize;
+    life = puffTTL;
 }

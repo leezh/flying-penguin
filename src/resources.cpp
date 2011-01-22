@@ -1,56 +1,126 @@
+//  The Flying Penguin
+//  Copyright (C) 2010-2011 Lee Zher Huei <lee.zh.92@gmail.com>
+//
+//  This program is free software; you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation; either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+//  MA 02110-1301, USA.
+//
 
-#include <string>
-#include <map>
+#include <iostream>
+#include <fstream>
+#include <cstdlib>
 #include <SFML/Graphics.hpp>
-using namespace std;
+#include "main.hpp"
 
-#include "config.h"
-#ifdef RESOURCE_DIR
-    const std::string resDir = RESOURCE_DIR;
-#else
-	const std::string resDir = "";
-#endif
+bool operator< (const FontDesc &f1, const FontDesc &f2) {
+    if (f1.name < f2.name) return true;
+    if (f1.name == f2.name) return (f1.size < f2.size);
+    return false;
+}
 
-namespace res {
-    sf::RenderWindow window;
-    sf::Clock clock;
+sf::Image& ResourceManager::img(std::string name) {
+    std::vector<std::string>::iterator extIt;
+    std::vector<std::string>::iterator dirIt;
     
-    std::string imgDir = "images/";
-    std::map<string, sf::Image> images;
-    
-    sf::Image& img(std::string name, std::string extension) {
-        if (images.find(name) == images.end()) {
-            images[name] = sf::Image();
-            if (!images[name].LoadFromFile(resDir + imgDir + name + extension)) {
-                // ERROR MESSAGE
+    if (imageMap.find(name) == imageMap.end()) {
+        imageMap[name] = sf::Image();
+        
+        bool loaded = false;
+        for (dirIt = resourceDirs.begin(); dirIt != resourceDirs.end(); dirIt++) {
+            for (extIt = imageExt.begin(); extIt != imageExt.end(); extIt++) {
+                if (loaded) break;
+                std::string path = (*dirIt) + std::string("images/") + name + (*extIt);
+                
+                std::ifstream test(path.c_str());
+                if (!test) continue;
+                
+                if (imageMap[name].LoadFromFile(path)) {
+                    loaded = true;
+                }
             }
         }
-        return images[name];
-    }
-    
-    struct FontDesc {
-        std::string name;
-        int size;
-        FontDesc(std::string n, int s): name(n), size(s) {}
-    };
-    // Required for use in std::map
-    bool operator< (const FontDesc& c1, const FontDesc& c2) {
-        if (c1.name < c2.name || (c1.name == c2.name && c1.size < c2.size)) {
-            return true;
+        if (!loaded) {
+            std::cerr << "Image not found: \"" << name << "\"" << std::endl;
+            imageMap[name].Create(1, 1);
         }
-        return false;
     }
-    std::string fntDir = "fonts/";
-    std::map<FontDesc, sf::Font> fonts;
+    return imageMap[name];
+}
+
+sf::Font& ResourceManager::fnt(std::string name, float size) {
+    std::vector<std::string>::iterator extIt;
+    std::vector<std::string>::iterator dirIt;
+    FontDesc desc(name, size);
     
-    sf::Font& fnt(std::string name, int size, std::string extension) {
-        FontDesc desc(name, size);
-        if (fonts.find(desc) == fonts.end()) {
-            fonts[desc] = sf::Font();
-            if (!fonts[desc].LoadFromFile(resDir + fntDir + name + extension, size)) {
-                // ERROR MESSAGE
+    if (fontMap.find(desc) == fontMap.end()) {
+        fontMap[desc] = sf::Font();
+        
+        bool loaded = false;
+        for (dirIt = resourceDirs.begin(); dirIt != resourceDirs.end(); dirIt++) {
+            for (extIt = fontExt.begin(); extIt != fontExt.end(); extIt++) {
+                if (loaded) break;
+                std::string path = (*dirIt) + std::string("fonts/") + name + (*extIt);
+                
+                std::ifstream test(path.c_str());
+                if (!test) continue;
+                
+                if (fontMap[desc].LoadFromFile(path, size)) {
+                    loaded = true;
+                }
             }
         }
-        return fonts[desc];
+        if (!loaded) {
+            std::cerr << "Font not found: \"" << name << "\"" << std::endl;
+        }
     }
+    return fontMap[desc];
+}
+
+void ResourceManager::clear() {
+    while (imageMap.begin() != imageMap.end()) {
+        imageMap.erase(imageMap.begin());
+    }
+    
+    while (fontMap.begin() != fontMap.end()) {
+        fontMap.erase(fontMap.begin());
+    }
+}
+
+ResourceManager::ResourceManager() {
+    // Load only once
+    if (loaded) return;
+    
+    // Populate the extension list
+    imageExt.push_back(".png");
+    imageExt.push_back(".tga");
+    imageExt.push_back(".jpg");
+    imageExt.push_back(".bmp");
+    fontExt.push_back(".ttf");
+    
+    // Populate the resource directories list
+    resourceDirs.push_back("");
+    #ifdef CONFIG_DIR_ENV
+    string homeDir(getenv(CONFIG_DIR_ENV));
+    homeDir = homeDir.substr(0, homeDir.find(';'));
+    resourceDirs.push_back(homeDir + "/.flying-penguin/");
+    #endif
+    #ifdef RESOURCE_DIR_REL
+    resourceDirs.push_back(RESOURCE_DIR_REL);
+    #endif
+    #ifdef RESOURCE_DIR
+    resourceDirs.push_back(RESOURCE_DIR);
+    #endif
+    
+    loaded = true;
 }

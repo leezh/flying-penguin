@@ -1,5 +1,5 @@
 //  The Flying Penguin
-//  Copyright (C) 2010 Lee Zher Huei <lee@leezh.net>
+//  Copyright (C) 2010-2011 Lee Zher Huei <lee.zh.92@gmail.com>
 //
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,284 +17,150 @@
 //  MA 02110-1301, USA.
 //
 
-#include <SFML/Graphics.hpp>
-#include <sstream>
-#include <vector>
+#include <exception>
+#include <fstream>
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
 
-//#define TWEEN_TIME_FUNC = sol::ticks()
-
-//#include "tween.hpp"
 #include "main.hpp"
-#include "resources.hpp"
-#include "loops.hpp"
+#include "world.hpp"
 
-int size = 20;
-float scale;
-std::string floatToString(float f, int p = 2) {
-    // Resetting the stream is faster than allocating one
-    static std::stringstream out;
-    out.str("");
-    out.setf(std::ios::fixed, std::ios::floatfield);
-    out.precision(p);
-    out << f;
-    return out.str();
-}
-std::string intToString(int i) {
-    static std::stringstream out;
-    out.str("");
-    out << i;
-    return out.str();
-}
+using namespace std;
 
-class appSimulation: public loops::app {
-    public:
-        bool finished;
-        void reset() {
-            penguin.reset();
-            //fish::reset();
-            particle::reset();
+sf::RenderWindow window;
+ConfigFile conf;
+ConfigFile save;
+ResourceManager res;
+AppManager apps;
+std::wstring introText;
+
+void loadConfig() {
+    vector<string> confDirs;
+    #ifdef RESOURCE_DIR
+    confDirs.push_back(RESOURCE_DIR);
+    #endif
+    #ifdef RESOURCE_DIR_REL
+    confDirs.push_back(RESOURCE_DIR_REL);
+    #endif
+    #ifdef CONFIG_DIR_ENV
+    string homeDir(getenv(CONFIG_DIR_ENV));
+    homeDir = homeDir.substr(0, homeDir.find(';'));
+    confDirs.push_back(homeDir + "/.flying-penguin/");
+    #endif
+    
+    vector<string>::iterator dirIt;
+    for (dirIt = confDirs.begin(); dirIt != confDirs.end(); dirIt++) {
+        ifstream file(string(*dirIt + string("config")).c_str());
+        if (!file) continue;
+        file >> conf;
+        file.close();
+    }
+    
+    for (dirIt = confDirs.begin(); dirIt != confDirs.end(); dirIt++) {
+        wifstream file(string(*dirIt + string("intro")).c_str());
+        if (!file) continue;
+        while (!file.eof()) {
+            wstring line;
+            getline(file, line);
+            introText += line + L"\n";
         }
+        file.close();
+    }
+    
+    #ifdef CONFIG_DIR_ENV
+    ifstream saveFile(string(homeDir + "/.flying-penguin.save").c_str());
+    if (saveFile) {saveFile >> save;}
+    if (save.read("videoWidth", 0) <= 0) save.remove("videoWidth");     
+    if (save.read("videoHeight", 0) <= 0) save.remove("videoHeight");
+    #endif
+}
+
+void saveConfig() {
+    #ifdef CONFIG_DIR_ENV
+    string homeDir(getenv(CONFIG_DIR_ENV));
+    homeDir = homeDir.substr(0, homeDir.find(';'));
+    
+    save.add("videoWidth", window.GetWidth());
+    save.add("videoHeight", window.GetHeight());
+    
+    ofstream saveFile(string(homeDir + "/.flying-penguin.save").c_str(), ios_base::trunc);
+    if (saveFile) {saveFile << save;}
+    #endif
+}
+
+void cacheData() {    
+    res.img("arrow");
+    res.img("bird");
+    res.img("cloud");
+    res.img("fish");
+    res.img("icon");
+    res.img("penguin");
+    res.img("puff");
+    res.img("star");
+    res.img("title");
+}
+
+void resetWorld() {
+    delete world;
+    world = new World();
+}
+
+class Simulation: public App {
+    public:
         bool init() {
-            finished = false;
-            reset();
             return true;
         }
         void loop() {
             sf::Event Event;
-            const sf::Input& input = res::window.GetInput();
-            while (res::window.GetEvent(Event))
-            {
+            const sf::Input& input = window.GetInput();
+            while (window.GetEvent(Event)){
                 if (Event.Type == sf::Event::Closed)
-                    loops::deactivate();
+                    apps.deactivateAll();
+                if (Event.Type == sf::Event::Resized) {
+                    window.GetDefaultView().SetFromRect(sf::FloatRect(0, 0, Event.Size.Width, Event.Size.Height));
+                }
                 if (Event.Type == sf::Event::KeyPressed) {
                     switch (Event.Key.Code) {
                         case sf::Key::Escape:
                         case sf::Key::Q:
-                            loops::deactivate();
+                            apps.deactivate();
+                            return;
                             break;
-                        case sf::Key::R:
-                            reset();
+                        case sf::Key::Return:
+                            resetWorld();
                             break;
                     }
                 }
             }
-            penguin.elevatorAngle = 0;
-            if (input.IsKeyDown(sf::Key::Left)) penguin.elevatorAngle += rad(20);
-            if (input.IsKeyDown(sf::Key::Right)) penguin.elevatorAngle -= rad(20);
-            penguin.thrust = input.IsKeyDown(sf::Key::Space);
-            penguin.doPhysics(res::window.GetFrameTime());
-            particle::createStar();
-            particle::doPhysics(res::window.GetFrameTime());
-
-            res::window.Clear();
-            cloud::render(penguin.pos);
-            //fish::render();
-            particle::render();
-            penguin.render();
-            
-            sf::String str;
-            str.SetFont(res::fnt("regular", 18));
-            str.SetSize(18);
-            str.SetColor(sf::Color(0, 0 ,0));
-
-            str.SetText(intToString(round(1 / res::window.GetFrameTime())) + "FPS");
-            str.SetCenter(str.GetRect().GetWidth(), 0);
-            str.SetPosition((float)res::window.GetWidth() - 20, (float)res::window.GetHeight() - 40);
-            res::window.Draw(str);
-            
-            if (penguin.isFlying()) {
-                str.SetText("Distance Covered: " + intToString(round(penguin.flightDist())) + "m");
-                str.SetCenter(str.GetRect().GetWidth(), 0);
-                str.SetPosition((float)res::window.GetWidth() - 20, 20);
-                res::window.Draw(str);
-
-                if (penguin.isAlive()) {
-                    str.SetText("Fuel: " + intToString(round(penguin.fuel)) + "s");
-                    str.SetCenter(str.GetRect().GetWidth(), 0);
-                    str.SetPosition((float)res::window.GetWidth() - 20, 40);
-                    res::window.Draw(str);
-                }
-            } else {
-                str.SetCenter(0, 0);
-                str.SetText("Hold SPACE to use thrusters");
-                str.SetPosition(20, (float)res::window.GetHeight() - 100);
-                res::window.Draw(str);
-
-                str.SetText("Press LEFT and RIGHT to steer");
-                str.SetPosition(20, (float)res::window.GetHeight() - 80);
-                res::window.Draw(str);
-
-                str.SetText("Collect fish to regain fuel");
-                str.SetPosition(20, (float)res::window.GetHeight() - 60);
-                res::window.Draw(str);
-
-                str.SetText("Conserve fuel where necessary");
-                str.SetPosition(20, (float)res::window.GetHeight() - 40);
-                res::window.Draw(str);
-            }
-            
-            if (penguin.isAlive()) {
-                str.SetCenter(0, 0);
-                
-                str.SetText("Height: " + intToString(round(penguin.pos.y)) + " m");
-                str.SetPosition(20, 20);
-                res::window.Draw(str);
-                
-                str.SetText("Air Speed: " + intToString(round(penguin.windSpeed())) + " m/s");
-                str.SetPosition(20, 40);
-                res::window.Draw(str);
-            } else {
-                str.SetText("Press R to reset");
-                str.SetCenter(0, 0);
-                str.SetPosition(20, (float)res::window.GetHeight() - 40);
-                res::window.Draw(str);
-            }
-            
-            res::window.Display();
+            world->penguin->elevator = 0;
+            if (input.IsKeyDown(sf::Key::Left)) world->penguin->elevator += 1;
+            if (input.IsKeyDown(sf::Key::Right)) world->penguin->elevator -= 1;
+            world->penguin->thrust = input.IsKeyDown(sf::Key::Space);
+            world->doPhysics(window.GetFrameTime());
+            world->render();
+            window.Display();
         }
 } simulation;
-/*
-class appTitle: public sol::app {
-    public:
-        tween *fadeIn, *fadeOut, *slideTo;
-        sf::Sprite title;
-        unsigned long int end;
-        bool finished;
 
-        bool init() {
-            rectTitle = res::title->size();
-            rectTitle.alignCentre();
-            rectPenguin = sol::rect(2.5 * scale, 2.5 * scale);
-            rectPenguin.alignCentre();
-
-            fadeIn = new tween_decel(1000, sol::ticks());
-            fadeOut = new tween_accel(0, 0);
-            slideTo = new tween_smooth(0, 0);
-            end = 0;
-            finished = false;
-            return true;
-        }
-        void quit() {
-            delete fadeIn;
-            delete fadeOut;
-            delete slideTo;
-        }
-        void loop() {
-            if (finished && sol::ticks() > end) {
-                sol::activate(&simulation); return;
-            }
-            fpslimit.tick(100);
-            sol::clear2d();
-            float cameraHeight = 10 - 10 * slideTo->value();
-            cloud::render(vect(0, cameraHeight));
-
-            glColor4f(1, 1, 1, 1 - fadeOut->value());
-            rectTitle.draw(res::title);
-
-            glColor4f(0, 0, 0, 1 - fadeOut->value());
-            std::string str("Press any key to begin");
-            int xPos = (sol::wm::size().w - res::font->width(str)) / 2;
-            res::font->draw(str, xPos,  sol::wm::size().h - 40);
-
-            glColor4f(.4, .4, .4, 1 - fadeOut->value());
-            float dx = res::font->draw("Copyright ", 20, 20);
-            dx += res::font->draw(L'©', 20 + dx, 20);
-            dx += res::font->draw(" 2010 Lee Zher Huei", 20 + dx, 20);
-            res::font->draw("Licensed under GNU GPLv3", 20, 40);
-
-            float groundh = sol::wm::size().h / 2 + cameraHeight * scale;
-            glColor4f(1, 1, 1, 1);
-            rectPenguin.y = groundh - rectPenguin.h / 2;
-            rectPenguin.rotate(-deg(penguin::angle));
-            rectPenguin.draw(res::penguin);
-
-            glColor4f(0, 0, 0, 1 - fadeIn->value());
-            sol::wm::size().draw();
-
-            sol::refresh();
-        }
-        void done() {
-            if (!finished) {
-                finished = true;
-                end = sol::ticks() + 1500;
-                fadeOut->reset(1000, sol::ticks());
-                slideTo->reset(1000, sol::ticks());
-            }
-        }
-        void onMouseButton(int button, bool value) {
-            if (button == 1 && value) {done();}
-        }
-        void onKeyboard(int button, bool value)  {
-            if (button == SDLK_q && !value) {sol::deactivate();}
-            if (!value) {done();}
-        }
-} title;
-
-std::vector <sol::texture> splashImages;
-class appSplash: public sol::app {
-    public:
-        tween *fadeIn, *fadeOut;
-        sol::rect rectSplash;
-        std::vector <sol::texture>::iterator current;
-
-        bool init() {
-            current = splashImages.begin();
-            fadeIn = new tween_decel(1000, sol::ticks());
-            fadeOut = new tween_accel(1000, sol::ticks() + 2000);
-            return true;
-        }
-        void quit() {
-            delete fadeIn;
-            delete fadeOut;
-        }
-        void nextImage() {
-            current++;
-            fadeIn->reset(1000, sol::ticks());
-            fadeOut->reset(1000, sol::ticks() + 2000);
-        }
-        void loop() {
-            if (sol::ticks() > fadeOut->end) {
-                nextImage();
-            }
-            if (current == splashImages.end()) {
-                sol::activate(&title); return;
-            }
-            fpslimit.tick(100);
-            sol::clear2d();
-
-            glColor4f(1, 1, 1, fadeIn->value() - fadeOut->value());
-            rectSplash = current->size();
-            rectSplash.alignCentre();
-            rectSplash.draw(&(*current));
-
-            sol::refresh();
-        }
-        void onMouseButton(int button, bool value) {
-            if (button == 1 && value) {nextImage();}
-        }
-        void onKeyboard(int button, bool value)  {
-            if (value) {nextImage();}
-        }
-} splash;
-*/
-int main(int argc, char *argv[]) {
-    sf::Image *icon = &res::img("icon");
-    res::window.Create(sf::VideoMode(800, 600, 32), "The Flying Penguin");
-    res::window.UseVerticalSync(true);
-    res::window.SetIcon(icon->GetWidth(), icon->GetHeight(), icon->GetPixelsPtr());
-    scale = (float)res::window.GetWidth() / size;
-
-    cloud::init();
-    //fish::init();
-    particle::init();
-    penguin.init();
-
-    loops::activate(&simulation);
-    loops::run();
-
-    //splashImages.clear();
-    particle::uninit();
-    //fish::uninit();
-    cloud::uninit();
-    return 0;
+int main () {
+    srand(time(NULL));
+    loadConfig();
+    cacheData();
+    
+    sf::Image &icon = res.img("icon");
+    window.SetIcon(icon.GetWidth(), icon.GetHeight(), icon.GetPixelsPtr());
+    window.Create(sf::VideoMode(save.read("videoWidth", 1024), save.read("videoHeight", 768), 24), "The Flying Penguin");
+    window.UseVerticalSync(true);
+    
+    world = new World();
+    apps.activate(&simulation);
+    apps.run();
+    
+	delete world;
+	res.clear();
+	
+	saveConfig();
+    window.Close();
+	return EXIT_SUCCESS;
 }

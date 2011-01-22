@@ -17,34 +17,46 @@
 //  MA 02110-1301, USA.
 //
 
-#ifndef _MAIN_HEADER_
-#define _MAIN_HEADER_
+#ifndef _PARTICLES_HEADER_
+#define _PARTICLES_HEADER_
 
-#include <string>
+#include <vector>
 #include <SFML/Graphics.hpp>
-#include "ConfigFile/ConfigFile.h"
 
-#include "apps.hpp"
-#include "resources.hpp"
-#include "config.h"
+#include "util.hpp"
+#include "entities.hpp"
+class World;
 
-extern sf::RenderWindow window;
-extern ConfigFile conf;
-extern ConfigFile save;
-extern ResourceManager res;
-extern AppManager apps;
-extern std::wstring introText;
+class Particle: public Entity {
+    protected:
+        sf::Sprite sprite;
+        World *parent;
+        Vect pos;
+        float angle;
+        float size;
+        float life;
+        
+    public:
+        virtual void render();
+        virtual void doPhysics(float deltaTime);
+        virtual bool alive();
+        Particle();
+};
 
-void resetWorld();
+class Star: public Particle {
+    protected:
+        Vect vel;
+        float angularSpeed;
+        
+    public:
+        void doPhysics(float deltaTime);
+        Star(World *p);
+};
 
-#ifdef CONFIG_STATIC
-    #define confVar(t,x) static t x = conf.read<t>(#x)
-#else
-    #define confVar(t,x) t x = conf.read<t>(#x)
-#endif
+class Puff: public Particle {
+    public:
+        void render();
+        Puff(World *p, Vect pos1, Vect pos2);
+};
 
-// For convenience, use this command to list all configuration keys used
-// in this project:
-//   grep confVar -h * | grep -v "#define" | cut -f 2 -d , | cut -f 1 -d ')' | sort -u
-
-#endif // _MAIN_HEADER_
+#endif // _PARTICLES_HEADER_

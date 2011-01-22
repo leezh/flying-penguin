@@ -17,34 +17,37 @@
 //  MA 02110-1301, USA.
 //
 
-#ifndef _MAIN_HEADER_
-#define _MAIN_HEADER_
+#ifndef _WORLD_HEADER_
+#define _WORLD_HEADER_
 
 #include <string>
+#include <ctime>
 #include <SFML/Graphics.hpp>
-#include "ConfigFile/ConfigFile.h"
 
-#include "apps.hpp"
-#include "resources.hpp"
-#include "config.h"
+#include "main.hpp"
+#include "util.hpp"
+#include "penguin.hpp"
+#include "entities.hpp"
+#include "background.hpp"
 
-extern sf::RenderWindow window;
-extern ConfigFile conf;
-extern ConfigFile save;
-extern ResourceManager res;
-extern AppManager apps;
-extern std::wstring introText;
+class World {
+    public:
+        Vect cameraPos;
+        float metresPerScreen;
+        Background *background;
+        EntityManager *entities;
+        EntityManager *hud;
+        Penguin *penguin;
+        
+        inline float metresToPixel(float metres) {
+            return metres / metresPerScreen * window.GetWidth();
+        }
+        World();
+        ~World();
+        void render();
+        void doPhysics(float deltaTime);
+};
 
-void resetWorld();
+extern World *world;
 
-#ifdef CONFIG_STATIC
-    #define confVar(t,x) static t x = conf.read<t>(#x)
-#else
-    #define confVar(t,x) t x = conf.read<t>(#x)
-#endif
-
-// For convenience, use this command to list all configuration keys used
-// in this project:
-//   grep confVar -h * | grep -v "#define" | cut -f 2 -d , | cut -f 1 -d ')' | sort -u
-
-#endif // _MAIN_HEADER_
+#endif // _WORLD_HEADER_

@@ -1,5 +1,5 @@
 //  The Flying Penguin
-//  Copyright (C) 2010 Lee Zher Huei <lee@leezh.net>
+//  Copyright (C) 2010-2011 Lee Zher Huei <lee.zh.92@gmail.com>
 //
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,23 +17,24 @@
 //  MA 02110-1301, USA.
 //
 
-#ifndef _LOOPS_HEADER_
-#define _LOOPS_HEADER_
-#include <map>
+#ifndef _RECORD_HEADER_
+#define _RECORD_HEADER_
 
-namespace loops {
-    class app {
-        public:
-            virtual bool init() {return true;}
-            virtual void loop() {}
-            virtual void quit() {}
+#include <string>
 
-            virtual void suspend() {}
-            virtual void resume() {}
-    };
-    void activate(app *a, bool close = true);
-    void deactivate();
-    void deactivateAll();
-    void run();
-} // namespace loops
-#endif // _LOOPS_HEADER_
+class Record {
+    private:
+        std::string username;
+        std::time_t time;
+        float distance;
+    public:
+        Record();
+        bool submit(float dist, bool internal = false);
+        std::string getRecord();
+        float getRecordDist() {return distance;}
+        std::string getRecordName() {return username;}
+        std::string getRecordDate(std::string format = "%c");
+};
+extern Record record;
+
+#endif // _MAIN_HEADER_

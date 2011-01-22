@@ -17,34 +17,42 @@
 //  MA 02110-1301, USA.
 //
 
-#ifndef _MAIN_HEADER_
-#define _MAIN_HEADER_
+#ifndef _PENGUIN_HEADER_
+#define _PENGUIN_HEADER_
 
-#include <string>
 #include <SFML/Graphics.hpp>
-#include "ConfigFile/ConfigFile.h"
+#include "util.hpp"
 
-#include "apps.hpp"
-#include "resources.hpp"
-#include "config.h"
+class World;
 
-extern sf::RenderWindow window;
-extern ConfigFile conf;
-extern ConfigFile save;
-extern ResourceManager res;
-extern AppManager apps;
-extern std::wstring introText;
+class Penguin {
+    private:
+        bool running;
+        bool takeoff;
+        float starTime;
+        sf::Sprite sprite;
+        
+        bool isUnderspeed();
+        bool isStalling(float angle);
+        float windAngle();
+        float liftAccel(float angle);
+        World *parent;
+        
+    public:
+        Vect pos;
+        Vect vel;
+        float angle;
+        int elevator;
+        bool thrust;
+        float fuelRemaining;
+        
+        bool isAlive();
+        bool isFlying();
+        float windSpeed();
+        
+        void doPhysics(float deltaTime);
+        void render();
+        Penguin(World *p);
+};
 
-void resetWorld();
-
-#ifdef CONFIG_STATIC
-    #define confVar(t,x) static t x = conf.read<t>(#x)
-#else
-    #define confVar(t,x) t x = conf.read<t>(#x)
-#endif
-
-// For convenience, use this command to list all configuration keys used
-// in this project:
-//   grep confVar -h * | grep -v "#define" | cut -f 2 -d , | cut -f 1 -d ')' | sort -u
-
-#endif // _MAIN_HEADER_
+#endif // _PENGUIN_HEADER_

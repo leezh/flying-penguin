@@ -1,0 +1,80 @@
+# Flight Physics
+liftConst = 0.5
+wingAngle = 8
+stallAngle = 20
+dragConst = 0.008
+gravityAccel = 9.81
+thrustAccel = 4
+initialFuel = 20
+penguinSize = 1.5
+
+# Controls
+turningConst = 90
+
+# Birds
+birdAnimDuration = 2
+birdFlapTime = 0.2
+birdFlapCount = 2
+birdSize = 1.5
+birdPenalty = 2
+birdSpeedMin = 8
+birdSpeedMax = 12
+birdAltitudeMin = 5
+birdAltitudeMax = 55
+birdCountStart = 10
+birdCountMultiplier = 5
+
+# Fish
+fishSize = 2
+fishReward = 5
+fishDistStart = 150
+fishDistMultiplier = 15
+fishAltitudeMin = 10
+fishAltitudeMax = 30
+fishMissDist = 30
+
+# Star
+starCreateDelay = 0.1
+starSpeedMax = 2
+starSpeedMin = 1
+starAngularSpeedMax = 360
+starAngularSpeedMin = -360
+starSizeMax = 0.5
+starSizeMin = 0.3
+starTTL = 1
+
+# Puff
+puffSize = 4
+puffTTL = 1
+
+# Visual
+underspeedVel = 12
+takeoffHeight = 1
+metresPerScreen = 20
+
+arrowMargin = 50
+arrowSize = 0.7
+
+hudMargin = 25
+hudCol1 = 150
+hudCol2 = 330
+
+titleSize = 8
+titleOffset = 0
+
+cloudSize = 5
+cloudCount = 20
+
+groundColour = ffffff
+skyColour = d7e3f4
+
+textSize = 18
+textSizeLarge = 30
+textColour = 00000088
+
+shadeColour = 00000088
+shadeTextColour = ffffff
+
+# Cheats / Debug
+invincible = false
+infiniteFuel = false

@@ -17,34 +17,31 @@
 //  MA 02110-1301, USA.
 //
 
-#ifndef _MAIN_HEADER_
-#define _MAIN_HEADER_
+#ifndef _LOOPS_HEADER_
+#define _LOOPS_HEADER_
+#include <stack>
 
-#include <string>
-#include <SFML/Graphics.hpp>
-#include "ConfigFile/ConfigFile.h"
+class App {
+    public:
+        virtual bool init() {return true;}
+        virtual void loop() {}
+        virtual void quit() {}
 
-#include "apps.hpp"
-#include "resources.hpp"
-#include "config.h"
+        virtual void suspend() {}
+        virtual void resume() {}
+};
 
-extern sf::RenderWindow window;
-extern ConfigFile conf;
-extern ConfigFile save;
-extern ResourceManager res;
-extern AppManager apps;
-extern std::wstring introText;
+class AppManager {
+    private:
+        App *activeApp;
+        std::stack<App*> suspendedApps;
+        
+    public:
+        void activate(App *a, bool close = true);
+        void deactivate();
+        void deactivateAll();
+        void run();
+        AppManager() {activeApp = NULL;};
+};
 
-void resetWorld();
-
-#ifdef CONFIG_STATIC
-    #define confVar(t,x) static t x = conf.read<t>(#x)
-#else
-    #define confVar(t,x) t x = conf.read<t>(#x)
-#endif
-
-// For convenience, use this command to list all configuration keys used
-// in this project:
-//   grep confVar -h * | grep -v "#define" | cut -f 2 -d , | cut -f 1 -d ')' | sort -u
-
-#endif // _MAIN_HEADER_
+#endif // _LOOPS_HEADER_
