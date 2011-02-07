@@ -159,15 +159,17 @@ void EntityManager::add(Entity* p) {
 }
 
 void EntityManager::doPhysics(float deltaTime) {
-    vector<Entity*>::iterator it;
-    for (it = entityArray.begin(); it != entityArray.end(); it++) {
-        (*it)->doPhysics(deltaTime);
+    for (unsigned int i = 0; i < entityArray.size(); i++) {
+        entityArray[i]->doPhysics(deltaTime);
     }
     
-    for (it = entityArray.begin(); it != entityArray.end(); it++) {
-        if (!(*it)->alive()) {
-            delete (*it);
-            entityArray.erase(it--);
+    unsigned int i = 0;
+    while (i < entityArray.size()) {
+        if (!(entityArray[i]->alive())) {
+            delete (entityArray[i]);
+            entityArray.erase(entityArray.begin() + i);
+        } else {
+            i++;
         }
     }
 }
