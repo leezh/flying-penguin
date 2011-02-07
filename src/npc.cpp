@@ -193,7 +193,7 @@ void Fish::render() {
         arrowSprite.SetPosition(arrowPos);
         window.Draw(arrowSprite);
         
-        text.SetText(util::floatToString(pos.x - parent->penguin->pos.x, 0) + "m");
+        text.SetText(util::to_string(pos.x - parent->penguin->pos.x, 0) + "m");
         sf::FloatRect rect = text.GetRect();
         text.SetCenter(floor(rect.GetWidth()), floor(rect.GetHeight() / 2));
         text.SetPosition(floor(arrowPos.x - parent->metresToPixel(arrowSize)), floor(arrowPos.y));

@@ -49,7 +49,7 @@ class SpeedIndicator: public LargeText {
             parent = p;
         }
         void doPhysics(float deltaTime) {
-            text.SetText(util::floatToString(parent->penguin->windSpeed(), 0) + "m/s");
+            text.SetText(util::to_string(parent->penguin->windSpeed(), 0) + "m/s");
         }
         bool alive() {
             return parent->penguin->isAlive();
@@ -83,7 +83,7 @@ class FuelIndicator: public LargeText {
             parent = p;
         }
         void doPhysics(float deltaTime) {
-            text.SetText(util::floatToString(parent->penguin->fuelRemaining, 1) + "s");
+            text.SetText(util::to_string(parent->penguin->fuelRemaining, 1) + "s");
         }
         bool alive() {
             return parent->penguin->isAlive();
@@ -117,7 +117,7 @@ class AltitudeIndicator: public LargeText {
             parent = p;
         }
         void doPhysics(float deltaTime) {
-            text.SetText(util::floatToString(parent->penguin->pos.y, 0) + "m");
+            text.SetText(util::to_string(parent->penguin->pos.y, 0) + "m");
         }
         bool alive() {
             return parent->penguin->isAlive();
@@ -133,7 +133,7 @@ class DistanceIndicator: public Text {
             parent = p;
         }
         void doPhysics(float deltaTime) {
-            text.SetText("Distance: " + util::floatToString(parent->penguin->pos.x, 0) + "m");
+            text.SetText("Distance: " + util::to_string(parent->penguin->pos.x, 0) + "m");
         }
         void render() {
             confVar(float, hudMargin);

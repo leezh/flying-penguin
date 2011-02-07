@@ -24,8 +24,10 @@
 #include <cstdlib>
 #include <string>
 #include <sstream>
-
+#include <vector>
+#include <SFML/Graphics.hpp>
 #define PI 3.14159265359f
+
 class Vect {
     public:
         float x, y, z;
@@ -57,15 +59,10 @@ class Vect {
 };
 
 namespace util {
-
-    inline float rad(float angle) {
-        return angle * PI / 180.f;
-    }
-
-    inline float deg(float angle) {
-        return angle * 180.f / PI;
-    }
-
+    inline float rad(float angle) {return angle * PI / 180.f;}
+    
+    inline float deg(float angle) {return angle * 180.f / PI;}
+    
     inline float acuteAngleDiff(const float& a1, const float& a2) {
         float diff = a1 - a2;
         if (diff > PI)
@@ -74,56 +71,28 @@ namespace util {
             return 2 * PI - diff;
         return diff;
     }
-
-    inline int round(float f) {
-      return (int)floor(f + 0.5f);
-    }
-
-    inline float rnd() {
-        return float(rand()) / float(RAND_MAX);
-    }
     
-    inline sf::Color hexToColour(std::string text) {
-        unsigned int r = 255, g = 255, b = 255, a = 255;
-        
-        if (text.size() == 6 || text.size() == 8) {
-            std::stringstream ss;
-            
-            ss << std::hex << text.substr(0, 2);
-            ss >> r;
-            ss.clear();
-            
-            ss << std::hex << text.substr(2, 2);
-            ss >> g;
-            ss.clear();
-            
-            ss << std::hex << text.substr(4, 2);
-            ss >> b;
-            ss.clear();
-            
-            if (text.size() == 8) {
-                ss << std::hex << text.substr(6, 2);
-                ss >> a;
-            }
-        }
-        return sf::Color(r, g, b, a);
-    }
+    inline float rnd() {return float(rand()) / float(RAND_MAX);}
     
-    inline std::string floatToString(float f, int p = 2) {
+    sf::Color to_colour(std::string text);
+    
+    template<class T> inline std::string to_string(T x, int p = 2) {
         std::stringstream out;
-        out.str("");
         out.setf(std::ios::fixed, std::ios::floatfield);
         out.precision(p);
-        out << f;
+        out << x;
         return out.str();
     }
     
-    inline std::string intToString(int i) {
-        std::stringstream out;
-        out.str("");
-        out << i;
-        return out.str();
+    template<class T> inline T from_string(std::string s) {
+        T x;
+        std::stringstream in;
+        in.str(s);
+        in >> x;
+        return x;
     }
+    
+    void tokenise(const std::string &input, std::vector<std::string> &tokens, std::string seperators = " \n\t");
 }
 
 #endif // _UTIL_HEADER_

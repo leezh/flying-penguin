@@ -35,7 +35,7 @@ class WindowShade: public Entity {
         
     public:
         void render() {
-            box = sf::Shape::Rectangle(0, 0, window.GetWidth(), window.GetHeight(), util::hexToColour(conf.read<string>("shadeColour")));
+            box = sf::Shape::Rectangle(0, 0, window.GetWidth(), window.GetHeight(), util::to_colour(conf.read<string>("shadeColour")));
             window.Draw(box);
         }
         bool alive() {return true;}
@@ -44,8 +44,8 @@ class WindowShade: public Entity {
 class NameEditor: public TextBox {
     public:
         NameEditor(): TextBox() {
-            text.SetColor(util::hexToColour(conf.read<string>("shadeTextColour")));
-            selColour = util::hexToColour(conf.read<string>("shadeColour"));
+            text.SetColor(util::to_colour(conf.read<string>("shadeTextColour")));
+            selColour = util::to_colour(conf.read<string>("shadeColour"));
             align = CENTER;
         }
         void render() {
@@ -57,8 +57,8 @@ class NameEditor: public TextBox {
 
 class RecordWinBanner: public LargeText {
     public:
-        RecordWinBanner(): LargeText("New Record: " + util::floatToString(record.getRecordDist(), 0) + "m!", CENTER, CENTER) {
-            text.SetColor(util::hexToColour(conf.read<string>("shadeTextColour")));
+        RecordWinBanner(): LargeText("New Record: " + util::to_string(record.getRecordDist(), 0) + "m!", CENTER, CENTER) {
+            text.SetColor(util::to_colour(conf.read<string>("shadeTextColour")));
         }
         void render() {
             pos = Vect(window.GetWidth() / 2, window.GetHeight() / 2);
@@ -73,7 +73,7 @@ class ShadeRestartLabel: public Text {
             confVar(float, hudMargin);
             text.SetText("Press ENTER to restart");
             pos = Vect(hudMargin, hudMargin);
-            text.SetColor(util::hexToColour(conf.read<string>("shadeTextColour")));
+            text.SetColor(util::to_colour(conf.read<string>("shadeTextColour")));
         }
 };
 
@@ -170,7 +170,7 @@ bool Record::submit(float dist, bool internal) {
 }
 
 std::string Record::getRecord() {
-    return util::floatToString(distance, 0) + "m by " + username;
+    return util::to_string(distance, 0) + "m by " + username;
 }
 
 std::string Record::getRecordDate(std::string format) {
