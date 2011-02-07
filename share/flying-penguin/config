@@ -39,8 +39,7 @@ starSpeedMax = 2
 starSpeedMin = 1
 starAngularSpeedMax = 360
 starAngularSpeedMin = -360
-starSizeMax = 0.5
-starSizeMin = 0.3
+starSize = 0.5
 starTTL = 1
 
 # Puff
@@ -53,11 +52,11 @@ takeoffHeight = 1
 metresPerScreen = 20
 
 arrowMargin = 50
-arrowSize = 0.7
+arrowSize = 1.5
 
 hudMargin = 25
-hudCol1 = 150
-hudCol2 = 330
+hudCol1 = 110
+hudCol2 = 245
 
 titleSize = 8
 titleOffset = 0
@@ -68,8 +67,8 @@ cloudCount = 20
 groundColour = ffffff
 skyColour = d7e3f4
 
-textSize = 18
-textSizeLarge = 30
+textSize = 16
+textSizeLarge = 28
 textColour = 00000088
 
 shadeColour = 00000088

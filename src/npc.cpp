@@ -25,22 +25,23 @@
 #include "world.hpp"
 using namespace std;
 
-Bird::Bird (World *p, bool anywhere): sprite() {
+Bird::Bird (World *p, bool anywhere) {
     confVar(float, metresPerScreen);
     confVar(float, birdAltitudeMin);
     confVar(float, birdAltitudeMax);
     confVar(float, birdSpeedMin);
     confVar(float, birdSpeedMax);
     confVar(float, birdAnimDuration);
+    confVar(float, birdSize);
     
     parent = p;
-    sprite.SetImage(res.img("bird"));
     speed = util::rnd() * (birdSpeedMax - birdSpeedMin) + birdSpeedMin;
-    clipWidth = sprite.GetSubRect().GetWidth() / 4;
-    sprite.SetCenter(clipWidth / 2, sprite.GetSubRect().GetHeight() / 2);
     
-    setFrame(0);
+    sprite = res.sprite("bird");
+    sprite->setSize(birdSize, p->metresPerScreen);
+    
     hit = false;
+    frame = 0;
     animTime = birdAnimDuration * util::rnd();
     if (anywhere) {
         pos.x = parent->cameraPos.x + util::rnd() * metresPerScreen * 2 - metresPerScreen;
@@ -59,34 +60,17 @@ Bird::Bird (World *p, bool anywhere): sprite() {
     }
 }
 
-void Bird::setFrame(int frame) {
-    if (frame < 0 || frame > 3) {frame = 0;}
-    
-    sf::IntRect box = sprite.GetSubRect();
-    box.Left = frame * clipWidth;
-    box.Right = box.Left + clipWidth;
-    sprite.SetSubRect(box);
-}
-
 void Bird::render() {
-    confVar(float, birdSize);
-    
-    sprite.Resize(parent->metresToPixel(birdSize), parent->metresToPixel(birdSize));
-    
     Vect relPos = pos - parent->cameraPos;
-    sf::Vector2f pixelPos(parent->metresToPixel(relPos.x), parent->metresToPixel(relPos.y));
-    pixelPos.x += window.GetWidth() / 2;
-    pixelPos.y = window.GetHeight() / 2 - pixelPos.y;
-    sprite.SetPosition(pixelPos);
     
-    window.Draw(sprite);
+    sprite->render(parent->relToPixel(relPos), 0.f, frame);
 }
 
 void Bird::doPhysics(float deltaTime) {
     animTime += deltaTime;
     
     if (hit) {
-        setFrame(2);
+        frame = 2;
     } else {
         confVar(float, birdAnimDuration);
         confVar(float, birdFlapTime);
@@ -99,7 +83,7 @@ void Bird::doPhysics(float deltaTime) {
             hit = true;
             parent->penguin->fuelRemaining -= birdPenalty;
             parent->hud->add(new Puff(parent, pos, parent->penguin->pos));
-            setFrame(2);
+            frame = 2;
             return;
         }
         
@@ -107,10 +91,10 @@ void Bird::doPhysics(float deltaTime) {
         while (animTime > birdAnimDuration) {animTime -= birdAnimDuration;}
         float flapAnim = animTime - birdAnimDuration + birdFlapTime * birdFlapCount;
         if (flapAnim < 0) {
-            setFrame(0);
+            frame = 0;
         } else {
             int flapFrame = floor(flapAnim / birdFlapTime * 2);
-            setFrame(flapFrame % 2);
+            frame = flapFrame % 2;
         }
     }
 }
@@ -126,11 +110,14 @@ bool Bird::alive() {
     return true;
 }
 
-Fish::Fish(World *p, int l): sprite(), arrowSprite() {
+Fish::Fish(World *p, int l) {
     confVar(float, fishDistStart);
     confVar(float, fishDistMultiplier);
     confVar(float, fishAltitudeMin);
     confVar(float, fishAltitudeMax);
+    confVar(float, textSizeLarge);
+    confVar(float, fishSize);
+    confVar(float, arrowSize);
     
     parent = p;
     level = l;
@@ -142,36 +129,27 @@ Fish::Fish(World *p, int l): sprite(), arrowSprite() {
         pos.y = fishAltitudeMin;
     }
     
-    sprite.SetImage(res.img("fish"));
-    sprite.SetCenter(sprite.GetSubRect().GetWidth() / 2, sprite.GetSubRect().GetHeight() / 2);
+    sprite = res.sprite("fish");
+    sprite->setSize(fishSize, p->metresPerScreen);
+    arrowSprite = res.sprite("arrow");
+    arrowSprite->setSize(arrowSize, p->metresPerScreen);
     
-    arrowSprite.SetImage(res.img("arrow"));
-    arrowSprite.SetCenter(arrowSprite.GetSubRect().GetWidth() / 2, arrowSprite.GetSubRect().GetHeight() / 2);
+    text.SetFont(res.font("regular", textSizeLarge));
+    text.SetSize(textSizeLarge);
+    text.SetColor(util::to_colour(conf.read<string>("textColour")));
     
     done = false;
-    
-    confVar(float, textSizeLarge);
-    text.SetFont(res.fnt("regular", textSizeLarge));
-    text.SetSize(textSizeLarge);
-    text.SetColor(util::hexToColour(conf.read<string>("textColour")));
 }
 
 void Fish::render() {
-    confVar(float, fishSize);
-    
-    sprite.Resize(parent->metresToPixel(fishSize), parent->metresToPixel(fishSize));
-    
     Vect relPos = pos - parent->cameraPos;
-    sf::Vector2f pixelPos(parent->metresToPixel(relPos.x), parent->metresToPixel(relPos.y));
-    pixelPos.x += window.GetWidth() / 2;
-    pixelPos.y = window.GetHeight() / 2 - pixelPos.y;
-    sprite.SetPosition(pixelPos);
+    Vect pixelPos = parent->relToPixel(relPos);
     
     if (pixelPos.x > window.GetWidth()) {
         confVar(float, arrowMargin);
         confVar(float, arrowSize);
         
-        sf::Vector2f arrowPos = sf::Vector2f(window.GetWidth() - arrowMargin, pixelPos.y);
+        Vect arrowPos(window.GetWidth() - arrowMargin - parent->metresToPixel(arrowSize) / 2, pixelPos.y);
         
         if (arrowPos.y < arrowMargin) {
             arrowPos.y = arrowMargin;
@@ -180,27 +158,25 @@ void Fish::render() {
             arrowPos.y = window.GetHeight() - arrowMargin;
         }
         
-        sf::Vector2f arrowRelation(pixelPos - arrowPos);
+        float angle;
+        
+        Vect arrowRelation(pixelPos - arrowPos);
         if (arrowRelation.x == 0 && arrowRelation.y == 0) {
-            arrowSprite.SetRotation(0);
+            angle = 0.f;
         } else {
-            arrowSprite.SetRotation(util::deg(atan2(-arrowRelation.y, arrowRelation.x)));
+            angle = util::deg(atan2(-arrowRelation.y, arrowRelation.x));
         }
         
-        float scale = parent->metresToPixel(arrowSize) / arrowSprite.GetImage()->GetWidth() * 2;
-        arrowSprite.SetScale(scale, scale);
-        
-        arrowSprite.SetPosition(arrowPos);
-        window.Draw(arrowSprite);
+        arrowSprite->render(arrowPos, angle);
         
         text.SetText(util::to_string(pos.x - parent->penguin->pos.x, 0) + "m");
         sf::FloatRect rect = text.GetRect();
         text.SetCenter(floor(rect.GetWidth()), floor(rect.GetHeight() / 2));
-        text.SetPosition(floor(arrowPos.x - parent->metresToPixel(arrowSize)), floor(arrowPos.y));
+        text.SetPosition(floor(arrowPos.x - parent->metresToPixel(arrowSize) / 2), floor(arrowPos.y));
         window.Draw(text);
     }
     
-    window.Draw(sprite);
+    sprite->render(pixelPos);
 }
 
 void Fish::doPhysics(float deltaTime) {

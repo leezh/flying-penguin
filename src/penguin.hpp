@@ -30,7 +30,7 @@ class Penguin {
         bool running;
         bool takeoff;
         float starTime;
-        sf::Sprite sprite;
+        Sprite* sprite;
         
         bool isUnderspeed();
         bool isStalling(float angle);
@@ -52,7 +52,7 @@ class Penguin {
         
         void doPhysics(float deltaTime);
         void render();
-        Penguin(World *p);
+        Penguin(World* p);
 };
 
 #endif // _PENGUIN_HEADER_

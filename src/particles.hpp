@@ -27,36 +27,36 @@
 #include "entities.hpp"
 class World;
 
-class Particle: public Entity {
+class Star: public Entity {
     protected:
-        sf::Sprite sprite;
-        World *parent;
+        World* parent;
+        Sprite* sprite;
         Vect pos;
-        float angle;
-        float size;
-        float life;
-        
-    public:
-        virtual void render();
-        virtual void doPhysics(float deltaTime);
-        virtual bool alive();
-        Particle();
-};
-
-class Star: public Particle {
-    protected:
         Vect vel;
+        float angle;
+        float life;
         float angularSpeed;
         
     public:
         void doPhysics(float deltaTime);
-        Star(World *p);
+        bool alive();
+        void render();
+        Star(World* p);
 };
 
-class Puff: public Particle {
+class Puff: public Entity {
+    protected:
+        World* parent;
+        Sprite* sprite;
+        Vect pos;
+        float life;
+        float angle;
+        
     public:
+        void doPhysics(float deltaTime);
+        bool alive();
         void render();
-        Puff(World *p, Vect pos1, Vect pos2);
+        Puff(World* p, Vect pos1, Vect pos2);
 };
 
 #endif // _PARTICLES_HEADER_

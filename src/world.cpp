@@ -189,26 +189,22 @@ class Instructions: public Text {
 class Title: public Entity {
     private:
         World *parent;
-        sf::Sprite sprite;
+        Sprite* sprite;
         
     public:
-        Title(World *p): sprite() {
+        Title(World *p) {
+            confVar(float, titleSize);
             parent = p;
-            sprite.SetImage(res.img("title"));
-            sprite.SetCenter(0, sprite.GetSubRect().GetHeight());
+            sprite = res.sprite("title");
+            sprite->setSize(titleSize, p->metresPerScreen);
         }
         void render() {
-            confVar(float, titleSize);
             confVar(float, titleOffset);
             
             float posX = window.GetWidth() / 2 - parent->metresToPixel(parent->penguin->pos.x - titleOffset);
             float posY = window.GetHeight() / 2 + parent->metresToPixel(parent->penguin->pos.y);
-            sprite.SetPosition(posX, posY);
             
-            float scale = parent->metresToPixel(titleSize) / sprite.GetSubRect().GetWidth();
-            sprite.SetScale(scale, scale);
-            
-            window.Draw(sprite);
+            sprite->render(Vect(posX, posY));
         }
         bool alive() {
             return parent->penguin->pos.x < parent->metresPerScreen * 2;

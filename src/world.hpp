@@ -40,8 +40,20 @@ class World {
         Penguin *penguin;
         
         inline float metresToPixel(float metres) {
-            return metres / metresPerScreen * window.GetWidth();
+            return metres / metresPerScreen * std::max(window.GetWidth(), window.GetHeight());
         }
+        
+        inline Vect metresToPixel(Vect metres) {
+            return metres / metresPerScreen * std::max(window.GetWidth(), window.GetHeight());
+        }
+        
+        inline Vect relToPixel(Vect pos) {
+            pos = metresToPixel(pos);
+            pos.x += window.GetWidth() / 2;
+            pos.y = window.GetHeight() / 2 - pos.y;
+            return pos;
+        }
+        
         World();
         ~World();
         void render();

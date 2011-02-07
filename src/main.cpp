@@ -23,6 +23,7 @@
 #include <cstdlib>
 #include <ctime>
 
+#include <physfs.h>
 #include "main.hpp"
 #include "world.hpp"
 
@@ -71,8 +72,8 @@ void loadConfig() {
     #ifdef CONFIG_DIR_ENV
     ifstream saveFile(string(homeDir + "/.flying-penguin.save").c_str());
     if (saveFile) {saveFile >> save;}
-    if (save.read("videoWidth", 0) <= 0) save.remove("videoWidth");     
-    if (save.read("videoHeight", 0) <= 0) save.remove("videoHeight");
+    if (save.read("videoWidth", 0) <= 0) save.add("videoWidth", 1024);     
+    if (save.read("videoHeight", 0) <= 0) save.add("videoHeight", 768);
     #endif
 }
 
@@ -87,18 +88,6 @@ void saveConfig() {
     ofstream saveFile(string(homeDir + "/.flying-penguin.save").c_str(), ios_base::trunc);
     if (saveFile) {saveFile << save;}
     #endif
-}
-
-void cacheData() {    
-    res.img("arrow");
-    res.img("bird");
-    res.img("cloud");
-    res.img("fish");
-    res.img("icon");
-    res.img("penguin");
-    res.img("puff");
-    res.img("star");
-    res.img("title");
 }
 
 void resetWorld() {
@@ -119,6 +108,7 @@ class Simulation: public App {
                     apps.deactivateAll();
                 if (Event.Type == sf::Event::Resized) {
                     window.GetDefaultView().SetFromRect(sf::FloatRect(0, 0, Event.Size.Width, Event.Size.Height));
+                    res.recalcSizes(world->metresPerScreen);
                 }
                 if (Event.Type == sf::Event::KeyPressed) {
                     switch (Event.Key.Code) {
@@ -143,14 +133,22 @@ class Simulation: public App {
         }
 } simulation;
 
-int main () {
+int main (int argc, char** argv) {
+    PHYSFS_init(NULL);
+    PHYSFS_setSaneConfig("config", "flying-penguin", NULL, 0, 0);
+    #ifdef RESOURCE_DIR
+    PHYSFS_addToSearchPath(RESOURCE_DIR, 1);
+    #endif
+    #ifdef RESOURCE_DIR_REL
+    PHYSFS_addToSearchPath(RESOURCE_DIR_REL, 1);
+    #endif
+    
     srand(time(NULL));
     loadConfig();
-    cacheData();
     
-    sf::Image &icon = res.img("icon");
+    sf::Image &icon = *res.image("icon.png");
     window.SetIcon(icon.GetWidth(), icon.GetHeight(), icon.GetPixelsPtr());
-    window.Create(sf::VideoMode(save.read("videoWidth", 1024), save.read("videoHeight", 768), 24), "The Flying Penguin");
+    window.Create(sf::VideoMode(save.read<int>("videoWidth"), save.read<int>("videoHeight"), 24), "The Flying Penguin");
     window.UseVerticalSync(true);
     
     world = new World();

@@ -29,10 +29,11 @@
 #include "config.h"
 
 extern sf::RenderWindow window;
-extern ConfigFile conf;
-extern ConfigFile save;
 extern ResourceManager res;
 extern AppManager apps;
+
+extern ConfigFile conf;
+extern ConfigFile save;
 extern std::wstring introText;
 
 void resetWorld();

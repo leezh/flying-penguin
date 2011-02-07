@@ -38,12 +38,12 @@ class Background {
 
 class Cloud: public Entity {
     protected:
-        sf::Sprite sprite;
+        Sprite* sprite;
         World *parent;
         Vect pos;
+        int type;
         
     public:
-        void resetClip();
         void render();
         bool alive() {return true;}
         Cloud(World *p);

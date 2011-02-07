@@ -20,8 +20,60 @@
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
+#include <algorithm>
+
 #include <SFML/Graphics.hpp>
+#include <physfs.h>
 #include "main.hpp"
+
+void Sprite::load(std::string buffer) {
+    std::vector<string> lines;
+    util::tokenise(buffer, lines, "\n");
+    std::vector<string>::iterator it;
+    for (it = lines.begin(); it != lines.end(); it++) {
+        std::vector<string> tokens;
+        util::tokenise((*it), tokens);
+        if (tokens.size() == 7) {
+            sprites.push_back(new sf::Sprite(*res.image(tokens[0])));
+            int x1 = util::from_string<int>(tokens[1]);
+            int y1 = util::from_string<int>(tokens[2]);
+            int x2 = util::from_string<int>(tokens[3]);
+            int y2 = util::from_string<int>(tokens[4]);
+            float cx = util::from_string<float>(tokens[5]);
+            float cy = util::from_string<float>(tokens[6]);
+            sprites[sprites.size() - 1]->SetSubRect(sf::IntRect(x1, y1, x2, y2));
+            sprites[sprites.size() - 1]->SetCenter((x2 - x1) * cx, (y2 - y1) * cy);
+        }
+    }
+}
+
+void Sprite::unload() {
+    sprites.clear();
+}
+
+void Sprite::setSize(float s, float metresPerScreen) {
+    size = s;
+    recalcSize(metresPerScreen);
+}
+
+void Sprite::recalcSize(float metresPerScreen) {
+    std::vector<sf::Sprite*>::iterator it;
+    int screenSize = std::max(window.GetWidth(), window.GetHeight());
+    if (size == -1) return;
+    for (it = sprites.begin(); it != sprites.end(); it++) {
+        float scale = (size * screenSize) / ((*it)->GetSubRect().GetWidth() * metresPerScreen);
+        (*it)->SetScale(scale, scale);
+    }
+}
+
+void Sprite::render(Vect pos, float angle, int frame) {
+    if (frame < 0 || frame >= sprites.size()) frame = 0;
+    if (sprites.size() == 0) return;
+    sprites[frame]->SetPosition(int(floor(pos.x)), int(floor(pos.y)));
+    sprites[frame]->SetRotation(angle);
+    
+    window.Draw(*sprites[frame]);
+}
 
 bool operator< (const FontDesc &f1, const FontDesc &f2) {
     if (f1.name < f2.name) return true;
@@ -29,98 +81,112 @@ bool operator< (const FontDesc &f1, const FontDesc &f2) {
     return false;
 }
 
-sf::Image& ResourceManager::img(std::string name) {
-    std::vector<std::string>::iterator extIt;
-    std::vector<std::string>::iterator dirIt;
-    
+sf::Image* ResourceManager::image(std::string name) {
+    name = "images/" + name;
     if (imageMap.find(name) == imageMap.end()) {
-        imageMap[name] = sf::Image();
+        imageMap[name] = new sf::Image();
         
         bool loaded = false;
-        for (dirIt = resourceDirs.begin(); dirIt != resourceDirs.end(); dirIt++) {
-            for (extIt = imageExt.begin(); extIt != imageExt.end(); extIt++) {
-                if (loaded) break;
-                std::string path = (*dirIt) + std::string("images/") + name + (*extIt);
-                
-                std::ifstream test(path.c_str());
-                if (!test) continue;
-                
-                if (imageMap[name].LoadFromFile(path)) {
+        PHYSFS_File* file = PHYSFS_openRead(name.c_str());
+        if(file != NULL) {
+            PHYSFS_sint64 size = PHYSFS_fileLength(file);
+            char *buffer = new char [size];
+            int count = PHYSFS_read(file, buffer, size, 1);
+            if (count == 1) {
+                if (imageMap[name]->LoadFromMemory(buffer, size)) {
                     loaded = true;
                 }
             }
+            delete[] buffer;
+            PHYSFS_close(file);
         }
+        
         if (!loaded) {
-            std::cerr << "Image not found: \"" << name << "\"" << std::endl;
-            imageMap[name].Create(1, 1);
+            std::cerr << "Image \"" << name << "\" could not be loaded" << std::endl;
+            // Prevents segfaults
+            imageMap[name]->Create(8, 8);
         }
     }
     return imageMap[name];
 }
 
-sf::Font& ResourceManager::fnt(std::string name, float size) {
+sf::Font& ResourceManager::font(std::string name, float s) {
+    name = "fonts/" + name + ".ttf";
     std::vector<std::string>::iterator extIt;
     std::vector<std::string>::iterator dirIt;
-    FontDesc desc(name, size);
+    FontDesc desc(name, s);
     
     if (fontMap.find(desc) == fontMap.end()) {
-        fontMap[desc] = sf::Font();
+        fontMap[desc] = new sf::Font();
         
         bool loaded = false;
-        for (dirIt = resourceDirs.begin(); dirIt != resourceDirs.end(); dirIt++) {
-            for (extIt = fontExt.begin(); extIt != fontExt.end(); extIt++) {
-                if (loaded) break;
-                std::string path = (*dirIt) + std::string("fonts/") + name + (*extIt);
-                
-                std::ifstream test(path.c_str());
-                if (!test) continue;
-                
-                if (fontMap[desc].LoadFromFile(path, size)) {
+        PHYSFS_File* file = PHYSFS_openRead(name.c_str());
+        if(file != NULL) {
+            PHYSFS_sint64 size = PHYSFS_fileLength(file);
+            char *buffer = new char [size];
+            int count = PHYSFS_read(file, buffer, size, 1);
+            if (count == 1) {
+                if (fontMap[desc]->LoadFromMemory(buffer, size, s)) {
                     loaded = true;
                 }
             }
+            delete[] buffer;
+            PHYSFS_close(file);
         }
+        
         if (!loaded) {
-            std::cerr << "Font not found: \"" << name << "\"" << std::endl;
+            std::cerr << "Font \"" << name << "\" could not be loaded" << std::endl;
         }
     }
-    return fontMap[desc];
+    return *fontMap[desc];
+}
+
+Sprite* ResourceManager::sprite(std::string name) {
+    name = "sprites/" + name;
+    if (spriteMap.find(name) == spriteMap.end()) {
+        spriteMap[name] = new Sprite();
+        
+        bool loaded = false;
+        PHYSFS_File* file = PHYSFS_openRead(name.c_str());
+        if(file != NULL) {
+            PHYSFS_sint64 size = PHYSFS_fileLength(file);
+            char *buffer = new char [size];
+            int count = PHYSFS_read(file, buffer, size, 1);
+            if (count == 1) {
+                spriteMap[name]->load(buffer);
+                loaded = true;
+            }
+            delete[] buffer;
+            PHYSFS_close(file);
+        }
+        
+        if (!loaded) {
+            std::cerr << "Sprite \"" << name << "\" could not be loaded" << std::endl;
+        }
+    }
+    return spriteMap[name];
 }
 
 void ResourceManager::clear() {
     while (imageMap.begin() != imageMap.end()) {
+        delete imageMap.begin()->second;
         imageMap.erase(imageMap.begin());
     }
     
     while (fontMap.begin() != fontMap.end()) {
+        delete fontMap.begin()->second;
         fontMap.erase(fontMap.begin());
+    }
+    
+    while (spriteMap.begin() != spriteMap.end()) {
+        delete spriteMap.begin()->second;
+        spriteMap.erase(spriteMap.begin());
     }
 }
 
-ResourceManager::ResourceManager() {
-    // Load only once
-    if (loaded) return;
-    
-    // Populate the extension list
-    imageExt.push_back(".png");
-    imageExt.push_back(".tga");
-    imageExt.push_back(".jpg");
-    imageExt.push_back(".bmp");
-    fontExt.push_back(".ttf");
-    
-    // Populate the resource directories list
-    resourceDirs.push_back("");
-    #ifdef CONFIG_DIR_ENV
-    string homeDir(getenv(CONFIG_DIR_ENV));
-    homeDir = homeDir.substr(0, homeDir.find(';'));
-    resourceDirs.push_back(homeDir + "/.flying-penguin/");
-    #endif
-    #ifdef RESOURCE_DIR_REL
-    resourceDirs.push_back(RESOURCE_DIR_REL);
-    #endif
-    #ifdef RESOURCE_DIR
-    resourceDirs.push_back(RESOURCE_DIR);
-    #endif
-    
-    loaded = true;
+void ResourceManager::recalcSizes(float metresPerScreen) {
+    std::map<std::string, Sprite*>::iterator it;
+    for (it = spriteMap.begin(); it != spriteMap.end(); it++) {
+        it->second->recalcSize(metresPerScreen);
+    }
 }

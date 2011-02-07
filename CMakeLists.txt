@@ -15,17 +15,6 @@ set (CONFIG_DIR_ENV "HOME" CACHE STRING "Environment variable to use in determin
 set (CONFIG_STATIC ON CACHE BOOL "Whether variables are constant in-game (might increase speed)")
 set (HIGHSCORE_PATH "/var/games/flying-penguin" CACHE STRING "Path to save the high score tables")
 
-# == Libraries ==
-
-set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/misc/cmake")
-if (WIN32)
-	set (SFMLDIR "${CMAKE_SOURCE_DIR}/misc/windows/sfml/")
-	set (CMAKE_BUILD_TYPE Release)
-	add_definitions(-DSFML_DYNAMIC)
-endif ()
-find_package (SFML REQUIRED COMPONENTS Audio Graphics Window System)
-include_directories (${SFML_INCLUDE_DIR} ${PROJECT_BINARY_DIR})
-
 # == Source Files ==
 
 # Use this to generate:
@@ -51,6 +40,7 @@ set (project_sources
     src/record.hpp
     src/resources.cpp
     src/resources.hpp
+    src/util.cpp
     src/util.hpp
     src/world.cpp
     src/world.hpp)
@@ -60,7 +50,18 @@ if (WIN32)
 endif ()
 add_executable (flying-penguin ${project_sources})
 
-target_link_libraries (flying-penguin ${SFML_LIBRARY})
+# == Libraries ==
+
+set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/misc/cmake")
+if (WIN32)
+	set (SFMLDIR "${CMAKE_SOURCE_DIR}/misc/windows/sfml/")
+	set (CMAKE_BUILD_TYPE Release)
+	add_definitions(-DSFML_DYNAMIC)
+endif ()
+find_package (SFML REQUIRED COMPONENTS Audio Graphics Window System)
+find_package (PhysFS REQUIRED)
+include_directories (${SFML_INCLUDE_DIR} ${PHYSFS_INCLUDE_DIR} ${PROJECT_BINARY_DIR})
+target_link_libraries (flying-penguin ${SFML_LIBRARY} ${PHYSFS_LIBRARY})
 
 # == Package Info ==
 

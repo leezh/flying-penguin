@@ -144,27 +144,17 @@ void Penguin::doPhysics(float deltaTime) {
 }
 
 void Penguin::render() {
-    confVar(float, penguinSize);
-    
-    float size = parent->metresToPixel(penguinSize);
-    sprite.Resize(size, size);
-    
     Vect relPos = pos - parent->cameraPos;
-    sf::Vector2f pixelPos(parent->metresToPixel(relPos.x), parent->metresToPixel(relPos.y));
-    pixelPos.x += window.GetWidth() / 2;
-    pixelPos.y = window.GetHeight() / 2 - pixelPos.y;
-    sprite.SetPosition(pixelPos);
     
-    sprite.SetRotation(util::deg(angle));
-    
-    window.Draw(sprite);
+    sprite->render(parent->relToPixel(relPos), util::deg(angle));
 }
 
-Penguin::Penguin(World *p) {
+Penguin::Penguin(World* p) {
     confVar(float, initialFuel);
+    confVar(float, penguinSize);
     
-    sprite.SetImage(res.img("penguin"));
-    sprite.SetCenter(sprite.GetSubRect().GetWidth() / 2, sprite.GetSubRect().GetHeight() / 2);
+    sprite = res.sprite("penguin");
+    sprite->setSize(penguinSize, p->metresPerScreen);
     
     pos = Vect();
     vel = Vect();

@@ -61,9 +61,9 @@ void Text::render() {
 
 Text::Text(string str, int a, int v, Vect p): text() {
     confVar(float, textSize);
-    text.SetFont(res.fnt("regular", textSize));
+    text.SetFont(res.font("regular", textSize));
     text.SetSize(textSize);
-    text.SetColor(util::hexToColour(conf.read<string>("textColour")));
+    text.SetColor(util::to_colour(conf.read<string>("textColour")));
     text.SetText(str);
     align = a;
     valign = v;
@@ -73,9 +73,9 @@ Text::Text(string str, int a, int v, Vect p): text() {
 LargeText::LargeText(string str, int a, int v, Vect p) {
     confVar(float, textSizeLarge);
     text.SetText(str);
-    text.SetFont(res.fnt("bold", textSizeLarge));
+    text.SetFont(res.font("bold", textSizeLarge));
     text.SetSize(textSizeLarge);
-    text.SetColor(util::hexToColour(conf.read<string>("textColour")));
+    text.SetColor(util::to_colour(conf.read<string>("textColour")));
     pos = p;
     align = a;
     valign = v;

@@ -24,40 +24,12 @@
 #include "world.hpp"
 using namespace std;
 
-Particle::Particle(): sprite() {
-    life = 0;
-}
-
-void Particle::doPhysics(float deltaTime) {
-    life -= deltaTime;
-}
-
-void Particle::render() {
-    float pixelSize = parent->metresToPixel(size);
-    sprite.Resize(pixelSize, pixelSize);
-    
-    Vect relPos = pos - parent->cameraPos;
-    sf::Vector2f pixelPos(parent->metresToPixel(relPos.x), parent->metresToPixel(relPos.y));
-    pixelPos.x += window.GetWidth() / 2;
-    pixelPos.y = window.GetHeight() / 2 - pixelPos.y;
-    sprite.SetPosition(pixelPos);
-    
-    sprite.SetRotation(util::deg(angle));
-    
-    window.Draw(sprite);
-}
-
-bool Particle::alive() {
-    return life > 0;
-}
-
-Star::Star(World* p): Particle() {
+Star::Star(World* p) {
     confVar(float, starSpeedMax);
     confVar(float, starSpeedMin);
     confVar(float, starAngularSpeedMax);
     confVar(float, starAngularSpeedMin);
-    confVar(float, starSizeMax);
-    confVar(float, starSizeMin);
+    confVar(float, starSize);
     confVar(float, starTTL);
     
     parent = p;
@@ -68,10 +40,9 @@ Star::Star(World* p): Particle() {
     angle = (PI * 2 * util::rnd()) - PI;
     angularSpeed = util::rad((starAngularSpeedMax - starAngularSpeedMin) * util::rnd() + starAngularSpeedMin);
     
-    sprite.SetImage(res.img("star"));
-    sprite.SetCenter(sprite.GetSubRect().GetWidth() / 2, sprite.GetSubRect().GetHeight() / 2);
+    sprite = res.sprite("star");
+    sprite->setSize(starSize, p->metresPerScreen);
     
-    size = (starSizeMax - starSizeMin) * util::rnd() + starSizeMin;
     life = starTTL;
 }
 
@@ -82,24 +53,38 @@ void Star::doPhysics(float deltaTime) {
     angle += angularSpeed * deltaTime;
 }
 
-void Puff::render() {
-    confVar(float, puffTTL);
-    
-    sprite.SetColor(sf::Color(255, 255, 255, 255 * life / puffTTL));
-    Particle::render();
+bool Star::alive() {
+    return life > 0;
 }
 
-Puff::Puff(World *p, Vect pos1, Vect pos2): Particle() {
+void Star::render() {
+    Vect relPos = pos - parent->cameraPos;
+    sprite->render(parent->relToPixel(relPos), util::deg(angle));
+}
+
+Puff::Puff(World* p, Vect pos1, Vect pos2) {
     confVar(float, puffSize);
     confVar(float, puffTTL);
     
     parent = p;
     pos = (pos1 + pos2) / 2;
     
-    sprite.SetImage(res.img("puff"));
-    sprite.SetCenter(sprite.GetSubRect().GetWidth() / 2, sprite.GetSubRect().GetHeight() / 2);
+    sprite = res.sprite("puff");
+    sprite->setSize(puffSize, p->metresPerScreen);
     
     angle = (PI * 2 * util::rnd()) - PI;
-    size = puffSize;
     life = puffTTL;
+}
+
+void Puff::doPhysics(float deltaTime) {
+    life -= deltaTime;
+}
+
+bool Puff::alive() {
+    return life > 0;
+}
+
+void Puff::render() {
+    Vect relPos = pos - parent->cameraPos;
+    sprite->render(parent->relToPixel(relPos), util::deg(angle));
 }

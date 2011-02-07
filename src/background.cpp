@@ -26,8 +26,8 @@ using namespace std;
 
 Background::Background(World *p) {
     parent = p;
-    groundColour = util::hexToColour(conf.read<string>("groundColour"));
-    skyColour = util::hexToColour(conf.read<string>("skyColour"));
+    groundColour = util::to_colour(conf.read<string>("groundColour"));
+    skyColour = util::to_colour(conf.read<string>("skyColour"));
 }
 
 void Background::render() {
@@ -44,62 +44,42 @@ void Background::render() {
 
 Cloud::Cloud(World *p): sprite() {
     confVar(float, metresPerScreen);
+    confVar(float, cloudSize);
     
     parent = p;
     pos.x = parent->cameraPos.x + util::rnd() * metresPerScreen * 2 - metresPerScreen;
     pos.y = parent->cameraPos.y + util::rnd() * metresPerScreen * 2 - metresPerScreen;
-    sprite.SetImage(res.img("cloud"));
     
-    resetClip();
-}
-
-void Cloud::resetClip() {
-    int clipWidth = sprite.GetImage()->GetWidth() / 2;
-    int clipHeight = sprite.GetImage()->GetHeight() / 2;
-    int type = floor(util::rnd() * 4);
-    
-    sf::IntRect box;
-    box.Left = clipWidth * (type % 2);
-    box.Right = box.Left + clipWidth;
-    box.Top = clipHeight * floor(type / 2);
-    box.Bottom = box.Top + clipHeight;
-    sprite.SetSubRect(box);
+    sprite = res.sprite("cloud");
+    sprite->setSize(cloudSize, p->metresPerScreen);
+    type = floor(util::rnd() * 4);
 }
 
 void Cloud::render() {
     confVar(float, metresPerScreen);
-    confVar(float, cloudSize);
     Vect relPos = pos - parent->cameraPos;
     
     if (relPos.x > metresPerScreen) {
         pos.x -= metresPerScreen * 2;
         pos.y = parent->cameraPos.y + util::rnd() * metresPerScreen * 2 - metresPerScreen;
-        resetClip();
+        type = floor(util::rnd() * 4);
     }
     if (relPos.x < -metresPerScreen) {
         pos.x += metresPerScreen * 2;
         pos.y = parent->cameraPos.y + util::rnd() * metresPerScreen * 2 - metresPerScreen;
-        resetClip();
+        type = floor(util::rnd() * 4);
     }
     
     if (relPos.y > metresPerScreen) {
         pos.y -= metresPerScreen * 2;
         pos.x = parent->cameraPos.x + util::rnd() * metresPerScreen * 2 - metresPerScreen;
-        resetClip();
+        type = floor(util::rnd() * 4);
     }
     if (relPos.y < -metresPerScreen) {
         pos.y += metresPerScreen * 2;
         pos.x = parent->cameraPos.x + util::rnd() * metresPerScreen * 2 - metresPerScreen;
-        resetClip();
+        type = floor(util::rnd() * 4);
     }
     
-    sf::Vector2f pixelPos(parent->metresToPixel(relPos.x), parent->metresToPixel(relPos.y));
-    pixelPos.x += window.GetWidth() / 2;
-    pixelPos.y = window.GetHeight() / 2 - pixelPos.y;
-    sprite.SetPosition(pixelPos);
-    
-    float scale = parent->metresToPixel(cloudSize) / sprite.GetImage()->GetWidth() * 2;
-    sprite.SetScale(scale, scale);
-    
-    window.Draw(sprite);
+    sprite->render(parent->relToPixel(relPos), 0.f, type);
 }

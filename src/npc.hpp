@@ -20,7 +20,7 @@
 #ifndef _NPC_HEADER_
 #define _NPC_HEADER_
 
-#include <vector>
+#include <map>
 #include <SFML/Graphics.hpp>
 
 #include "util.hpp"
@@ -29,14 +29,13 @@ class World;
 
 class Bird: public Entity {
     private:
-        sf::Sprite sprite;
-        World *parent;
+        Sprite* sprite;
+        World* parent;
         Vect pos;
         float speed;
-        int clipWidth;
         float animTime;
         bool hit;
-        void setFrame(int frame);
+        int frame;
         
     public:
         void render();
@@ -48,10 +47,10 @@ class Bird: public Entity {
 
 class Fish: public Entity {
     private:
-        sf::Sprite sprite;
-        sf::Sprite arrowSprite;
+        Sprite* sprite;
+        Sprite* arrowSprite;
         sf::String text;
-        World *parent;
+        World* parent;
         Vect pos;
         bool done;
         int level;

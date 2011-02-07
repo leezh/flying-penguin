@@ -25,6 +25,25 @@
 #include <vector>
 #include <SFML/Graphics.hpp>
 
+#include "util.hpp"
+
+class ResourceManager;
+
+class Sprite {
+    private:
+        std::vector<sf::Sprite*> sprites;
+        float size;
+        
+        void load(std::string buffer);
+        void unload();
+        void recalcSize(float metresPerScreen);
+    public:
+        // Set to < 0 if you want to manually calculate the pixel size
+        void setSize(float s, float metresPerScreen);
+        
+        void render(Vect pos, float angle = 0.f, int frame = 0);
+        friend class ResourceManager;
+};
 
 struct FontDesc {
     std::string name;
@@ -33,40 +52,18 @@ struct FontDesc {
 };
 bool operator< (const FontDesc &f1, const FontDesc &f2);
 
-/// The purpose of this class is to load resources in a Quake-ish manner
-/// where it looks for the files in different directories, automatically
-/// detecting the file extensions so that the main code doesn't need to
-/// worry about that.
 class ResourceManager {
     private:
-        bool loaded;
-        std::vector<std::string> resourceDirs;
-        std::vector<std::string> imageExt;
-        std::map<std::string, sf::Image> imageMap;
-        std::vector<std::string> fontExt;
-        std::map<FontDesc, sf::Font> fontMap;
+        std::map<std::string, sf::Image*> imageMap;
+        std::map<FontDesc, sf::Font*> fontMap;
+        std::map<std::string, Sprite*> spriteMap;
     public:
-        /// Returns the image of the specified name, loading it to
-        /// memory if it hasn't already.
-        /// @param name The filename (without file extensions) of the
-        ///             image to load
-        /// @return The reference to the image loaded
-        sf::Image& img(std::string name);
+        sf::Image* image(std::string name);
+        sf::Font& font(std::string name, float size);
+        Sprite* sprite(std::string name);
         
-        /// Returns the font of the specified name, loading it to
-        /// memory if it hasn't already.
-        /// @param name The filename (without file extensions) of the
-        ///             font to load
-        /// @param size The size of the font to load
-        /// @return The reference to the image loaded
-        sf::Font& fnt(std::string name, float size);
-        
-        /// Unloads all the loaded files.
         void clear();
-        
-        /// Generates the list of file extensions to search with as well
-        /// as the list of directories to search in.
-        ResourceManager();
+        void recalcSizes(float metresPerScreen);
 };
 
 #endif // _RESOURCES_HEADER_
