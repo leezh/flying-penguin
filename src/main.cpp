@@ -34,60 +34,64 @@ ConfigFile conf;
 ConfigFile save;
 ResourceManager res;
 AppManager apps;
-std::wstring introText;
+std::string introText;
 
 void loadConfig() {
-    vector<string> confDirs;
-    #ifdef RESOURCE_DIR
-    confDirs.push_back(RESOURCE_DIR);
-    #endif
-    #ifdef RESOURCE_DIR_REL
-    confDirs.push_back(RESOURCE_DIR_REL);
-    #endif
-    #ifdef CONFIG_DIR_ENV
-    string homeDir(getenv(CONFIG_DIR_ENV));
-    homeDir = homeDir.substr(0, homeDir.find(';'));
-    confDirs.push_back(homeDir + "/.flying-penguin/");
-    #endif
-    
-    vector<string>::iterator dirIt;
-    for (dirIt = confDirs.begin(); dirIt != confDirs.end(); dirIt++) {
-        ifstream file(string(*dirIt + string("config")).c_str());
-        if (!file) continue;
-        file >> conf;
-        file.close();
-    }
-    
-    for (dirIt = confDirs.begin(); dirIt != confDirs.end(); dirIt++) {
-        wifstream file(string(*dirIt + string("intro")).c_str());
-        if (!file) continue;
-        while (!file.eof()) {
-            wstring line;
-            getline(file, line);
-            introText += line + L"\n";
+    PHYSFS_File* file = PHYSFS_openRead("config");
+    if(file != NULL) {
+        PHYSFS_sint64 size = PHYSFS_fileLength(file);
+        char* buffer = new char [size];
+        int count = PHYSFS_read(file, buffer, size, 1);
+        if (count == 1) {
+            stringstream ss;
+            ss.str(buffer);
+            ss >> conf;
         }
-        file.close();
+        delete[] buffer;
+        PHYSFS_close(file);
     }
     
-    #ifdef CONFIG_DIR_ENV
-    ifstream saveFile(string(homeDir + "/.flying-penguin.save").c_str());
-    if (saveFile) {saveFile >> save;}
+    file = PHYSFS_openRead("intro");
+    if(file != NULL) {
+        PHYSFS_sint64 size = PHYSFS_fileLength(file);
+        char* buffer = new char [size];
+        int count = PHYSFS_read(file, buffer, size, 1);
+        if (count == 1) {
+            introText = string(buffer);
+        }
+        delete[] buffer;
+        PHYSFS_close(file);
+    }
+    
+    file = PHYSFS_openRead("save");
+    if(file != NULL) {
+        PHYSFS_sint64 size = PHYSFS_fileLength(file);
+        char* buffer = new char [size];
+        int count = PHYSFS_read(file, buffer, size, 1);
+        if (count == 1) {
+            stringstream ss;
+            ss.str(buffer);
+            ss >> save;
+        }
+        delete[] buffer;
+        PHYSFS_close(file);
+    }
+    
     if (save.read("videoWidth", 0) <= 0) save.add("videoWidth", 1024);     
     if (save.read("videoHeight", 0) <= 0) save.add("videoHeight", 768);
-    #endif
 }
 
 void saveConfig() {
-    #ifdef CONFIG_DIR_ENV
-    string homeDir(getenv(CONFIG_DIR_ENV));
-    homeDir = homeDir.substr(0, homeDir.find(';'));
-    
-    save.add("videoWidth", window.GetWidth());
-    save.add("videoHeight", window.GetHeight());
-    
-    ofstream saveFile(string(homeDir + "/.flying-penguin.save").c_str(), ios_base::trunc);
-    if (saveFile) {saveFile << save;}
-    #endif
+    PHYSFS_File* file = PHYSFS_openWrite("save");
+    if(file != NULL) {
+        stringstream ss;
+        ss << save;
+        string buffer = ss.str();
+        
+        PHYSFS_sint64 size = sizeof(buffer.c_str());
+        int count = PHYSFS_write(file, buffer.c_str(), size, 1);
+        PHYSFS_close(file);
+    }
 }
 
 void resetWorld() {
@@ -160,5 +164,6 @@ int main (int argc, char** argv) {
 	
 	saveConfig();
     window.Close();
+    PHYSFS_deinit();
 	return EXIT_SUCCESS;
 }

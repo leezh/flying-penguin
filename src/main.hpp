@@ -34,7 +34,7 @@ extern AppManager apps;
 
 extern ConfigFile conf;
 extern ConfigFile save;
-extern std::wstring introText;
+extern std::string introText;
 
 void resetWorld();
 

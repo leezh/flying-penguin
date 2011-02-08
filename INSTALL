@@ -10,11 +10,12 @@ For ArchLinux:
 For Ubnutu / Debian:
   Run this command and all the development files that you need and their
   dependencies would be installed.
-    sudo apt-get install cmake libsfml-dev libglu-dev g++ make
+    sudo apt-get install cmake libsfml-dev libglu-dev g++ make physfs
 
 For other Linux distros:
-  Ensure you have all the G++, GNU Make, CMake and SFML packages
-  including the development files using your distro's package manager.
+  Ensure you have all the GCC G++, GNU Make, CMake, PhysicsFS and SFML
+  packages including the development files using your distro's package
+  manager.
   
   In the case of SFML, some of the older distros wouldn't have them so
   you might need to download, compile and install them yourself. Just
