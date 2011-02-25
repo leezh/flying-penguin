@@ -190,7 +190,7 @@ Sprite* ResourceManager::sprite(std::string name) {
             char *buffer = new char [size];
             int count = PHYSFS_read(file, buffer, size, 1);
             if (count == 1) {
-                spriteMap[name]->load(buffer);
+                spriteMap[name]->load(std::string(buffer, size));
                 loaded = true;
             }
             delete[] buffer;
@@ -216,7 +216,7 @@ String* ResourceManager::string(std::string name) {
             char *buffer = new char [size];
             int count = PHYSFS_read(file, buffer, size, 1);
             if (count == 1) {
-                stringMap[name]->load(buffer);
+                stringMap[name]->load(std::string(buffer, size));
                 loaded = true;
             }
             delete[] buffer;

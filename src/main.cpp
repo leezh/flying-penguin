@@ -44,7 +44,7 @@ void loadConfig() {
         int count = PHYSFS_read(file, buffer, size, 1);
         if (count == 1) {
             stringstream ss;
-            ss.str(buffer);
+            ss.str(string(buffer, size));
             ss >> conf;
         }
         delete[] buffer;
@@ -57,7 +57,7 @@ void loadConfig() {
         char* buffer = new char [size];
         int count = PHYSFS_read(file, buffer, size, 1);
         if (count == 1) {
-            introText = string(buffer);
+            introText = string(buffer, size);
         }
         delete[] buffer;
         PHYSFS_close(file);
@@ -70,7 +70,7 @@ void loadConfig() {
         int count = PHYSFS_read(file, buffer, size, 1);
         if (count == 1) {
             stringstream ss;
-            ss.str(buffer);
+            ss.str(string(buffer, size));
             ss >> save;
         }
         delete[] buffer;
