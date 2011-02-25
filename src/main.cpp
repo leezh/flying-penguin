@@ -88,7 +88,7 @@ void saveConfig() {
         ss << save;
         string buffer = ss.str();
         
-        PHYSFS_sint64 size = sizeof(buffer.c_str());
+        PHYSFS_sint64 size = buffer.length();
         int count = PHYSFS_write(file, buffer.c_str(), size, 1);
         PHYSFS_close(file);
     }
