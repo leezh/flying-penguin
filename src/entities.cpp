@@ -92,10 +92,10 @@ void TextBox::handleEvent(sf::Event &Event) {
         if (!Event.Key.Shift)
             selStart = selEnd;
     }
-    if (selEnd > editText.length()) selEnd = editText.length();
-    if (selStart > editText.length()) selStart = editText.length();
     if (selEnd < 0) selEnd = 0;
     if (selStart < 0) selStart = 0;
+    if (selEnd > editText.length()) selEnd = editText.length();
+    if (selStart > editText.length()) selStart = editText.length();
 }
 
 void TextBox::selectAll() {
