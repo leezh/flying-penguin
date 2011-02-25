@@ -21,83 +21,32 @@
 #include "entities.hpp"
 using namespace std;
 
-sf::Vector2f Text::doAlignment() {
-    sf::FloatRect rect = text.GetRect();
-    float centerX, centerY;
-    switch (align) {
-        default:
-        case LEFT:
-            centerX = 0;
-            break;
-        case CENTER:
-            centerX = floor(rect.GetWidth() / 2);
-            break;
-        case RIGHT:
-            centerX = floor(rect.GetWidth());
-            break;
-    }
-    switch (valign) {
-        default:
-        case TOP:
-            centerY = 0;
-            break;
-        case CENTER:
-            centerY = floor(rect.GetHeight() / 2);
-            break;
-        case BOTTOM:
-            centerY = floor(rect.GetHeight());
-            break;
-    }
-    text.SetCenter(centerX, centerY);
-    text.SetPosition(floor(pos.x), floor(pos.y));
-    
-    return text.TransformToGlobal(sf::Vector2f(0, 0));
-}
-
 void Text::render() {
-    doAlignment();
-    window.Draw(text);
+    text->render(pos, str, cx, cy);
 }
 
-Text::Text(string str, int a, int v, Vect p): text() {
-    confVar(float, textSize);
-    text.SetFont(res.font("regular", textSize));
-    text.SetSize(textSize);
-    text.SetColor(util::to_colour(conf.read<string>("textColour")));
-    text.SetText(str);
-    align = a;
-    valign = v;
-    pos = p;
+Text::Text(std::string style) {
+    text = res.string(style);
+    cx = 0.f;
+    cy = 0.f;
+    pos = Vect();
 }
 
-LargeText::LargeText(string str, int a, int v, Vect p) {
-    confVar(float, textSizeLarge);
-    text.SetText(str);
-    text.SetFont(res.font("bold", textSizeLarge));
-    text.SetSize(textSizeLarge);
-    text.SetColor(util::to_colour(conf.read<string>("textColour")));
-    pos = p;
-    align = a;
-    valign = v;
-}
-
-TextBox::TextBox(): Text(), selColour() {
+TextBox::TextBox(std::string style): Text(style), selColour() {
     selStart = 0;
     selEnd = 0;
 }
 
 void TextBox::render() {
-    confVar(float, textSize);
-    text.SetText(editText);
-    sf::FloatRect rect = text.GetRect();
+    text->render(pos, editText, cx, cy, true);
     
-    sf::Vector2f clipPos = doAlignment();
-    int pixelStart = clipPos.x + text.GetCharacterPos(min(selStart, selEnd)).x;
-    int pixelEnd = clipPos.x + text.GetCharacterPos(max(selStart, selEnd)).x + 1;
-    sf::Shape box = sf::Shape::Rectangle(pixelStart, clipPos.y, pixelEnd, clipPos.y + rect.GetHeight(), selColour);
+    sf::FloatRect rect = text->getRect();
+    int pixelStart = rect.Left + text->getCharPos(min(selStart, selEnd));
+    int pixelEnd = rect.Left + text->getCharPos(max(selStart, selEnd)) + 1;
+    sf::Shape box = sf::Shape::Rectangle(pixelStart, rect.Top, pixelEnd, rect.Bottom, selColour);
     window.Draw(box);
     
-    Text::render();
+    text->render(pos, editText, cx, cy);
 }
 
 void TextBox::handleEvent(sf::Event &Event) {

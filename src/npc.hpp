@@ -49,7 +49,7 @@ class Fish: public Entity {
     private:
         Sprite* sprite;
         Sprite* arrowSprite;
-        sf::String text;
+        String* text;
         World* parent;
         Vect pos;
         bool done;

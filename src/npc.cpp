@@ -134,9 +134,7 @@ Fish::Fish(World *p, int l) {
     arrowSprite = res.sprite("arrow");
     arrowSprite->setSize(arrowSize, p->metresPerScreen);
     
-    text.SetFont(res.font("regular", textSizeLarge));
-    text.SetSize(textSizeLarge);
-    text.SetColor(util::to_colour(conf.read<string>("textColour")));
+    text = res.string("large");
     
     done = false;
 }
@@ -169,11 +167,10 @@ void Fish::render() {
         
         arrowSprite->render(arrowPos, angle);
         
-        text.SetText(util::to_string(pos.x - parent->penguin->pos.x, 0) + "m");
-        sf::FloatRect rect = text.GetRect();
-        text.SetCenter(floor(rect.GetWidth()), floor(rect.GetHeight() / 2));
-        text.SetPosition(floor(arrowPos.x - parent->metresToPixel(arrowSize) / 2), floor(arrowPos.y));
-        window.Draw(text);
+        
+        std::string str(util::to_string(pos.x - parent->penguin->pos.x, 0) + "m");
+        Vect pos(arrowPos.x - parent->metresToPixel(arrowSize) / 2, arrowPos.y);
+        text->render(pos, str, 1.f, 0.5f);
     }
     
     sprite->render(pixelPos);

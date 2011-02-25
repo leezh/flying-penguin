@@ -31,6 +31,7 @@ void Sprite::load(std::string buffer) {
     util::tokenise(buffer, lines, "\n");
     std::vector<string>::iterator it;
     for (it = lines.begin(); it != lines.end(); it++) {
+        if (it->length() == 0 || it->at(0) == '#') continue;
         std::vector<string> tokens;
         util::tokenise((*it), tokens);
         if (tokens.size() == 7) {
@@ -48,7 +49,10 @@ void Sprite::load(std::string buffer) {
 }
 
 void Sprite::unload() {
-    sprites.clear();
+    while (sprites.begin() != sprites.end()) {
+        delete *sprites.begin();
+        sprites.erase(sprites.begin());
+    }
 }
 
 void Sprite::setSize(float s, float metresPerScreen) {
@@ -69,16 +73,49 @@ void Sprite::recalcSize(float metresPerScreen) {
 void Sprite::render(Vect pos, float angle, int frame) {
     if (frame < 0 || frame >= sprites.size()) frame = 0;
     if (sprites.size() == 0) return;
-    sprites[frame]->SetPosition(int(floor(pos.x)), int(floor(pos.y)));
+    sprites[frame]->SetPosition(pos.x, pos.y);
     sprites[frame]->SetRotation(angle);
     
     window.Draw(*sprites[frame]);
 }
 
-bool operator< (const FontDesc &f1, const FontDesc &f2) {
-    if (f1.name < f2.name) return true;
-    if (f1.name == f2.name) return (f1.size < f2.size);
-    return false;
+void String::load(std::string buffer) {
+    str = new sf::String();
+    std::vector<string> tokens;
+    util::tokenise(buffer, tokens);
+    if (tokens.size() >= 3) {
+        std::string fontPath = tokens[0];
+        float size = util::from_string<float>(tokens[1]);
+        sf::Color colour = util::to_colour(tokens[2]);
+        
+        str->SetFont(*res.font(fontPath, size));
+        str->SetSize(size);
+        str->SetColor(colour);
+    }
+}
+
+void String::unload() {
+    delete str;
+}
+
+sf::FloatRect String::getRect() {
+    return str->GetRect();
+}
+
+int String::getCharPos(int pos) {
+    return str->GetCharacterPos(pos).x;
+}
+
+void String::render(Vect pos, std::string text, float cx, float cy, bool dummy) {
+    if (str == NULL) return;
+    str->SetText(text);
+    sf::FloatRect rect = str->GetRect();
+    str->SetCenter(floor(rect.GetWidth() * cx), floor(rect.GetHeight() * cy));
+    str->SetPosition(floor(pos.x), floor(pos.y));
+    
+    if (!dummy) {
+        window.Draw(*str);
+    }
 }
 
 sf::Image* ResourceManager::image(std::string name) {
@@ -110,8 +147,8 @@ sf::Image* ResourceManager::image(std::string name) {
     return imageMap[name];
 }
 
-sf::Font& ResourceManager::font(std::string name, float s) {
-    name = "fonts/" + name + ".ttf";
+sf::Font* ResourceManager::font(std::string name, float s) {
+    name = "fonts/" + name;
     std::vector<std::string>::iterator extIt;
     std::vector<std::string>::iterator dirIt;
     FontDesc desc(name, s);
@@ -138,7 +175,7 @@ sf::Font& ResourceManager::font(std::string name, float s) {
             std::cerr << "Font \"" << name << "\" could not be loaded" << std::endl;
         }
     }
-    return *fontMap[desc];
+    return fontMap[desc];
 }
 
 Sprite* ResourceManager::sprite(std::string name) {
@@ -167,6 +204,32 @@ Sprite* ResourceManager::sprite(std::string name) {
     return spriteMap[name];
 }
 
+String* ResourceManager::string(std::string name) {
+   name = "string-styles/" + name;
+    if (stringMap.find(name) == stringMap.end()) {
+        stringMap[name] = new String();
+        
+        bool loaded = false;
+        PHYSFS_File* file = PHYSFS_openRead(name.c_str());
+        if(file != NULL) {
+            PHYSFS_sint64 size = PHYSFS_fileLength(file);
+            char *buffer = new char [size];
+            int count = PHYSFS_read(file, buffer, size, 1);
+            if (count == 1) {
+                stringMap[name]->load(buffer);
+                loaded = true;
+            }
+            delete[] buffer;
+            PHYSFS_close(file);
+        }
+        
+        if (!loaded) {
+            std::cerr << "String \"" << name << "\" could not be loaded" << std::endl;
+        }
+    }
+    return stringMap[name];
+}
+
 void ResourceManager::clear() {
     while (imageMap.begin() != imageMap.end()) {
         delete imageMap.begin()->second;
@@ -179,8 +242,15 @@ void ResourceManager::clear() {
     }
     
     while (spriteMap.begin() != spriteMap.end()) {
+        spriteMap.begin()->second->unload();
         delete spriteMap.begin()->second;
         spriteMap.erase(spriteMap.begin());
+    }
+    
+    while (stringMap.begin() != stringMap.end()) {
+        stringMap.begin()->second->unload();
+        delete stringMap.begin()->second;
+        stringMap.erase(stringMap.begin());
     }
 }
 

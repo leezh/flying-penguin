@@ -33,22 +33,18 @@ class Entity {
 };
 
 class Text: public Entity {
-    public:
-        sf::String text;
-        Vect pos;
-        int align;
-        int valign;
+    protected:
+        String* text;
         
-        enum {LEFT, CENTER, RIGHT, TOP, BOTTOM};
-        virtual bool alive() {return true;}
-        virtual sf::Vector2f doAlignment();
-        virtual void render();
-        Text(string str = "", int a = LEFT, int v = TOP, Vect p = Vect());
-};
-
-class LargeText: public Text {
     public:
-        LargeText(string str = "", int a = LEFT, int v = TOP, Vect p = Vect());
+        std::string str;
+        Vect pos;
+        float cx;
+        float cy;
+        
+        virtual bool alive() {return true;}
+        virtual void render();
+        Text(std::string style);
 };
 
 class TextBox: public Text {
@@ -57,7 +53,7 @@ class TextBox: public Text {
         std::string editText;
         sf::Color selColour;
         
-        TextBox();
+        TextBox(std::string style);
         virtual void render();
         virtual void handleEvent(sf::Event &Event);
         virtual void selectAll();

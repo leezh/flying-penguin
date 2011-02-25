@@ -43,22 +43,23 @@ class WindowShade: public Entity {
 
 class NameEditor: public TextBox {
     public:
-        NameEditor(): TextBox() {
-            text.SetColor(util::to_colour(conf.read<string>("shadeTextColour")));
-            selColour = util::to_colour(conf.read<string>("shadeColour"));
-            align = CENTER;
+        NameEditor(): TextBox("shade-regular") {
+            cx = 0.5f;
+            cy = 0.f;
         }
         void render() {
             confVar(float, textSizeLarge);
-            pos = Vect(window.GetWidth() / 2, window.GetHeight() / 2 + textSizeLarge);
+            pos = Vect(window.GetWidth() / 2, window.GetHeight() / 2);
             TextBox::render();
         }
 };
 
-class RecordWinBanner: public LargeText {
+class RecordWinBanner: public Text {
     public:
-        RecordWinBanner(): LargeText("New Record: " + util::to_string(record.getRecordDist(), 0) + "m!", CENTER, CENTER) {
-            text.SetColor(util::to_colour(conf.read<string>("shadeTextColour")));
+        RecordWinBanner(): Text("shade-large") {
+            cx = 0.5f;
+            cy = 1.f;
+            str = "New Record: " + util::to_string(record.getRecordDist(), 0) + "m!";
         }
         void render() {
             pos = Vect(window.GetWidth() / 2, window.GetHeight() / 2);
@@ -69,11 +70,10 @@ class RecordWinBanner: public LargeText {
 
 class ShadeRestartLabel: public Text {
     public:
-        ShadeRestartLabel(): Text() {
+        ShadeRestartLabel(): Text("shade-regular") {
             confVar(float, hudMargin);
-            text.SetText("Press ENTER to restart");
+            str = "Press ENTER to restart";
             pos = Vect(hudMargin, hudMargin);
-            text.SetColor(util::to_colour(conf.read<string>("shadeTextColour")));
         }
 };
 

@@ -28,28 +28,29 @@ class SpeedLabel: public Text {
     private:
         World *parent;
     public:
-        SpeedLabel(World *p): Text("WindSpeed") {
+        SpeedLabel(World *p): Text("regular") {
             confVar(float, hudMargin);
             pos = Vect(hudMargin, hudMargin);
             parent = p;
+            str = "WindSpeed";
         }
         bool alive() {
             return parent->penguin->isAlive();
         }
 };
 
-class SpeedIndicator: public LargeText {
+class SpeedIndicator: public Text {
     private:
         World *parent;
     public:
-        SpeedIndicator(World *p): LargeText() {
+        SpeedIndicator(World *p): Text("large") {
             confVar(float, hudMargin);
             confVar(float, textSize);
             pos = Vect(hudMargin, hudMargin + textSize);
             parent = p;
         }
         void doPhysics(float deltaTime) {
-            text.SetText(util::to_string(parent->penguin->windSpeed(), 0) + "m/s");
+            str = util::to_string(parent->penguin->windSpeed(), 0) + "m/s";
         }
         bool alive() {
             return parent->penguin->isAlive();
@@ -60,22 +61,23 @@ class FuelLabel: public Text {
     private:
         World *parent;
     public:
-        FuelLabel(World *p): Text("Fuel Remaining") {
+        FuelLabel(World *p): Text("regular") {
             confVar(float, hudMargin);
             confVar(float, hudCol1);
             pos = Vect(hudMargin + hudCol1, hudMargin);
             parent = p;
+            str = "Fuel Remaining";
         }
         bool alive() {
             return parent->penguin->isAlive();
         }
 };
 
-class FuelIndicator: public LargeText {
+class FuelIndicator: public Text {
     private:
         World *parent;
     public:
-        FuelIndicator(World *p): LargeText() {
+        FuelIndicator(World *p): Text("large") {
             confVar(float, hudMargin);
             confVar(float, hudCol1);
             confVar(float, textSize);
@@ -83,7 +85,7 @@ class FuelIndicator: public LargeText {
             parent = p;
         }
         void doPhysics(float deltaTime) {
-            text.SetText(util::to_string(parent->penguin->fuelRemaining, 1) + "s");
+            str = util::to_string(parent->penguin->fuelRemaining, 1) + "s";
         }
         bool alive() {
             return parent->penguin->isAlive();
@@ -94,22 +96,23 @@ class AltitudeLabel: public Text {
     private:
         World *parent;
     public:
-        AltitudeLabel(World *p): Text("Altitude") {
+        AltitudeLabel(World *p): Text("regular") {
             confVar(float, hudMargin);
             confVar(float, hudCol2);
             pos = Vect(hudMargin + hudCol2, hudMargin);
             parent = p;
+            str = "Altitude";
         }
         bool alive() {
             return parent->penguin->isAlive();
         }
 };
 
-class AltitudeIndicator: public LargeText {
+class AltitudeIndicator: public Text {
     private:
         World *parent;
     public:
-        AltitudeIndicator(World *p): LargeText() {
+        AltitudeIndicator(World *p): Text("large") {
             confVar(float, hudMargin);
             confVar(float, hudCol2);
             confVar(float, textSize);
@@ -117,7 +120,7 @@ class AltitudeIndicator: public LargeText {
             parent = p;
         }
         void doPhysics(float deltaTime) {
-            text.SetText(util::to_string(parent->penguin->pos.y, 0) + "m");
+            str = util::to_string(parent->penguin->pos.y, 0) + "m";
         }
         bool alive() {
             return parent->penguin->isAlive();
@@ -128,12 +131,12 @@ class DistanceIndicator: public Text {
     private:
         World *parent;
     public:
-        DistanceIndicator(World *p): Text() {
-            valign = BOTTOM;
+        DistanceIndicator(World *p): Text("regular") {
+            cy = 1.f;
             parent = p;
         }
         void doPhysics(float deltaTime) {
-            text.SetText("Distance: " + util::to_string(parent->penguin->pos.x, 0) + "m");
+            str = "Distance: " + util::to_string(parent->penguin->pos.x, 0) + "m";
         }
         void render() {
             confVar(float, hudMargin);
@@ -146,10 +149,10 @@ class RecordIndicator: public Text {
     private:
         World *parent;
     public:
-        RecordIndicator(World *p): Text() {
-            valign = BOTTOM;
+        RecordIndicator(World *p): Text("regular") {
+            cy = 1.f;
             parent = p;
-            text.SetText("Record: " + record.getRecord());
+            str = "Record: " + record.getRecord();
         }
         void render() {
             confVar(float, hudMargin);
@@ -169,9 +172,9 @@ class Instructions: public Text {
     private:
         World *parent;
     public:
-        Instructions(World *p): Text() {
+        Instructions(World *p): Text("regular") {
             parent = p;
-            text.SetText(introText);
+            str = introText;
         }
         void render() {
             confVar(float, hudMargin);
@@ -215,11 +218,11 @@ class RestartLabel: public Text {
     private:
         World *parent;
     public:
-        RestartLabel(World *p): Text() {
+        RestartLabel(World *p): Text("regular") {
             confVar(float, hudMargin);
-            text.SetText("Press ENTER to restart");
             pos = Vect(hudMargin, hudMargin);
             parent = p;
+            str = "Press ENTER to restart";
         }
         void render() {
             if (!parent->penguin->isAlive()) Text::render();

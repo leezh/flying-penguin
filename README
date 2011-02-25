@@ -72,8 +72,8 @@ src/ConfigFile/ConfigFile.h
     Licensed under a zlib-like license
     http://www-personal.umich.edu/~wagnerr/ConfigFile.html
 
-share/flying-penguin/bold.ttf
-share/flying-penguin/regular.ttf
+share/flying-penguin/fonts/liberation-sans-bold.ttf
+share/flying-penguin/fonts/liberation-sans-regular.ttf
     Liberation Fonts
     Licensed under GPLv2 with a font exception
     https://fedorahosted.org/liberation-fonts/
