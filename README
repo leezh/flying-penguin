@@ -65,6 +65,21 @@ Lee Zher Huei <lee@leezh.net>
     - Artist
 
 ==== External Files ====
+share/flying-penguin/sounds/buzzer.wav
+    Composed by Brandon75689
+    Licensed under Creative Commons Attribution 3.0
+    http://opengameart.org/content/buzzer-wrong-button
+
+share/flying-penguin/sounds/point-bell.wav
+    Composed by Brandon75689
+    Licensed under Creative Commons Attribution 3.0
+    http://opengameart.org/content/point-bell
+
+share/flying-penguin/music/mushroom-dance.ogg
+    Composed by Bart K.
+    Licensed under Creative Commons Attribution 3.0
+    http://opengameart.org/content/mushroom-dance
+
 src/ConfigFile/ConfigFile.cpp
 src/ConfigFile/ConfigFile.h
     Configfile
