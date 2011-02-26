@@ -254,6 +254,20 @@ void ResourceManager::clear() {
     }
 }
 
+void ResourceManager::cacheData() {
+    char **list;
+    
+    list = PHYSFS_enumerateFiles("sprite");
+    for (int i = 0; list[i] != NULL; i++)
+        sprite(list[i]);
+    PHYSFS_freeList(list);
+    
+    list = PHYSFS_enumerateFiles("string-styles");
+    for (int i = 0; list[i] != NULL; i++)
+        string(list[i]);
+    PHYSFS_freeList(list);
+}
+
 void ResourceManager::recalcSizes(float metresPerScreen) {
     std::map<std::string, Sprite*>::iterator it;
     for (it = spriteMap.begin(); it != spriteMap.end(); it++) {

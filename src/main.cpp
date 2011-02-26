@@ -149,6 +149,7 @@ int main (int argc, char** argv) {
     
     srand(time(NULL));
     loadConfig();
+    res.cacheData();
     
     sf::Image &icon = *res.image("icon.png");
     window.SetIcon(icon.GetWidth(), icon.GetHeight(), icon.GetPixelsPtr());

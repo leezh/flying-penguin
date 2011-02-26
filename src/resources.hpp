@@ -84,6 +84,7 @@ class ResourceManager {
         String* string(std::string name);
         
         void clear();
+        void cacheData();
         void recalcSizes(float metresPerScreen);
 };
 
