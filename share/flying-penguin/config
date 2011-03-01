@@ -21,7 +21,7 @@ birdSpeedMin = 8
 birdSpeedMax = 12
 birdAltitudeMin = 5
 birdAltitudeMax = 55
-birdCountStart = 10
+birdCountStart = 0
 birdCountMultiplier = 5
 
 # Fish
@@ -66,13 +66,10 @@ cloudCount = 20
 
 groundColour = ffffff
 skyColour = d7e3f4
-
-textSize = 16
-textSizeLarge = 28
-textColour = 00000088
-
 shadeColour = 00000088
-shadeTextColour = ffffff
+
+textSize = 12
+textSizeLarge = 20
 
 # Cheats / Debug
 invincible = false

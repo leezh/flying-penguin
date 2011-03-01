@@ -257,14 +257,16 @@ void ResourceManager::clear() {
 void ResourceManager::cacheData() {
     char **list;
     
-    list = PHYSFS_enumerateFiles("sprite");
-    for (int i = 0; list[i] != NULL; i++)
+    list = PHYSFS_enumerateFiles("sprites");
+    for (int i = 0; list[i] != NULL; i++) {
         sprite(list[i]);
+    }
     PHYSFS_freeList(list);
     
     list = PHYSFS_enumerateFiles("string-styles");
-    for (int i = 0; list[i] != NULL; i++)
+    for (int i = 0; list[i] != NULL; i++) {
         string(list[i]);
+    }
     PHYSFS_freeList(list);
 }
 
