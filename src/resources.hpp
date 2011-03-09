@@ -24,6 +24,7 @@
 #include <map>
 #include <vector>
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 
 #include "util.hpp"
 
@@ -59,6 +60,19 @@ class String {
         friend class ResourceManager;
 };
 
+class Sound {
+    private:
+        sf::SoundBuffer* buffer;
+        sf::Sound* sound;
+        
+        void load(char* filePtr, int64_t size);
+        void unload();
+    public:
+    
+        void play();
+        friend class ResourceManager;
+};
+
 struct FontDesc {
     std::string name;
     float size;
@@ -72,16 +86,24 @@ inline bool operator< (const FontDesc &f1, const FontDesc &f2) {
 
 class ResourceManager {
     private:
+        char* musicData;
+        sf::Music* musicHandler;
+        std::string musicName;
         
         std::map<std::string, sf::Image*> imageMap;
         std::map<FontDesc, sf::Font*> fontMap;
         std::map<std::string, Sprite*> spriteMap;
         std::map<std::string, String*> stringMap;
+        std::map<std::string, Sound*> soundMap;
     public:
         sf::Image* image(std::string name);
         sf::Font* font(std::string name, float size);
         Sprite* sprite(std::string name);
         String* string(std::string name);
+        Sound* sound(std::string name);
+        
+        void playMusic(std::string name, int volume = 100, bool loop = true);
+        void stopMusic();
         
         void clear();
         void cacheData();

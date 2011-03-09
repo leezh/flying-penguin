@@ -233,6 +233,8 @@ World::World() {
     confVar(int, cloudCount);
     confVar(int, birdCountStart);
     
+    res.playMusic("mushroom-dance.ogg", 50);
+    
     cameraPos = Vect(0.f, 0.f);
     metresPerScreen = conf.read<float>("metresPerScreen");
     hud = new EntityManager();

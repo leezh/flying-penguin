@@ -23,6 +23,7 @@
 #include <algorithm>
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <physfs.h>
 #include "main.hpp"
 
@@ -116,6 +117,23 @@ void String::render(Vect pos, std::string text, float cx, float cy, bool dummy) 
     if (!dummy) {
         window.Draw(*str);
     }
+}
+
+void Sound::load(char* filePtr, int64_t size) {
+    buffer = new sf::SoundBuffer();
+    sound = new sf::Sound();
+    
+    buffer->LoadFromMemory(filePtr, size);
+    sound->SetBuffer(*buffer);
+}
+
+void Sound::unload() {
+    delete buffer;
+    delete sound;
+}
+
+void Sound::play() {
+    sound->Play();
 }
 
 sf::Image* ResourceManager::image(std::string name) {
@@ -230,6 +248,75 @@ String* ResourceManager::string(std::string name) {
     return stringMap[name];
 }
 
+Sound* ResourceManager::sound(std::string name) {
+    name = "sounds/" + name;
+    if (soundMap.find(name) == soundMap.end()) {
+        soundMap[name] = new Sound();
+        
+        bool loaded = false;
+        PHYSFS_File* file = PHYSFS_openRead(name.c_str());
+        if(file != NULL) {
+            PHYSFS_sint64 size = PHYSFS_fileLength(file);
+            char *buffer = new char [size];
+            int count = PHYSFS_read(file, buffer, size, 1);
+            if (count == 1) {
+                soundMap[name]->load(buffer, size);
+                loaded = true;
+            }
+            delete[] buffer;
+            PHYSFS_close(file);
+        }
+        
+        if (!loaded) {
+            std::cerr << "Sound \"" << name << "\" could not be loaded" << std::endl;
+        }
+    }
+    return soundMap[name];
+}
+
+void ResourceManager::playMusic(std::string name, int volume, bool loop) {
+    name = "music/" + name;
+    if (musicHandler != NULL && name == musicName) {
+        musicHandler->SetVolume(volume);
+        return;
+    }
+    
+    stopMusic();
+    musicHandler = new sf::Music();
+    
+    bool loaded = false;
+    PHYSFS_File* file = PHYSFS_openRead(name.c_str());
+    if(file != NULL) {
+        PHYSFS_sint64 size = PHYSFS_fileLength(file);
+        musicData = new char [size];
+        int count = PHYSFS_read(file, musicData, size, 1);
+        if (count == 1) {
+            musicHandler->OpenFromMemory(musicData, size);
+            musicHandler->SetLoop(loop);
+            musicHandler->SetVolume(volume);
+            musicHandler->Play();
+            musicName = name;
+            loaded = true;
+        }
+        PHYSFS_close(file);
+    }
+    
+    if (!loaded) {
+        delete musicHandler;
+        musicHandler = NULL;
+        std::cerr << "Music \"" << name << "\" could not be loaded" << std::endl;
+    }
+}
+
+void ResourceManager::stopMusic() {
+    if (musicHandler != NULL) {
+        musicHandler->Stop();
+        delete musicHandler;
+        delete musicData;
+        musicHandler = NULL;
+    }
+}
+
 void ResourceManager::clear() {
     while (imageMap.begin() != imageMap.end()) {
         delete imageMap.begin()->second;
@@ -252,6 +339,14 @@ void ResourceManager::clear() {
         delete stringMap.begin()->second;
         stringMap.erase(stringMap.begin());
     }
+    
+    while (soundMap.begin() != soundMap.end()) {
+        soundMap.begin()->second->unload();
+        delete soundMap.begin()->second;
+        soundMap.erase(soundMap.begin());
+    }
+    
+    stopMusic();
 }
 
 void ResourceManager::cacheData() {
@@ -266,6 +361,12 @@ void ResourceManager::cacheData() {
     list = PHYSFS_enumerateFiles("string-styles");
     for (int i = 0; list[i] != NULL; i++) {
         string(list[i]);
+    }
+    PHYSFS_freeList(list);
+    
+    list = PHYSFS_enumerateFiles("sounds");
+    for (int i = 0; list[i] != NULL; i++) {
+        sound(list[i]);
     }
     PHYSFS_freeList(list);
 }

@@ -83,6 +83,7 @@ void Bird::doPhysics(float deltaTime) {
             hit = true;
             parent->penguin->fuelRemaining -= birdPenalty;
             parent->hud->add(new Puff(parent, pos, parent->penguin->pos));
+            res.sound("buzzer.wav")->play();
             frame = 2;
             return;
         }
@@ -190,6 +191,7 @@ void Fish::doPhysics(float deltaTime) {
         for (int i = 0; i < birdCountMultiplier; i++) {
             parent->entities->add(new Bird(parent, false));
         }
+        res.sound("point-bell.wav")->play();
     }
     
     if (parent->penguin->pos.x - pos.x > fishMissDist) {

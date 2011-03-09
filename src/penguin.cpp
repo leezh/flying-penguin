@@ -137,6 +137,8 @@ void Penguin::doPhysics(float deltaTime) {
         
         if (takeoff && !invincible) {
             running = false;
+            res.sound("buzzer.wav")->play();
+            res.stopMusic();
             parent->hud->add(new Puff(parent, pos, pos));
             record.submit(pos.x);
         }
