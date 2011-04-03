@@ -27,25 +27,6 @@
 using namespace util;
 
 bool Penguin::isAlive() {return running;}
-bool Penguin::isFlying() {return takeoff;}
-
-bool Penguin::isStalling(float angle) {
-    confVar(float, stallAngle);
-    
-    if (angle > rad(stallAngle) || angle < -rad(stallAngle)) {
-        return true;
-    }
-    return false;
-}
-
-bool Penguin::isUnderspeed() {
-    confVar(float, underspeedVel);
-    
-    if (vel.magnitude() < underspeedVel) {
-        return true;
-    }
-    return false;
-}
 
 float Penguin::windAngle() {
     if (vel.magnitude() > 0.f) {
@@ -60,13 +41,10 @@ float Penguin::windSpeed() {
 }
 
 float Penguin::liftAccel(float angle) {
-    if (!isStalling(angle)) {
-        confVar(float, liftConst);
-        
-        float speed = windSpeed();
-        return speed * speed * liftConst * angle;
-    }
-    return 0;
+    confVar(float, liftConst);
+    
+    float speed = windSpeed();
+    return speed * speed * liftConst * angle;
 }
 
 void Penguin::doPhysics(float deltaTime) {
@@ -86,6 +64,7 @@ void Penguin::doPhysics(float deltaTime) {
     confVar(float, takeoffHeight);
     confVar(bool, invincible);
     confVar(float, starCreateDelay);
+    confVar(float, stallAngle);
     
     // Gravity
     accel += Vect(0, -gravityAccel);
@@ -104,7 +83,7 @@ void Penguin::doPhysics(float deltaTime) {
     
         if (starTime > starCreateDelay) {
             starTime -= starCreateDelay;
-            parent->entities->add(new Star(parent));
+            world.entities.add(new Star());
         }
     }
     if (fuelRemaining < 0) {
@@ -112,8 +91,10 @@ void Penguin::doPhysics(float deltaTime) {
     }
     
     // Lift
-    float lift = liftAccel(windAngle() + rad(wingAngle));
-    accel += Vect(0, 0, 1).crossProduct(vel).unitVector() * lift;
+    if (angle < rad(stallAngle) && angle > -rad(stallAngle)) {
+        float lift = liftAccel(windAngle() + rad(wingAngle));
+        accel += Vect(0, 0, 1).crossProduct(vel).unitVector() * lift;
+    }
     
     vel += (accel * deltaTime);
     pos += (vel * deltaTime);
@@ -139,24 +120,23 @@ void Penguin::doPhysics(float deltaTime) {
             running = false;
             res.sound("buzzer.wav")->play();
             res.stopMusic();
-            parent->hud->add(new Puff(parent, pos, pos));
-            record.submit(pos.x);
+            world.entities.add(new Puff(pos, pos));
+            //record.submit(pos.x);
         }
     }
 }
 
 void Penguin::render() {
-    Vect relPos = pos - parent->cameraPos;
-    
-    sprite->render(parent->relToPixel(relPos), util::deg(angle));
+    Vect relPos = pos - world.cameraPos;
+    sprite->render(world.relToPixel(relPos), util::deg(angle));
 }
 
-Penguin::Penguin(World* p) {
+Penguin::Penguin() {
     confVar(float, initialFuel);
     confVar(float, penguinSize);
     
     sprite = res.sprite("penguin");
-    sprite->setSize(penguinSize, p->metresPerScreen);
+    sprite->setSize(penguinSize, world.metresPerScreen);
     
     pos = Vect();
     vel = Vect();
@@ -166,5 +146,4 @@ Penguin::Penguin(World* p) {
     fuelRemaining = initialFuel;
     running = true;
     takeoff = false;
-    parent = p;
 }

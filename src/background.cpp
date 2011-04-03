@@ -24,8 +24,7 @@
 #include "background.hpp"
 using namespace std;
 
-Background::Background(World *p) {
-    parent = p;
+Background::Background() {
     groundColour = util::to_colour(conf.read<string>("groundColour"));
     skyColour = util::to_colour(conf.read<string>("skyColour"));
 }
@@ -35,51 +34,48 @@ void Background::render() {
     float h = (float)window.GetHeight();
     sf::Shape sky = sf::Shape::Rectangle(0, 0, w, h, skyColour);
     
-    float groundH = h/2 + parent->metresToPixel(parent->cameraPos.y);
+    float groundH = h/2 + world.metresToPixel(world.cameraPos.y);
     sf::Shape ground = sf::Shape::Rectangle(0, groundH, w, h, groundColour);
     
     window.Draw(sky);
     window.Draw(ground);
 }
 
-Cloud::Cloud(World *p): sprite() {
-    confVar(float, metresPerScreen);
+Cloud::Cloud(): sprite() {
     confVar(float, cloudSize);
     
-    parent = p;
-    pos.x = parent->cameraPos.x + util::rnd() * metresPerScreen * 2 - metresPerScreen;
-    pos.y = parent->cameraPos.y + util::rnd() * metresPerScreen * 2 - metresPerScreen;
+    pos.x = world.cameraPos.x + util::rnd() * world.metresPerScreen * 2 - world.metresPerScreen;
+    pos.y = world.cameraPos.y + util::rnd() * world.metresPerScreen * 2 - world.metresPerScreen;
     
     sprite = res.sprite("cloud");
-    sprite->setSize(cloudSize, p->metresPerScreen);
+    sprite->setSize(cloudSize, world.metresPerScreen);
     type = floor(util::rnd() * 4);
 }
 
 void Cloud::render() {
-    confVar(float, metresPerScreen);
-    Vect relPos = pos - parent->cameraPos;
+    Vect relPos = pos - world.cameraPos;
     
-    if (relPos.x > metresPerScreen) {
-        pos.x -= metresPerScreen * 2;
-        pos.y = parent->cameraPos.y + util::rnd() * metresPerScreen * 2 - metresPerScreen;
+    if (relPos.x > world.metresPerScreen) {
+        pos.x -= world.metresPerScreen * 2;
+        pos.y = world.cameraPos.y + util::rnd() * world.metresPerScreen * 2 - world.metresPerScreen;
         type = floor(util::rnd() * 4);
     }
-    if (relPos.x < -metresPerScreen) {
-        pos.x += metresPerScreen * 2;
-        pos.y = parent->cameraPos.y + util::rnd() * metresPerScreen * 2 - metresPerScreen;
-        type = floor(util::rnd() * 4);
-    }
-    
-    if (relPos.y > metresPerScreen) {
-        pos.y -= metresPerScreen * 2;
-        pos.x = parent->cameraPos.x + util::rnd() * metresPerScreen * 2 - metresPerScreen;
-        type = floor(util::rnd() * 4);
-    }
-    if (relPos.y < -metresPerScreen) {
-        pos.y += metresPerScreen * 2;
-        pos.x = parent->cameraPos.x + util::rnd() * metresPerScreen * 2 - metresPerScreen;
+    if (relPos.x < -world.metresPerScreen) {
+        pos.x += world.metresPerScreen * 2;
+        pos.y = world.cameraPos.y + util::rnd() * world.metresPerScreen * 2 - world.metresPerScreen;
         type = floor(util::rnd() * 4);
     }
     
-    sprite->render(parent->relToPixel(relPos), 0.f, type);
+    if (relPos.y > world.metresPerScreen) {
+        pos.y -= world.metresPerScreen * 2;
+        pos.x = world.cameraPos.x + util::rnd() * world.metresPerScreen * 2 - world.metresPerScreen;
+        type = floor(util::rnd() * 4);
+    }
+    if (relPos.y < -world.metresPerScreen) {
+        pos.y += world.metresPerScreen * 2;
+        pos.x = world.cameraPos.x + util::rnd() * world.metresPerScreen * 2 - world.metresPerScreen;
+        type = floor(util::rnd() * 4);
+    }
+    
+    sprite->render(world.relToPixel(relPos), 0.f, type);
 }

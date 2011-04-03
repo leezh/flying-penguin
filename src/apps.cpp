@@ -54,3 +54,5 @@ void AppManager::run() {
         activeApp->loop();
     }
 }
+
+AppManager apps;

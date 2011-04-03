@@ -22,37 +22,34 @@
 
 #include <SFML/Graphics.hpp>
 #include "util.hpp"
+#include "entities.hpp"
 
-class World;
-
-class Penguin {
+class Penguin: public Entity {
     private:
         bool running;
         bool takeoff;
         float starTime;
         Sprite* sprite;
         
-        bool isUnderspeed();
-        bool isStalling(float angle);
         float windAngle();
         float liftAccel(float angle);
-        World *parent;
         
     public:
         Vect pos;
         Vect vel;
         float angle;
-        int elevator;
-        bool thrust;
         float fuelRemaining;
         
+        int elevator;
+        bool thrust;
+        
         bool isAlive();
-        bool isFlying();
         float windSpeed();
         
+        bool alive() {return true;}
         void doPhysics(float deltaTime);
         void render();
-        Penguin(World* p);
+        Penguin();
 };
 
 #endif // _PENGUIN_HEADER_

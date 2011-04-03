@@ -28,24 +28,14 @@
 #include "resources.hpp"
 #include "config.h"
 
-extern sf::RenderWindow window;
-extern ResourceManager res;
-extern AppManager apps;
-
 extern ConfigFile conf;
 extern ConfigFile save;
 extern std::string introText;
-
-void resetWorld();
 
 #ifdef CONFIG_STATIC
     #define confVar(t,x) static t x = conf.read<t>(#x)
 #else
     #define confVar(t,x) t x = conf.read<t>(#x)
 #endif
-
-// For convenience, use this command to list all configuration keys used
-// in this project:
-//   grep confVar -h * | grep -v "#define" | cut -f 2 -d , | cut -f 1 -d ')' | sort -u
 
 #endif // _MAIN_HEADER_

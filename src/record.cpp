@@ -25,7 +25,7 @@
 #include "entities.hpp"
 #include "world.hpp"
 #include "record.hpp"
-
+/*
 using namespace std;
 Record record;
 
@@ -119,9 +119,8 @@ class RecordWin: public App {
                 }
                 textBox->handleEvent(Event);
             }
-            world->doPhysics(window.GetFrameTime());
             entities->doPhysics(window.GetFrameTime());
-            world->render();
+            world.render();
             entities->render();
             
             window.Display();
@@ -178,3 +177,4 @@ std::string Record::getRecordDate(std::string format) {
     strftime(buf, 128, format.c_str(), std::localtime(&time));
     return std::string(buf);
 }
+*/

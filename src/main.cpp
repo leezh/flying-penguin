@@ -29,11 +29,8 @@
 
 using namespace std;
 
-sf::RenderWindow window;
 ConfigFile conf;
 ConfigFile save;
-ResourceManager res;
-AppManager apps;
 std::string introText;
 
 void loadConfig() {
@@ -94,58 +91,9 @@ void saveConfig() {
     }
 }
 
-void resetWorld() {
-    delete world;
-    world = new World();
-}
-
-class Simulation: public App {
-    public:
-        bool init() {
-            return true;
-        }
-        void loop() {
-            sf::Event Event;
-            const sf::Input& input = window.GetInput();
-            while (window.GetEvent(Event)){
-                if (Event.Type == sf::Event::Closed)
-                    apps.deactivateAll();
-                if (Event.Type == sf::Event::Resized) {
-                    window.GetDefaultView().SetFromRect(sf::FloatRect(0, 0, Event.Size.Width, Event.Size.Height));
-                    res.recalcSizes(world->metresPerScreen);
-                }
-                if (Event.Type == sf::Event::KeyPressed) {
-                    switch (Event.Key.Code) {
-                        case sf::Key::Escape:
-                        case sf::Key::Q:
-                            apps.deactivate();
-                            return;
-                            break;
-                        case sf::Key::Return:
-                            resetWorld();
-                            break;
-                    }
-                }
-            }
-            world->penguin->elevator = 0;
-            if (input.IsKeyDown(sf::Key::Left)) world->penguin->elevator += 1;
-            if (input.IsKeyDown(sf::Key::Right)) world->penguin->elevator -= 1;
-            world->penguin->thrust = input.IsKeyDown(sf::Key::Space);
-            world->doPhysics(window.GetFrameTime());
-            world->render();
-            window.Display();
-        }
-} simulation;
-
 int main (int argc, char** argv) {
     PHYSFS_init(NULL);
     PHYSFS_setSaneConfig("config", "flying-penguin", NULL, 0, 0);
-    #ifdef RESOURCE_DIR
-    PHYSFS_addToSearchPath(RESOURCE_DIR, 1);
-    #endif
-    #ifdef RESOURCE_DIR_REL
-    PHYSFS_addToSearchPath(RESOURCE_DIR_REL, 1);
-    #endif
     
     srand(time(NULL));
     loadConfig();
@@ -156,13 +104,10 @@ int main (int argc, char** argv) {
     window.Create(sf::VideoMode(save.read<int>("videoWidth"), save.read<int>("videoHeight"), 24), "The Flying Penguin");
     window.UseVerticalSync(true);
     
-    world = new World();
-    apps.activate(&simulation);
+    apps.activate(&world);
     apps.run();
     
-	delete world;
 	res.clear();
-	
 	saveConfig();
     window.Close();
     PHYSFS_deinit();

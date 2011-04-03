@@ -44,4 +44,6 @@ class AppManager {
         AppManager() {activeApp = NULL;};
 };
 
+extern AppManager apps;
+
 #endif // _LOOPS_HEADER_

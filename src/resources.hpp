@@ -110,4 +110,8 @@ class ResourceManager {
         void recalcSizes(float metresPerScreen);
 };
 
+
+extern sf::RenderWindow window;
+extern ResourceManager res;
+
 #endif // _RESOURCES_HEADER_

@@ -25,8 +25,7 @@
 #include "world.hpp"
 using namespace std;
 
-Bird::Bird (World *p, bool anywhere) {
-    confVar(float, metresPerScreen);
+Bird::Bird (bool anywhere) {
     confVar(float, birdAltitudeMin);
     confVar(float, birdAltitudeMax);
     confVar(float, birdSpeedMin);
@@ -34,26 +33,25 @@ Bird::Bird (World *p, bool anywhere) {
     confVar(float, birdAnimDuration);
     confVar(float, birdSize);
     
-    parent = p;
     speed = util::rnd() * (birdSpeedMax - birdSpeedMin) + birdSpeedMin;
     
     sprite = res.sprite("bird");
-    sprite->setSize(birdSize, p->metresPerScreen);
+    sprite->setSize(birdSize, world.metresPerScreen);
     
     hit = false;
     frame = 0;
     animTime = birdAnimDuration * util::rnd();
     if (anywhere) {
-        pos.x = parent->cameraPos.x + util::rnd() * metresPerScreen * 2 - metresPerScreen;
+        pos.x = world.cameraPos.x + util::rnd() * world.metresPerScreen * 2 - world.metresPerScreen;
         pos.y = util::rnd() * (birdAltitudeMax - birdAltitudeMin) + birdAltitudeMin;
     } else {
         switch (int(floor(util::rnd() * 2))) {
             case 0:
-                pos.x = parent->cameraPos.x + metresPerScreen;
+                pos.x = world.cameraPos.x + world.metresPerScreen;
                 pos.y = util::rnd() * (birdAltitudeMax - birdAltitudeMin) + birdAltitudeMin;
                 break;
             case 1:
-                pos.x = parent->cameraPos.x - metresPerScreen;
+                pos.x = world.cameraPos.x - world.metresPerScreen;
                 pos.y = util::rnd() * (birdAltitudeMax - birdAltitudeMin) + birdAltitudeMin;
                 break;
         }
@@ -61,9 +59,9 @@ Bird::Bird (World *p, bool anywhere) {
 }
 
 void Bird::render() {
-    Vect relPos = pos - parent->cameraPos;
+    Vect relPos = pos - world.cameraPos;
     
-    sprite->render(parent->relToPixel(relPos), 0.f, frame);
+    sprite->render(world.relToPixel(relPos), 0.f, frame);
 }
 
 void Bird::doPhysics(float deltaTime) {
@@ -79,10 +77,10 @@ void Bird::doPhysics(float deltaTime) {
         confVar(float, birdPenalty);
         confVar(float, penguinSize);
         
-        if (Vect(pos - parent->penguin->pos).magnitude() <= birdSize / 2 + penguinSize / 2) {
+        if (Vect(pos - world.penguin->pos).magnitude() <= birdSize / 2 + penguinSize / 2) {
             hit = true;
-            parent->penguin->fuelRemaining -= birdPenalty;
-            parent->hud->add(new Puff(parent, pos, parent->penguin->pos));
+            world.penguin->fuelRemaining -= birdPenalty;
+            world.entities.add(new Puff(pos, world.penguin->pos));
             res.sound("buzzer.wav")->play();
             frame = 2;
             return;
@@ -101,17 +99,15 @@ void Bird::doPhysics(float deltaTime) {
 }
 
 bool Bird::alive() {
-    confVar(float, metresPerScreen);
-    
-    if (abs(pos.x - parent->cameraPos.x) > metresPerScreen) {
-        parent->entities->add(new Bird(parent, false));
+    if (abs(pos.x - world.cameraPos.x) > world.metresPerScreen) {
+        world.entities.add(new Bird(false));
         return false;
     }
     
     return true;
 }
 
-Fish::Fish(World *p, int l) {
+Fish::Fish(int l) {
     confVar(float, fishDistStart);
     confVar(float, fishDistMultiplier);
     confVar(float, fishAltitudeMin);
@@ -120,9 +116,8 @@ Fish::Fish(World *p, int l) {
     confVar(float, fishSize);
     confVar(float, arrowSize);
     
-    parent = p;
     level = l;
-    pos.x += parent->penguin->pos.x + fishDistStart + fishDistMultiplier * level;
+    pos.x += world.penguin->pos.x + fishDistStart + fishDistMultiplier * level;
     if (level != 0) {
         pos.y = util::rnd() * (fishAltitudeMax - fishAltitudeMin) + fishAltitudeMin;
     } else {
@@ -131,9 +126,9 @@ Fish::Fish(World *p, int l) {
     }
     
     sprite = res.sprite("fish");
-    sprite->setSize(fishSize, p->metresPerScreen);
+    sprite->setSize(fishSize, world.metresPerScreen);
     arrowSprite = res.sprite("arrow");
-    arrowSprite->setSize(arrowSize, p->metresPerScreen);
+    arrowSprite->setSize(arrowSize, world.metresPerScreen);
     
     text = res.string("large");
     
@@ -141,14 +136,14 @@ Fish::Fish(World *p, int l) {
 }
 
 void Fish::render() {
-    Vect relPos = pos - parent->cameraPos;
-    Vect pixelPos = parent->relToPixel(relPos);
+    Vect relPos = pos - world.cameraPos;
+    Vect pixelPos = world.relToPixel(relPos);
     
     if (pixelPos.x > window.GetWidth()) {
         confVar(float, arrowMargin);
         confVar(float, arrowSize);
         
-        Vect arrowPos(window.GetWidth() - arrowMargin - parent->metresToPixel(arrowSize) / 2, pixelPos.y);
+        Vect arrowPos(window.GetWidth() - arrowMargin - world.metresToPixel(arrowSize) / 2, pixelPos.y);
         
         if (arrowPos.y < arrowMargin) {
             arrowPos.y = arrowMargin;
@@ -169,8 +164,8 @@ void Fish::render() {
         arrowSprite->render(arrowPos, angle);
         
         
-        std::string str(util::to_string(pos.x - parent->penguin->pos.x, 0) + "m");
-        Vect pos(arrowPos.x - parent->metresToPixel(arrowSize) / 2, arrowPos.y);
+        std::string str(util::to_string(pos.x - world.penguin->pos.x, 0) + "m");
+        Vect pos(arrowPos.x - world.metresToPixel(arrowSize) / 2, arrowPos.y);
         text->render(pos, str, 1.f, 0.5f);
     }
     
@@ -184,19 +179,19 @@ void Fish::doPhysics(float deltaTime) {
     confVar(float, fishMissDist);
     confVar(float, birdCountMultiplier);
     
-    if (Vect(pos - parent->penguin->pos).magnitude() <= fishSize / 2 + penguinSize / 2) {
+    if (Vect(pos - world.penguin->pos).magnitude() <= fishSize / 2 + penguinSize / 2) {
         done = true;
-        parent->penguin->fuelRemaining += fishReward;
-        parent->entities->add(new Fish(parent, level + 1));
+        world.penguin->fuelRemaining += fishReward;
+        world.entities.add(new Fish(level + 1));
         for (int i = 0; i < birdCountMultiplier; i++) {
-            parent->entities->add(new Bird(parent, false));
+            world.entities.add(new Bird(false));
         }
         res.sound("point-bell.wav")->play();
     }
     
-    if (parent->penguin->pos.x - pos.x > fishMissDist) {
+    if (world.penguin->pos.x - pos.x > fishMissDist) {
         done = true;
-        parent->entities->add(new Fish(parent, level + 1));
+        world.entities.add(new Fish(level + 1));
     }
 }
 

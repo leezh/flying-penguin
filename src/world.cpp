@@ -19,272 +19,97 @@
 
 #include "world.hpp"
 #include "npc.hpp"
-#include "record.hpp"
+#include "background.hpp"
+#include "main.hpp"
 using namespace std;
 
-World *world;
+float World::metresToPixel(float metres) {
+    return metres / metresPerScreen * max(window.GetWidth(), window.GetHeight());
+}
 
-class SpeedLabel: public Text {
-    private:
-        World *parent;
-    public:
-        SpeedLabel(World *p): Text("regular") {
-            confVar(float, hudMargin);
-            pos = Vect(hudMargin, hudMargin);
-            parent = p;
-            str = "WindSpeed";
-        }
-        bool alive() {
-            return parent->penguin->isAlive();
-        }
-};
+Vect World::metresToPixel(Vect metres) {
+    return metres / metresPerScreen * max(window.GetWidth(), window.GetHeight());
+}
 
-class SpeedIndicator: public Text {
-    private:
-        World *parent;
-    public:
-        SpeedIndicator(World *p): Text("large") {
-            confVar(float, hudMargin);
-            confVar(float, textSize);
-            pos = Vect(hudMargin, hudMargin + textSize);
-            parent = p;
-        }
-        void doPhysics(float deltaTime) {
-            str = util::to_string(parent->penguin->windSpeed(), 0) + "m/s";
-        }
-        bool alive() {
-            return parent->penguin->isAlive();
-        }
-};
+Vect World::relToPixel(Vect pos) {
+    pos = metresToPixel(pos);
+    pos.x += window.GetWidth() / 2;
+    pos.y = window.GetHeight() / 2 - pos.y;
+    return pos;
+}
 
-class FuelLabel: public Text {
-    private:
-        World *parent;
-    public:
-        FuelLabel(World *p): Text("regular") {
-            confVar(float, hudMargin);
-            confVar(float, hudCol1);
-            pos = Vect(hudMargin + hudCol1, hudMargin);
-            parent = p;
-            str = "Fuel Remaining";
-        }
-        bool alive() {
-            return parent->penguin->isAlive();
-        }
-};
-
-class FuelIndicator: public Text {
-    private:
-        World *parent;
-    public:
-        FuelIndicator(World *p): Text("large") {
-            confVar(float, hudMargin);
-            confVar(float, hudCol1);
-            confVar(float, textSize);
-            pos = Vect(hudMargin + hudCol1, hudMargin + textSize);
-            parent = p;
-        }
-        void doPhysics(float deltaTime) {
-            str = util::to_string(parent->penguin->fuelRemaining, 1) + "s";
-        }
-        bool alive() {
-            return parent->penguin->isAlive();
-        }
-};
-
-class AltitudeLabel: public Text {
-    private:
-        World *parent;
-    public:
-        AltitudeLabel(World *p): Text("regular") {
-            confVar(float, hudMargin);
-            confVar(float, hudCol2);
-            pos = Vect(hudMargin + hudCol2, hudMargin);
-            parent = p;
-            str = "Altitude";
-        }
-        bool alive() {
-            return parent->penguin->isAlive();
-        }
-};
-
-class AltitudeIndicator: public Text {
-    private:
-        World *parent;
-    public:
-        AltitudeIndicator(World *p): Text("large") {
-            confVar(float, hudMargin);
-            confVar(float, hudCol2);
-            confVar(float, textSize);
-            pos = Vect(hudMargin + hudCol2, hudMargin + textSize);
-            parent = p;
-        }
-        void doPhysics(float deltaTime) {
-            str = util::to_string(parent->penguin->pos.y, 0) + "m";
-        }
-        bool alive() {
-            return parent->penguin->isAlive();
-        }
-};
-
-class DistanceIndicator: public Text {
-    private:
-        World *parent;
-    public:
-        DistanceIndicator(World *p): Text("regular") {
-            cy = 1.f;
-            parent = p;
-        }
-        void doPhysics(float deltaTime) {
-            str = "Distance: " + util::to_string(parent->penguin->pos.x, 0) + "m";
-        }
-        void render() {
-            confVar(float, hudMargin);
-            pos = Vect(hudMargin, window.GetHeight() - hudMargin);
-            Text::render();
-        }
-};
-
-class RecordIndicator: public Text {
-    private:
-        World *parent;
-    public:
-        RecordIndicator(World *p): Text("regular") {
-            cy = 1.f;
-            parent = p;
-            str = "Record: " + record.getRecord();
-        }
-        void render() {
-            confVar(float, hudMargin);
-            confVar(float, textSize);
-            
-            float posX = hudMargin - parent->metresToPixel(parent->penguin->pos.x);
-            float posY = window.GetHeight() - hudMargin - textSize + parent->metresToPixel(parent->penguin->pos.y);
-            pos = Vect(posX, posY);
-            Text::render();
-        }
-        bool alive() {
-            return parent->penguin->pos.x < parent->metresPerScreen * 2;
-        }
-};
-
-class Instructions: public Text {
-    private:
-        World *parent;
-    public:
-        Instructions(World *p): Text("regular") {
-            parent = p;
-            str = introText;
-        }
-        void render() {
-            confVar(float, hudMargin);
-            confVar(float, titleOffset);
-            float posX = window.GetWidth() / 2 - parent->metresToPixel(parent->penguin->pos.x - titleOffset);
-            float posY = window.GetHeight() / 2 + parent->metresToPixel(parent->penguin->pos.y);
-            pos = Vect(posX, posY);
-            Text::render();
-        }
-        bool alive() {
-            return parent->penguin->pos.x < parent->metresPerScreen * 2;
-        }
-};
-
-class Title: public Entity {
-    private:
-        World *parent;
-        Sprite* sprite;
-        
-    public:
-        Title(World *p) {
-            confVar(float, titleSize);
-            parent = p;
-            sprite = res.sprite("title");
-            sprite->setSize(titleSize, p->metresPerScreen);
-        }
-        void render() {
-            confVar(float, titleOffset);
-            
-            float posX = window.GetWidth() / 2 - parent->metresToPixel(parent->penguin->pos.x - titleOffset);
-            float posY = window.GetHeight() / 2 + parent->metresToPixel(parent->penguin->pos.y);
-            
-            sprite->render(Vect(posX, posY));
-        }
-        bool alive() {
-            return parent->penguin->pos.x < parent->metresPerScreen * 2;
-        }
-};
-
-class RestartLabel: public Text {
-    private:
-        World *parent;
-    public:
-        RestartLabel(World *p): Text("regular") {
-            confVar(float, hudMargin);
-            pos = Vect(hudMargin, hudMargin);
-            parent = p;
-            str = "Press ENTER to restart";
-        }
-        void render() {
-            if (!parent->penguin->isAlive()) Text::render();
-        }
-};
-
-World::World() {
+bool World::init() {
     confVar(int, cloudCount);
     confVar(int, birdCountStart);
     
-    res.playMusic("mushroom-dance.ogg", 50);
-    
     cameraPos = Vect(0.f, 0.f);
     metresPerScreen = conf.read<float>("metresPerScreen");
-    hud = new EntityManager();
-    entities = new EntityManager();
-    penguin = new Penguin(this);
-    background = new Background(this);
+    
+    entities.add(new Background());
     
     for (int i = 0; i < cloudCount; i++) {
-        entities->add(new Cloud(this));
+        entities.add(new Cloud());
     }
     
-    hud->add(new SpeedLabel(this));
-    hud->add(new SpeedIndicator(this));
-    hud->add(new FuelLabel(this));
-    hud->add(new FuelIndicator(this));
-    hud->add(new AltitudeLabel(this));
-    hud->add(new AltitudeIndicator(this));
-    hud->add(new DistanceIndicator(this));
-    hud->add(new RecordIndicator(this));
-    hud->add(new Instructions(this));
-    hud->add(new Title(this));
-    hud->add(new RestartLabel(this));
+    penguin = new Penguin();
+    entities.add(penguin);
     
-    entities->add(new Fish(this, 0));
+    entities.add(new Fish(0));
     
     for (int i = 0; i < birdCountStart; i++) {
-        entities->add(new Bird(this, true));
+        entities.add(new Bird(true));
     }
+    
+    
+    res.playMusic("mushroom-dance.ogg", 50);
+    
+    return true;
 }
 
-World::~World() {
-    delete penguin;
-    delete background;
-    delete hud;
-    delete entities;
+void World::quit() {
+    entities.clear();
 }
 
 void World::render() {
-    // Use this section for camera shakes and whatnot
     cameraPos = penguin->pos;
     cameraPos.x += metresPerScreen / 4;
     
-    background->render();
-    entities->render();
-    penguin->render();
-    hud->render();
+    entities.render();
 }
 
-void World::doPhysics(float deltaTime) {
-    entities->doPhysics(deltaTime);
-    penguin->doPhysics(deltaTime);
-    hud->doPhysics(deltaTime);
+void World::loop() {
+    sf::Event Event;
+    while (window.GetEvent(Event)){
+        if (Event.Type == sf::Event::Closed)
+            apps.deactivateAll();
+        if (Event.Type == sf::Event::Resized) {
+            window.GetDefaultView().SetFromRect(sf::FloatRect(0, 0, Event.Size.Width, Event.Size.Height));
+            res.recalcSizes(world.metresPerScreen);
+        }
+        if (Event.Type == sf::Event::KeyPressed) {
+            switch (Event.Key.Code) {
+                case sf::Key::Escape:
+                    apps.deactivate();
+                    return;
+                    break;
+                case sf::Key::Return:
+                    apps.activate(&world);
+                    return;
+                    break;
+            }
+        }
+    }
+    
+    const sf::Input& input = window.GetInput();
+    penguin->elevator = 0;
+    if (input.IsKeyDown(sf::Key::Left)) penguin->elevator += 1;
+    if (input.IsKeyDown(sf::Key::Right)) penguin->elevator -= 1;
+    penguin->thrust = input.IsKeyDown(sf::Key::Space);
+    
+    entities.doPhysics(window.GetFrameTime());
+    render();
+    window.Display();
+    
 }
+
+World world;

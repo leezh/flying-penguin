@@ -20,46 +20,29 @@
 #ifndef _WORLD_HEADER_
 #define _WORLD_HEADER_
 
-#include <string>
-#include <ctime>
-#include <SFML/Graphics.hpp>
-
-#include "main.hpp"
+#include "resources.hpp"
 #include "util.hpp"
-#include "penguin.hpp"
+#include "apps.hpp"
 #include "entities.hpp"
-#include "background.hpp"
+#include "penguin.hpp"
 
-class World {
+class World: public App {
     public:
         Vect cameraPos;
         float metresPerScreen;
-        Background *background;
-        EntityManager *entities;
-        EntityManager *hud;
+        EntityManager entities;
         Penguin *penguin;
         
-        inline float metresToPixel(float metres) {
-            return metres / metresPerScreen * std::max(window.GetWidth(), window.GetHeight());
-        }
+        float metresToPixel(float metres);
+        Vect metresToPixel(Vect metres);
+        Vect relToPixel(Vect pos);
         
-        inline Vect metresToPixel(Vect metres) {
-            return metres / metresPerScreen * std::max(window.GetWidth(), window.GetHeight());
-        }
-        
-        inline Vect relToPixel(Vect pos) {
-            pos = metresToPixel(pos);
-            pos.x += window.GetWidth() / 2;
-            pos.y = window.GetHeight() / 2 - pos.y;
-            return pos;
-        }
-        
-        World();
-        ~World();
+        bool init();
+        void quit();
         void render();
-        void doPhysics(float deltaTime);
+        void loop();
 };
 
-extern World *world;
+extern World world;
 
 #endif // _WORLD_HEADER_

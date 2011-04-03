@@ -24,7 +24,7 @@
 #include "world.hpp"
 using namespace std;
 
-Star::Star(World* p) {
+Star::Star() {
     confVar(float, starSpeedMax);
     confVar(float, starSpeedMin);
     confVar(float, starAngularSpeedMax);
@@ -32,16 +32,15 @@ Star::Star(World* p) {
     confVar(float, starSize);
     confVar(float, starTTL);
     
-    parent = p;
-    pos = parent->penguin->pos;
+    pos = world.penguin->pos;
     float speed = (starSpeedMax - starSpeedMin) * util::rnd() + starSpeedMin;
-    vel = Vect(-speed * cos(parent->penguin->angle), speed * sin(parent->penguin->angle));
+    vel = Vect(-speed * cos(world.penguin->angle), speed * sin(world.penguin->angle));
     
     angle = (PI * 2 * util::rnd()) - PI;
     angularSpeed = util::rad((starAngularSpeedMax - starAngularSpeedMin) * util::rnd() + starAngularSpeedMin);
     
     sprite = res.sprite("star");
-    sprite->setSize(starSize, p->metresPerScreen);
+    sprite->setSize(starSize, world.metresPerScreen);
     
     life = starTTL;
 }
@@ -58,19 +57,18 @@ bool Star::alive() {
 }
 
 void Star::render() {
-    Vect relPos = pos - parent->cameraPos;
-    sprite->render(parent->relToPixel(relPos), util::deg(angle));
+    Vect relPos = pos - world.cameraPos;
+    sprite->render(world.relToPixel(relPos), util::deg(angle));
 }
 
-Puff::Puff(World* p, Vect pos1, Vect pos2) {
+Puff::Puff(Vect pos1, Vect pos2) {
     confVar(float, puffSize);
     confVar(float, puffTTL);
     
-    parent = p;
     pos = (pos1 + pos2) / 2;
     
     sprite = res.sprite("puff");
-    sprite->setSize(puffSize, p->metresPerScreen);
+    sprite->setSize(puffSize, world.metresPerScreen);
     
     angle = (PI * 2 * util::rnd()) - PI;
     life = puffTTL;
@@ -85,6 +83,6 @@ bool Puff::alive() {
 }
 
 void Puff::render() {
-    Vect relPos = pos - parent->cameraPos;
-    sprite->render(parent->relToPixel(relPos), util::deg(angle));
+    Vect relPos = pos - world.cameraPos;
+    sprite->render(world.relToPixel(relPos), util::deg(angle));
 }

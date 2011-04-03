@@ -377,3 +377,6 @@ void ResourceManager::recalcSizes(float metresPerScreen) {
         it->second->recalcSize(metresPerScreen);
     }
 }
+
+sf::RenderWindow window;
+ResourceManager res;

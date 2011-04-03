@@ -26,27 +26,26 @@
 #include "entities.hpp"
 class World;
 
-class Background {
+class Background: public Entity {
     public:
-        World *parent;
         sf::Color skyColour;
         sf::Color groundColour;
         
         void render();
-        Background(World *p);
+        bool alive() {return true;}
+        Background();
 };
 
 class Cloud: public Entity {
     protected:
         Sprite* sprite;
-        World *parent;
         Vect pos;
         int type;
         
     public:
         void render();
         bool alive() {return true;}
-        Cloud(World *p);
+        Cloud();
 };
 
 #endif // _BACKGROUND_HEADER_

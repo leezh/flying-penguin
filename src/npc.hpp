@@ -20,29 +20,24 @@
 #ifndef _NPC_HEADER_
 #define _NPC_HEADER_
 
-#include <map>
-#include <SFML/Graphics.hpp>
-
+#include "resources.hpp"
 #include "util.hpp"
 #include "entities.hpp"
-class World;
 
 class Bird: public Entity {
     private:
         Sprite* sprite;
-        World* parent;
         Vect pos;
         float speed;
         float animTime;
-        bool hit;
         int frame;
+        bool hit;
         
     public:
         void render();
-        void respawn();
         void doPhysics(float deltaTime);
         bool alive();
-        Bird(World *p, bool anywhere);
+        Bird(bool anywhere);
 };
 
 class Fish: public Entity {
@@ -50,13 +45,12 @@ class Fish: public Entity {
         Sprite* sprite;
         Sprite* arrowSprite;
         String* text;
-        World* parent;
         Vect pos;
         bool done;
         int level;
         
     public:
-        Fish(World *p, int level);
+        Fish(int level);
         void render();
         void doPhysics(float deltaTime);
         bool alive();

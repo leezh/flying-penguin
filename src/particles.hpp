@@ -29,7 +29,6 @@ class World;
 
 class Star: public Entity {
     protected:
-        World* parent;
         Sprite* sprite;
         Vect pos;
         Vect vel;
@@ -41,12 +40,11 @@ class Star: public Entity {
         void doPhysics(float deltaTime);
         bool alive();
         void render();
-        Star(World* p);
+        Star();
 };
 
 class Puff: public Entity {
     protected:
-        World* parent;
         Sprite* sprite;
         Vect pos;
         float life;
@@ -56,7 +54,7 @@ class Puff: public Entity {
         void doPhysics(float deltaTime);
         bool alive();
         void render();
-        Puff(World* p, Vect pos1, Vect pos2);
+        Puff(Vect pos1, Vect pos2);
 };
 
 #endif // _PARTICLES_HEADER_

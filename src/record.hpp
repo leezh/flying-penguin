@@ -19,7 +19,7 @@
 
 #ifndef _RECORD_HEADER_
 #define _RECORD_HEADER_
-
+/*
 #include <string>
 
 class Record {
@@ -36,5 +36,5 @@ class Record {
         std::string getRecordDate(std::string format = "%c");
 };
 extern Record record;
-
+*/
 #endif // _MAIN_HEADER_
