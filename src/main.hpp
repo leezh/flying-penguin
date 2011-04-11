@@ -32,10 +32,6 @@ extern ConfigFile conf;
 extern ConfigFile save;
 extern std::string introText;
 
-#ifdef CONFIG_STATIC
-    #define confVar(t,x) static t x = conf.read<t>(#x)
-#else
-    #define confVar(t,x) t x = conf.read<t>(#x)
-#endif
+#define confVar(t,x) t x = conf.read<t>(#x)
 
 #endif // _MAIN_HEADER_

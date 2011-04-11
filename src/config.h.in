@@ -1,5 +1,2 @@
 #cmakedefine RESOURCE_DIR "${RESOURCE_DIR}/"
 #cmakedefine RESOURCE_DIR_REL "${RESOURCE_DIR_REL}/"
-#cmakedefine CONFIG_DIR_ENV "${CONFIG_DIR_ENV}"
-#cmakedefine CONFIG_STATIC
-#cmakedefine HIGHSCORE_PATH "${HIGHSCORE_PATH}"

@@ -3,17 +3,8 @@ cmake_minimum_required (VERSION 2.6)
 
 # == Variables ==
 
-if (WIN32)
-    set (RESOURCE_DIR "share/flying-penguin/" CACHE FILEPATH "Directory to look for resources")
-	set (CONFIG_DIR_ENV "USERPROFILE" CACHE STRING "Environment variable to use in determining the directory for storing settings")
-    set (HIGHSCORE_PATH "highscore" CACHE STRING "Path to save the high score tables")
-endif ()
-
 set (RESOURCE_DIR "${CMAKE_INSTALL_PREFIX}/share/flying-penguin/" CACHE FILEPATH "Directory to look for resources")
 set (RESOURCE_DIR_REL "../share/flying-penguin/" CACHE FILEPATH "Relative paths for use in tarballs")
-set (CONFIG_DIR_ENV "HOME" CACHE STRING "Environment variable to use in determining the directory for storing settings")
-set (CONFIG_STATIC ON CACHE BOOL "Whether variables are constant in-game (might increase speed)")
-set (HIGHSCORE_PATH "/var/games/flying-penguin" CACHE STRING "Path to save the high score tables")
 
 # == Source Files ==
 
