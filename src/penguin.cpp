@@ -83,7 +83,7 @@ void Penguin::doPhysics(float deltaTime) {
     
         if (starTime > starCreateDelay) {
             starTime -= starCreateDelay;
-            world.entities.add(new Star());
+            world.background.add(new Star());
         }
     }
     if (fuelRemaining < 0) {
@@ -120,7 +120,7 @@ void Penguin::doPhysics(float deltaTime) {
             running = false;
             res.sound("buzzer.wav")->play();
             res.stopMusic();
-            world.entities.add(new Puff(pos, pos));
+            world.foreground.add(new Puff(pos, pos));
             //record.submit(pos.x);
         }
     }
@@ -144,6 +144,7 @@ Penguin::Penguin() {
     elevator = 0;
     thrust = 0;
     fuelRemaining = initialFuel;
+    starTime = 0;
     running = true;
     takeoff = false;
 }

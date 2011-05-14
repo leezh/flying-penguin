@@ -74,8 +74,8 @@ void loadConfig() {
         PHYSFS_close(file);
     }
     
-    if (save.read("videoWidth", 0) <= 0) save.add("videoWidth", 1024);     
-    if (save.read("videoHeight", 0) <= 0) save.add("videoHeight", 768);
+    if (save.read("videoWidth", 0) <= 0) save.add("videoWidth", 960);
+    if (save.read("videoHeight", 0) <= 0) save.add("videoHeight", 640);
 }
 
 void saveConfig() {

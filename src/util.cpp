@@ -48,15 +48,19 @@ namespace util {
     }
 
     void tokenise(const std::string &input, std::vector<std::string> &tokens, std::string seperators) {
-        string quotes = "\"\'";
+        string start_quotes = "\"\'";
+        string end_quotes = "\"\'";
         string escapes = "\\";
         char quote_used = 0;
+        char quote_end = 0;
+        int level = 0;
+        
         string::size_type pos, sstart;
 
         pos = input.find_first_not_of (seperators);
         sstart = pos;
         while (pos != string::npos && pos < input.size()) {
-            pos = input.find_first_of(quotes + escapes + seperators, pos);
+            pos = input.find_first_of(start_quotes + end_quotes + escapes + seperators, pos);
             if (pos == string::npos) {
                 break;
             }
@@ -66,15 +70,23 @@ namespace util {
                 continue;
             }
 
-            if (quote_used != 0) {
+            if (level != 0) {
+                if (input.at(pos) == quote_end) {
+                    level--;
+                    pos++;
+                    continue;
+                }
+                
                 if (input.at(pos) == quote_used) {
-                    quote_used = 0;
+                    level++;
                     pos++;
                     continue;
                 }
             } else {
-                if (quotes.find_first_of(input.at(pos)) != string::npos) {
+                if (start_quotes.find_first_of(input.at(pos)) != string::npos) {
                     quote_used = input.at(pos);
+                    quote_end = end_quotes.at(start_quotes.find_first_of(quote_used));
+                    level++;
                     pos++;
                     continue;
                 }

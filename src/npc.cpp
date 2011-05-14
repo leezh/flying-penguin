@@ -80,7 +80,7 @@ void Bird::doPhysics(float deltaTime) {
         if (Vect(pos - world.penguin->pos).magnitude() <= birdSize / 2 + penguinSize / 2) {
             hit = true;
             world.penguin->fuelRemaining -= birdPenalty;
-            world.entities.add(new Puff(pos, world.penguin->pos));
+            world.foreground.add(new Puff(pos, world.penguin->pos));
             res.sound("buzzer.wav")->play();
             frame = 2;
             return;
@@ -112,7 +112,6 @@ Fish::Fish(int l) {
     confVar(float, fishDistMultiplier);
     confVar(float, fishAltitudeMin);
     confVar(float, fishAltitudeMax);
-    confVar(float, textSizeLarge);
     confVar(float, fishSize);
     confVar(float, arrowSize);
     

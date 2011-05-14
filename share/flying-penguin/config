@@ -55,8 +55,9 @@ arrowMargin = 50
 arrowSize = 1.5
 
 hudMargin = 25
-hudCol1 = 110
-hudCol2 = 245
+flightInfoCol1 = 140
+flightInfoCol2 = 155
+flightInfoRow1 = 16
 
 titleSize = 8
 titleOffset = 0
@@ -67,9 +68,6 @@ cloudCount = 20
 groundColour = ffffff
 skyColour = d7e3f4
 shadeColour = 00000088
-
-textSize = 12
-textSizeLarge = 20
 
 # Cheats / Debug
 invincible = false

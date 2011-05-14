@@ -30,7 +30,11 @@ class World: public App {
     public:
         Vect cameraPos;
         float metresPerScreen;
+        
+        EntityManager background;
         EntityManager entities;
+        EntityManager foreground;
+        
         Penguin *penguin;
         
         float metresToPixel(float metres);

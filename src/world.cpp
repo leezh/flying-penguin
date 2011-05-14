@@ -23,6 +23,47 @@
 #include "main.hpp"
 using namespace std;
 
+class FlightInfo: public Entity {
+    protected:
+        World* parent;
+        String* dataText;
+        String* labelText;
+    public:
+        FlightInfo(World *p) {
+            parent = p;
+            labelText = res.string("regular");
+            dataText = res.string("large");
+        }
+        void render() {
+            confVar(int, hudMargin);
+            confVar(float, flightInfoCol1);
+            confVar(float, flightInfoCol2);
+            confVar(float, flightInfoRow1);
+            std::string dataStr;
+            Vect labelPos(hudMargin, hudMargin);
+            Vect dataPos(hudMargin, hudMargin + flightInfoRow1);
+            
+            labelText->render(labelPos, "Wind Speed", 0.f, 0.f);
+            dataStr = util::to_string(parent->penguin->windSpeed(), 1) + "m/s";
+            dataText->render(dataPos, dataStr, 0.f, 0.f);
+            
+            labelPos.x += flightInfoCol1;
+            dataPos.x += flightInfoCol1;
+            labelText->render(labelPos, "Fuel Remaining", 0.f, 0.f);
+            dataStr = util::to_string(parent->penguin->fuelRemaining, 1) + "s";
+            dataText->render(dataPos, dataStr, 0.f, 0.f);
+            
+            labelPos.x += flightInfoCol2;
+            dataPos.x += flightInfoCol2;
+            labelText->render(labelPos, "Altitude", 0.f, 0.f);
+            dataStr = util::to_string(parent->penguin->pos.y, 0) + "m";
+            dataText->render(dataPos, dataStr, 0.f, 0.f);
+        }
+        bool alive() {
+            return true;
+        }
+};
+
 float World::metresToPixel(float metres) {
     return metres / metresPerScreen * max(window.GetWidth(), window.GetHeight());
 }
@@ -45,20 +86,21 @@ bool World::init() {
     cameraPos = Vect(0.f, 0.f);
     metresPerScreen = conf.read<float>("metresPerScreen");
     
-    entities.add(new Background());
+    background.add(new Background());
     
     for (int i = 0; i < cloudCount; i++) {
-        entities.add(new Cloud());
+        background.add(new Cloud());
     }
     
     penguin = new Penguin();
     entities.add(penguin);
     
-    entities.add(new Fish(0));
-    
     for (int i = 0; i < birdCountStart; i++) {
         entities.add(new Bird(true));
     }
+    
+    foreground.add(new Fish(0));
+    foreground.add(new FlightInfo(this));
     
     
     res.playMusic("mushroom-dance.ogg", 50);
@@ -67,14 +109,18 @@ bool World::init() {
 }
 
 void World::quit() {
+    background.clear();
     entities.clear();
+    foreground.clear();
 }
 
 void World::render() {
     cameraPos = penguin->pos;
     cameraPos.x += metresPerScreen / 4;
     
+    background.render();
     entities.render();
+    foreground.render();
 }
 
 void World::loop() {
@@ -106,7 +152,12 @@ void World::loop() {
     if (input.IsKeyDown(sf::Key::Right)) penguin->elevator -= 1;
     penguin->thrust = input.IsKeyDown(sf::Key::Space);
     
-    entities.doPhysics(window.GetFrameTime());
+    float frameTime = window.GetFrameTime();
+    
+    background.doPhysics(frameTime);
+    entities.doPhysics(frameTime);
+    foreground.doPhysics(frameTime);
+    
     render();
     window.Display();
     
