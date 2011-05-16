@@ -27,6 +27,7 @@
 using namespace util;
 
 bool Penguin::isAlive() {return running;}
+bool Penguin::isFlying() {return takeoff;}
 
 float Penguin::windAngle() {
     if (vel.magnitude() > 0.f) {

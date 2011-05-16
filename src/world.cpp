@@ -95,6 +95,25 @@ class DistanceInfo: public Entity {
         }
 };
 
+class Intro: public Entity {
+    protected:
+        String* text;
+        Sprite* title;
+    public:
+        Intro() {
+            text = res.string("regular");
+            title = res.sprite("title");
+        }
+        void render() {
+            Vect pos(window.GetWidth() / 2, window.GetHeight() / 2);
+            title->render(pos);
+            text->render(pos, introText);
+        }
+        bool alive() {
+            return !world.penguin->isFlying();
+        }
+};
+
 float World::metresToPixel(float metres) {
     return metres / metresPerScreen * max(window.GetWidth(), window.GetHeight());
 }
@@ -133,6 +152,7 @@ bool World::init() {
     foreground.add(new Fish(0));
     foreground.add(new FlightInfo());
     foreground.add(new DistanceInfo());
+    foreground.add(new Intro());
     
     
     res.playMusic("mushroom-dance.ogg");

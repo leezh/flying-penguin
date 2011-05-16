@@ -44,6 +44,7 @@ class Penguin: public Entity {
         bool thrust;
         
         bool isAlive();
+        bool isFlying();
         float windSpeed();
         
         bool alive() {return true;}
