@@ -61,7 +61,7 @@ Run the following commands:
 
 # Contributors
 
-* Lee Zher Huei lee@leezh.net
+* Lee Zher Huei <lee.zh.92@gmail.com>
   - Project maintainer
   - Programmer
   - Artist
