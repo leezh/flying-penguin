@@ -194,4 +194,6 @@ void Fish::doPhysics(float deltaTime) {
     }
 }
 
-bool Fish::alive() {return !done;}
+bool Fish::alive() {
+    return !done;
+}

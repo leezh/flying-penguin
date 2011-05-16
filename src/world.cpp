@@ -21,43 +21,74 @@
 #include "npc.hpp"
 #include "background.hpp"
 #include "main.hpp"
+#include "record.hpp"
 using namespace std;
 
 class FlightInfo: public Entity {
     protected:
-        World* parent;
         String* dataText;
         String* labelText;
     public:
-        FlightInfo(World *p) {
-            parent = p;
+        FlightInfo() {
             labelText = res.string("regular");
             dataText = res.string("large");
         }
         void render() {
             confVar(int, hudMargin);
-            confVar(float, flightInfoCol1);
-            confVar(float, flightInfoCol2);
-            confVar(float, flightInfoRow1);
+            confVar(float, hudFlightCol1);
+            confVar(float, hudFlightCol2);
+            confVar(float, hudFlightRow1);
             std::string dataStr;
             Vect labelPos(hudMargin, hudMargin);
-            Vect dataPos(hudMargin, hudMargin + flightInfoRow1);
+            Vect dataPos(hudMargin, hudMargin + hudFlightRow1);
             
             labelText->render(labelPos, "Wind Speed", 0.f, 0.f);
-            dataStr = util::to_string(parent->penguin->windSpeed(), 1) + "m/s";
+            dataStr = util::to_string(world.penguin->windSpeed(), 1) + "m/s";
             dataText->render(dataPos, dataStr, 0.f, 0.f);
             
-            labelPos.x += flightInfoCol1;
-            dataPos.x += flightInfoCol1;
+            labelPos.x += hudFlightCol1;
+            dataPos.x += hudFlightCol1;
             labelText->render(labelPos, "Fuel Remaining", 0.f, 0.f);
-            dataStr = util::to_string(parent->penguin->fuelRemaining, 1) + "s";
+            dataStr = util::to_string(world.penguin->fuelRemaining, 1) + "s";
             dataText->render(dataPos, dataStr, 0.f, 0.f);
             
-            labelPos.x += flightInfoCol2;
-            dataPos.x += flightInfoCol2;
+            labelPos.x += hudFlightCol2;
+            dataPos.x += hudFlightCol2;
             labelText->render(labelPos, "Altitude", 0.f, 0.f);
-            dataStr = util::to_string(parent->penguin->pos.y, 0) + "m";
+            dataStr = util::to_string(world.penguin->pos.y, 0) + "m";
             dataText->render(dataPos, dataStr, 0.f, 0.f);
+        }
+        bool alive() {
+            return true;
+        }
+};
+
+class DistanceInfo: public Entity {
+    protected:
+        String* dataText;
+        String* labelText;
+    public:
+        DistanceInfo() {
+            labelText = res.string("regular");
+            dataText = res.string("large");
+        }
+        void render() {
+            confVar(int, hudMargin);
+            confVar(float, hudDistanceRow1);
+            confVar(float, hudDistanceCol1);
+            std::string dataStr;
+            Vect dataPos(hudMargin, window.GetHeight() - hudMargin);
+            Vect labelPos(hudMargin, window.GetHeight() - hudMargin - hudDistanceRow1);
+            
+            labelText->render(labelPos, "Record", 0.f, 1.f);
+            dataStr = util::to_string(record.getDist(), 0) + "m";
+            dataText->render(dataPos, dataStr, 0.f, 1.f);
+            
+            labelPos.x += hudDistanceCol1;
+            dataPos.x += hudDistanceCol1;
+            labelText->render(labelPos, "Distance", 0.f, 1.f);
+            dataStr = util::to_string(world.penguin->pos.x, 0) + "m";
+            dataText->render(dataPos, dataStr, 0.f, 1.f);
         }
         bool alive() {
             return true;
@@ -100,10 +131,11 @@ bool World::init() {
     }
     
     foreground.add(new Fish(0));
-    foreground.add(new FlightInfo(this));
+    foreground.add(new FlightInfo());
+    foreground.add(new DistanceInfo());
     
     
-    res.playMusic("mushroom-dance.ogg", 50);
+    res.playMusic("mushroom-dance.ogg");
     
     return true;
 }

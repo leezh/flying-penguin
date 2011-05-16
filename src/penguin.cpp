@@ -121,7 +121,9 @@ void Penguin::doPhysics(float deltaTime) {
             res.sound("buzzer.wav")->play();
             res.stopMusic();
             world.foreground.add(new Puff(pos, pos));
-            //record.submit(pos.x);
+            if (record.submit(pos.x)) {
+                world.foreground.add(new RecordBanner());
+            }
         }
     }
 }

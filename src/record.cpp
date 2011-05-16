@@ -17,164 +17,41 @@
 //  MA 02110-1301, USA.
 //
 
-#include <fstream>
-#include <cstdlib>
-#include <ctime>
-
 #include "main.hpp"
-#include "entities.hpp"
-#include "world.hpp"
 #include "record.hpp"
-/*
+
 using namespace std;
 Record record;
 
-class WindowShade: public Entity {
-    private:
-        sf::Shape box;
-        
-    public:
-        void render() {
-            box = sf::Shape::Rectangle(0, 0, window.GetWidth(), window.GetHeight(), util::to_colour(conf.read<string>("shadeColour")));
-            window.Draw(box);
-        }
-        bool alive() {return true;}
-};
-
-class NameEditor: public TextBox {
-    public:
-        NameEditor(): TextBox("shade-regular") {
-            cx = 0.5f;
-            cy = 0.f;
-        }
-        void render() {
-            confVar(float, textSizeLarge);
-            pos = Vect(window.GetWidth() / 2, window.GetHeight() / 2);
-            TextBox::render();
-        }
-};
-
-class RecordWinBanner: public Text {
-    public:
-        RecordWinBanner(): Text("shade-large") {
-            cx = 0.5f;
-            cy = 1.f;
-            str = "New Record: " + util::to_string(record.getRecordDist(), 0) + "m!";
-        }
-        void render() {
-            pos = Vect(window.GetWidth() / 2, window.GetHeight() / 2);
-            Text::render();
-        }
-};
-
-
-class ShadeRestartLabel: public Text {
-    public:
-        ShadeRestartLabel(): Text("shade-regular") {
-            confVar(float, hudMargin);
-            str = "Press ENTER to restart";
-            pos = Vect(hudMargin, hudMargin);
-        }
-};
-
-class RecordWin: public App {
-    public:
-        EntityManager *entities;
-        NameEditor *textBox;
-        bool init() {
-            entities = new EntityManager;
-            entities->add(new WindowShade());
-            entities->add(new RecordWinBanner());
-            entities->add(new ShadeRestartLabel());
-            textBox = new NameEditor();
-            entities->add(textBox);
-            
-            textBox->editText = record.getRecordName();
-            textBox->selectAll();
-            return true;
-        }
-        void loop() {
-            sf::Event Event;
-            while (window.GetEvent(Event)){
-                if (Event.Type == sf::Event::Closed) {
-                    apps.deactivateAll();
-                }
-                if (Event.Type == sf::Event::Resized) {
-                    window.GetDefaultView().SetFromRect(sf::FloatRect(0, 0, Event.Size.Width, Event.Size.Height));
-                }
-                if (Event.Type == sf::Event::KeyPressed) {
-                    switch (Event.Key.Code) {
-                        case sf::Key::Escape:
-                            apps.deactivateAll();
-                            return;
-                            break;
-                        case sf::Key::Return:
-                            save.add("name", textBox->editText);
-                            record.submit(record.getRecordDist(), true);
-                            resetWorld();
-                            apps.deactivate();
-                            return;
-                            break;
-                    }
-                }
-                textBox->handleEvent(Event);
-            }
-            entities->doPhysics(window.GetFrameTime());
-            world.render();
-            entities->render();
-            
-            window.Display();
-        }
-        void quit() {
-            delete entities;
-        }
-} recordWin;
-
-Record::Record() {
-    #ifdef HIGHSCORE_PATH
-    ifstream file(HIGHSCORE_PATH);
-    if (file) {
-        getline(file, username);
-        file >> distance;
-        file >> time;
-        file.close();
-    } else {
-        username = "Nobody";
-        distance = 0;
-        time = 0;
-    }
-    #endif
+RecordBanner::RecordBanner() {
+    text = res.string("large");
 }
 
-bool Record::submit(float dist, bool internal) {
-    if (dist >= distance) {
-        username = save.read("name", string("Unknown Penguin"));
-        distance = dist;
-        time = std::time(NULL);
-        #ifdef HIGHSCORE_PATH
-        ofstream file(HIGHSCORE_PATH, ios_base::trunc);
-        if (file) {
-            file << username << endl;
-            file << distance << endl;
-            file << time << endl;
-            file.close();
-        }
-        if (!internal) {
-            apps.activate(&recordWin, false);
-        }
-        #endif
+void RecordBanner::render() {
+    Vect pos(window.GetWidth() / 2, window.GetHeight() / 3);
+    text->render(pos, "New Record", 0.5f, 0.f);
+}
+
+bool RecordBanner::alive() {
+    return true;
+}
+
+Record::Record() {
+    distance = -1;
+}
+
+bool Record::submit(float testDist) {
+    if (testDist > distance) {
+        save.add("record", testDist);
+        distance = save.read("record", 0);
         return true;
     }
     return false;
 }
 
-std::string Record::getRecord() {
-    return util::to_string(distance, 0) + "m by " + username;
+float Record::getDist() {
+    if (distance < 0) {
+        distance = save.read("record", 0);
+    }
+    return distance;
 }
-
-std::string Record::getRecordDate(std::string format) {
-    char buf[128];
-    strftime(buf, 128, format.c_str(), std::localtime(&time));
-    return std::string(buf);
-}
-*/

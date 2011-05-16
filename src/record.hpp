@@ -19,22 +19,28 @@
 
 #ifndef _RECORD_HEADER_
 #define _RECORD_HEADER_
-/*
+
 #include <string>
+#include "entities.hpp"
+
+class RecordBanner: public Entity {
+    protected:
+        String* text;
+    public:
+        RecordBanner();
+        void render();
+        bool alive();
+};
 
 class Record {
     private:
-        std::string username;
-        std::time_t time;
         float distance;
     public:
         Record();
-        bool submit(float dist, bool internal = false);
-        std::string getRecord();
-        float getRecordDist() {return distance;}
-        std::string getRecordName() {return username;}
-        std::string getRecordDate(std::string format = "%c");
+        bool submit(float testDist);
+        float getDist();
 };
+
 extern Record record;
-*/
-#endif // _MAIN_HEADER_
+
+#endif // _RECORD_HEADER_

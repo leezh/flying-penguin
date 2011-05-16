@@ -79,6 +79,8 @@ void loadConfig() {
 }
 
 void saveConfig() {
+    save.add("videoHeight", window.GetHeight());
+    save.add("videoWidth", window.GetWidth());
     PHYSFS_File* file = PHYSFS_openWrite("save");
     if(file != NULL) {
         stringstream ss;

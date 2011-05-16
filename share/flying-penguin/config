@@ -55,9 +55,11 @@ arrowMargin = 50
 arrowSize = 1.5
 
 hudMargin = 25
-flightInfoCol1 = 140
-flightInfoCol2 = 155
-flightInfoRow1 = 16
+hudFlightCol1 = 140
+hudFlightCol2 = 155
+hudFlightRow1 = 16
+hudDistanceRow1 = 24
+hudDistanceCol1 = 140
 
 titleSize = 8
 titleOffset = 0
