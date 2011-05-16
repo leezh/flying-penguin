@@ -42,7 +42,7 @@ class Sprite {
         // Set to < 0 if you want to manually calculate the pixel size
         void setSize(float s, float metresPerScreen);
         
-        void render(Vect pos, float angle = 0.f, int frame = 0);
+        void render(Vect pos, float angle = 0.f, int frame = 0, float alpha = 1.0);
         friend class ResourceManager;
 };
 

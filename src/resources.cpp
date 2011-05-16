@@ -71,11 +71,12 @@ void Sprite::recalcSize(float metresPerScreen) {
     }
 }
 
-void Sprite::render(Vect pos, float angle, int frame) {
+void Sprite::render(Vect pos, float angle, int frame, float alpha) {
     if (frame < 0 || frame >= sprites.size()) frame = 0;
     if (sprites.size() == 0) return;
     sprites[frame]->SetPosition(pos.x, pos.y);
     sprites[frame]->SetRotation(angle);
+    sprites[frame]->SetColor(sf::Color(255, 255, 255, 255 * alpha));
     
     window.Draw(*sprites[frame]);
 }
