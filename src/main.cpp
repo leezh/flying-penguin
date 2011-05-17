@@ -95,7 +95,7 @@ void saveConfig() {
 
 int main (int argc, char** argv) {
     PHYSFS_init(NULL);
-    PHYSFS_setSaneConfig("config", "flying-penguin", NULL, 0, 0);
+    PHYSFS_setSaneConfig("flying-penguin", "", NULL, 0, 0);
     #ifdef RESOURCE_DIR
     PHYSFS_addToSearchPath(RESOURCE_DIR, 1);
     #endif
