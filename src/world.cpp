@@ -114,6 +114,23 @@ class Intro: public Entity {
         }
 };
 
+class RestartInfo: public Entity {
+    protected:
+        String* text;
+    public:
+        RestartInfo() {
+            text = res.string("regular");
+        }
+        void render() {
+            if (world.penguin->isAlive()) return;
+            Vect pos(window.GetWidth() / 2, window.GetHeight() / 3);
+            text->render(pos, "Press ENTER to restart", 0.5f, 0.f);
+        }
+        bool alive() {
+            return true;
+        }
+};
+
 float World::metresToPixel(float metres) {
     return metres / metresPerScreen * max(window.GetWidth(), window.GetHeight());
 }
@@ -153,6 +170,7 @@ bool World::init() {
     foreground.add(new FlightInfo());
     foreground.add(new DistanceInfo());
     foreground.add(new Intro());
+    foreground.add(new RestartInfo());
     
     
     res.playMusic("mushroom-dance.ogg");
