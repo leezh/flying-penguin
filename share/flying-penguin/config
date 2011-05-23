@@ -17,12 +17,12 @@ birdFlapTime = 0.2
 birdFlapCount = 2
 birdSize = 1.5
 birdPenalty = 2
-birdSpeedMin = 8
-birdSpeedMax = 12
+birdSpeedMin = 5
+birdSpeedMax = 8
 birdAltitudeMin = 5
 birdAltitudeMax = 55
 birdCountStart = 0
-birdCountMultiplier = 5
+birdCountMultiplier = 3
 
 # Fish
 fishSize = 2
