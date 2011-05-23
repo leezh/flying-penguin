@@ -78,6 +78,11 @@ Run the following commands:
   - Licensed under Creative Commons Attribution 3.0
   - http://opengameart.org/content/point-bell
 
+* share/flying-penguin/sounds/applause.wav
+  - Created by freesound.org and Blender Foundation
+  - Licensed under Creative Commons Attribution 3.0
+  - http://opengameart.org/content/applause
+
 * share/flying-penguin/music/mushroom-dance.ogg
   - Mushroom Dance
   - Composed by Bart K.
