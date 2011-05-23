@@ -81,13 +81,13 @@ class DistanceInfo: public Entity {
             Vect labelPos(hudMargin, window.GetHeight() - hudMargin - hudDistanceRow1);
             
             labelText->render(labelPos, "Record", 0.f, 1.f);
-            dataStr = util::to_string(record.getDist(), 0) + "m";
+            dataStr = util::to_string(floor(record.getDist()), 0) + "m";
             dataText->render(dataPos, dataStr, 0.f, 1.f);
             
             labelPos.x += hudDistanceCol1;
             dataPos.x += hudDistanceCol1;
             labelText->render(labelPos, "Distance", 0.f, 1.f);
-            dataStr = util::to_string(world.penguin->pos.x, 0) + "m";
+            dataStr = util::to_string(floor(world.penguin->pos.x), 0) + "m";
             dataText->render(dataPos, dataStr, 0.f, 1.f);
         }
         bool alive() {
@@ -101,11 +101,14 @@ class Intro: public Entity {
         Sprite* title;
     public:
         Intro() {
+            confVar(float, titleSize);
             text = res.string("regular");
             title = res.sprite("title");
+            title->setSize(titleSize, world.metresPerScreen);
         }
         void render() {
-            Vect pos(window.GetWidth() / 2, window.GetHeight() / 2);
+            Vect pos = world.relToPixel(-world.cameraPos);
+            pos.x += window.GetWidth() / 8;
             title->render(pos);
             text->render(pos, introText);
         }

@@ -62,7 +62,6 @@ hudDistanceRow1 = 24
 hudDistanceCol1 = 140
 
 titleSize = 8
-titleOffset = 0
 
 cloudSize = 5
 cloudCount = 20

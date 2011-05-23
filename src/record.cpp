@@ -29,7 +29,7 @@ RecordBanner::RecordBanner() {
 
 void RecordBanner::render() {
     Vect pos(window.GetWidth() / 2, window.GetHeight() / 3);
-    text->render(pos, "New Record", 0.5f, 1.f);
+    text->render(pos, "New Record!", 0.5f, 1.f);
 }
 
 bool RecordBanner::alive() {
