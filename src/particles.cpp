@@ -57,8 +57,9 @@ bool Star::alive() {
 }
 
 void Star::render() {
+    confVar(float, starTTL);
     Vect relPos = pos - world.cameraPos;
-    sprite->render(world.relToPixel(relPos), util::deg(angle));
+    sprite->render(world.relToPixel(relPos), util::deg(angle), 0, life / starTTL);
 }
 
 Puff::Puff(Vect pos1, Vect pos2) {
@@ -83,6 +84,7 @@ bool Puff::alive() {
 }
 
 void Puff::render() {
+    confVar(float, puffTTL);
     Vect relPos = pos - world.cameraPos;
-    sprite->render(world.relToPixel(relPos), util::deg(angle));
+    sprite->render(world.relToPixel(relPos), util::deg(angle), 0, life / puffTTL);
 }
