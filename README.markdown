@@ -8,12 +8,13 @@ In this game, the point is to fly as far as possible while using limited fuel. E
      Left - Turn counter-clockwise
     Right - Turn clockwise
     Space - Use thrusters
+        M - Mute Audio
     Enter - Reset
       Esc - Quit
 
-To take off, hold the `Space` key down to gain speed. When about 13 m/s (~45 km/h) your speed is good enough for take-off. Use the `Left` and `Right` keys to steer.
+To take off, hold the `Space` key down to gain speed. When about 11 m/s your speed is good enough for take-off. Use the `Left` and `Right` keys to steer.
 
-Be careful of windspeed because there wouldn't be enough lift below 10 m/s. Stall angle is about 25 degrees. At the same time don't hold on to the thrusters for too long as the fuel is limited.
+Be careful of windspeed because there wouldn't be enough lift below 8 m/s. Stall angle is about 20 degrees. At the same time don't hold on to the thrusters for too long as the fuel is limited.
 
 You can actually reach the first few fish without turning off the thrusters, but you'll get trouble later when the fish are further apart. Each time you collect a fish you earn 5 seconds of fuel.
 
