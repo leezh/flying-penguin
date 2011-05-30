@@ -92,8 +92,9 @@ void Penguin::doPhysics(float deltaTime) {
     }
     
     // Lift
-    if (angle < rad(stallAngle) && angle > -rad(stallAngle)) {
-        float lift = liftAccel(windAngle() + rad(wingAngle));
+    float wAngle = windAngle();
+    if (wAngle < rad(stallAngle) && wAngle > -rad(stallAngle)) {
+        float lift = liftAccel(wAngle + rad(wingAngle));
         accel += Vect(0, 0, 1).crossProduct(vel).unitVector() * lift;
     }
     
