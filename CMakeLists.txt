@@ -54,12 +54,11 @@ add_executable (flying-penguin ${project_sources})
 set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/misc/cmake")
 if (WIN32)
     set (CMAKE_BUILD_TYPE Release)
-    add_definitions(-DSFML_DYNAMIC)
 endif ()
 find_package (SFML REQUIRED COMPONENTS Audio Graphics Window System)
 find_package (PhysFS REQUIRED)
 include_directories (${SFML_INCLUDE_DIR} ${PHYSFS_INCLUDE_DIR} ${PROJECT_BINARY_DIR})
-target_link_libraries (flying-penguin ${SFML_LIBRARY} ${PHYSFS_LIBRARY})
+target_link_libraries (flying-penguin ${SFML_LIBRARIES} ${PHYSFS_LIBRARY})
 
 # == Package Info ==
 
