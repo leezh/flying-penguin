@@ -3,7 +3,11 @@ cmake_minimum_required (VERSION 2.6)
 
 # == Variables ==
 
-set (RESOURCE_DIR "${CMAKE_INSTALL_PREFIX}/share/flying-penguin/" CACHE FILEPATH "Directory to look for resources")
+if (WIN32)
+    set (RESOURCE_DIR "share/flying-penguin/" CACHE FILEPATH "Directory to look for resources")
+else ()
+    set (RESOURCE_DIR "${CMAKE_INSTALL_PREFIX}/share/flying-penguin/" CACHE FILEPATH "Directory to look for resources")
+endif ()
 set (RESOURCE_DIR_REL "../share/flying-penguin/" CACHE FILEPATH "Relative paths for use in tarballs")
 
 # == Source Files ==
@@ -37,7 +41,11 @@ set (project_sources
     src/world.hpp)
 configure_file("${PROJECT_SOURCE_DIR}/src/config.h.in" "${PROJECT_BINARY_DIR}/config.h")
 if (WIN32)
-	set (project_sources ${project_sources} misc/windows/flying-penguin.rc)
+    if (MINGW)
+        set (project_sources ${project_sources} misc/windows/flying-penguin-mingw.rc)
+    else ()
+        set (project_sources ${project_sources} misc/windows/flying-penguin.rc)
+    endif ()
 endif ()
 add_executable (flying-penguin ${project_sources})
 
@@ -45,9 +53,8 @@ add_executable (flying-penguin ${project_sources})
 
 set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/misc/cmake")
 if (WIN32)
-	set (SFMLDIR "${CMAKE_SOURCE_DIR}/misc/windows/sfml/")
-	set (CMAKE_BUILD_TYPE Release)
-	add_definitions(-DSFML_DYNAMIC)
+    set (CMAKE_BUILD_TYPE Release)
+    add_definitions(-DSFML_DYNAMIC)
 endif ()
 find_package (SFML REQUIRED COMPONENTS Audio Graphics Window System)
 find_package (PhysFS REQUIRED)
@@ -56,18 +63,16 @@ target_link_libraries (flying-penguin ${SFML_LIBRARY} ${PHYSFS_LIBRARY})
 
 # == Package Info ==
 
-if (WIN32)
-	install (FILES misc/windows/sfml/lib/sfml-audio.dll DESTINATION bin)
-	install (FILES misc/windows/sfml/lib/sfml-graphics.dll DESTINATION bin)
-	install (FILES misc/windows/sfml/lib/sfml-system.dll DESTINATION bin)
-	install (FILES misc/windows/sfml/lib/sfml-window.dll DESTINATION bin)
-endif ()
-
 install (TARGETS flying-penguin DESTINATION bin)
-install (FILES misc/linux/flying-penguin.desktop DESTINATION share/applications)
-install (FILES misc/linux/flying-penguin.png DESTINATION share/pixmaps)
 install (DIRECTORY share/flying-penguin/ DESTINATION share/flying-penguin)
-install (FILES COPYING README DESTINATION share/flying-penguin)
+install (FILES COPYING README.markdown DESTINATION share/flying-penguin)
+if (UNIX)
+    install (FILES misc/linux/flying-penguin.png DESTINATION share/pixmaps)
+    install (FILES misc/linux/flying-penguin.desktop DESTINATION share/applications)
+endif ()
+if (WIN32 AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/misc/windows/bin" AND IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/misc/windows/bin")
+    install (DIRECTORY misc/windows/bin/ DESTINATION bin)
+endif ()
 
 set (CPACK_PACKAGE_DESCRIPTION_SUMMARY "An arcade game involving a penguin, strap-on wings and flying fish")
 set (CPACK_PACKAGE_DESCRIPTION "An arcade game involving a penguin, strap-on wings and flying fish")

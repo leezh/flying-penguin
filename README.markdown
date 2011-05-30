@@ -3,7 +3,7 @@ Trouble struck the penguin community when all the fish in Antarctica started fly
 
 In this game, the point is to fly as far as possible while using limited fuel. Extra fuel would be awarded for collecting fish.
 
-# Instructions
+## Instructions
 
      Left - Turn counter-clockwise
     Right - Turn clockwise
@@ -19,7 +19,7 @@ You can actually reach the first few fish without turning off the thrusters, but
 
 There would be birds flying around that you have to avoid as there would be a 2 second fuel penalty when hit. As you go further, more and more birds would appear.
 
-# License
+## License
 
     The Flying Penguin
     Copyright (C) 2010-2011 Lee Zher Huei <lee.zh.92@gmail.com>
@@ -39,7 +39,7 @@ There would be birds flying around that you have to avoid as there would be a 2 
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
     MA 02110-1301, USA.
 
-# Building and Installing
+## Building and Installing
 
 Note: *These instructions are not necessary if you already have a working pre-compiled binary*
 
@@ -59,14 +59,22 @@ Run the following commands:
     make
     make install
 
-# Contributors
+### Building in Windows
+
+The tested method for Windows is to use MinGW/MSYS to build & install PhysFS and SFML before running the commands above (although you may need to add `-G "MSYS Makefiles"` to the cmake command).
+
+Alternatively, you could set the SFMLDIR and PHYSFSDIR environment variables to where you installed the libraries and run CMake with any compiler that you choose. Note that PhysFS does not come with a pre-built library so you need to compile it beforehand.
+
+If you are planning to create a package as well, you may optionally dump all the required dll files into `misc/windows/bin/` so that it would be included automatically.
+
+## Contributors
 
 * Lee Zher Huei <lee.zh.92@gmail.com>
   - Project maintainer
   - Programmer
   - Artist
 
-# External Files
+## External Files
 
 * share/flying-penguin/sounds/buzzer.wav
   - Created by Brandon75689

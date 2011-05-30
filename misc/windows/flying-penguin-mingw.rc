@@ -1,0 +1,20 @@
+1 VERSIONINFO
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "080904E4"
+    BEGIN
+      VALUE "CompanyName", "LeeZH.net"
+      VALUE "FileDescription", "An arcade game involving a penguin, strap-on wings and flying fish"
+      VALUE "InternalName", "flying-penguin"
+      VALUE "LegalCopyright", "Lee Zher Huei"
+      VALUE "OriginalFilename", "flying-penguin.exe"
+    END
+  END
+
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x809, 1252
+  END
+END
+ID ICON "../misc/windows/flying-penguin.ico"
