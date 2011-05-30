@@ -29,6 +29,7 @@ class Penguin: public Entity {
         bool running;
         bool takeoff;
         float starTime;
+        float stallTime;
         Sprite* sprite;
         
         float windAngle();
@@ -45,6 +46,7 @@ class Penguin: public Entity {
         
         bool isAlive();
         bool isFlying();
+        bool isStalling();
         float windSpeed();
         
         bool alive() {return true;}

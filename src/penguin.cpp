@@ -29,6 +29,11 @@ using namespace util;
 bool Penguin::isAlive() {return running;}
 bool Penguin::isFlying() {return takeoff;}
 
+bool Penguin::isStalling() {
+    confVar(float, stallThreshold);
+    return (stallTime >= stallThreshold);
+}
+
 float Penguin::windAngle() {
     if (vel.magnitude() > 0.f) {
         return acuteAngleDiff(angle, atan2(vel.y, vel.x));
@@ -96,6 +101,9 @@ void Penguin::doPhysics(float deltaTime) {
     if (wAngle < rad(stallAngle) && wAngle > -rad(stallAngle)) {
         float lift = liftAccel(wAngle + rad(wingAngle));
         accel += Vect(0, 0, 1).crossProduct(vel).unitVector() * lift;
+        stallTime = 0;
+    } else {
+        stallTime += deltaTime;
     }
     
     vel += (accel * deltaTime);

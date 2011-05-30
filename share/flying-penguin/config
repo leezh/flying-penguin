@@ -7,6 +7,7 @@ gravityAccel = 9.81
 thrustAccel = 4
 initialFuel = 20
 penguinSize = 1.5
+stallThreshold = 0.2
 
 # Controls
 turningConst = 90

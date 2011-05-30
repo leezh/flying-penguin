@@ -134,6 +134,23 @@ class RestartInfo: public Entity {
         }
 };
 
+class StallIndicator: public Entity {
+    protected:
+        String* text;
+    public:
+        StallIndicator() {
+            text = res.string("alert");
+        }
+        void render() {
+            if (!world.penguin->isFlying() || !world.penguin->isStalling()) return;
+            Vect pos(window.GetWidth() / 2, window.GetHeight() / 3);
+            text->render(pos, "STALL", 0.5f, 0.f);
+        }
+        bool alive() {
+            return world.penguin->isAlive();
+        }
+};
+
 float World::metresToPixel(float metres) {
     return metres / metresPerScreen * max(window.GetWidth(), window.GetHeight());
 }
@@ -174,6 +191,7 @@ bool World::init() {
     foreground.add(new DistanceInfo());
     foreground.add(new Intro());
     foreground.add(new RestartInfo());
+    foreground.add(new StallIndicator());
     
     
     res.playMusic("mushroom-dance.ogg");
