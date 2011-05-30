@@ -126,6 +126,9 @@ void Sound::load(char* filePtr, int64_t size) {
     
     buffer->LoadFromMemory(filePtr, size);
     sound->SetBuffer(*buffer);
+    if (save.read("mute", false)) {
+        sound->SetVolume(0);
+    }
 }
 
 void Sound::unload() {
@@ -275,10 +278,9 @@ Sound* ResourceManager::sound(std::string name) {
     return soundMap[name];
 }
 
-void ResourceManager::playMusic(std::string name, int volume, bool loop) {
+void ResourceManager::playMusic(std::string name, bool loop) {
     name = "music/" + name;
     if (musicHandler != NULL && name == musicName) {
-        musicHandler->SetVolume(volume);
         return;
     }
     
@@ -294,7 +296,9 @@ void ResourceManager::playMusic(std::string name, int volume, bool loop) {
         if (count == 1) {
             musicHandler->OpenFromMemory(musicData, size);
             musicHandler->SetLoop(loop);
-            musicHandler->SetVolume(volume);
+            if (save.read("mute", false)) {
+                musicHandler->SetVolume(0);
+            }
             musicHandler->Play();
             musicName = name;
             loaded = true;
@@ -315,6 +319,18 @@ void ResourceManager::stopMusic() {
         delete musicHandler;
         delete musicData;
         musicHandler = NULL;
+    }
+}
+
+void ResourceManager::updateVolume() {
+    int volume = 100;
+    if (save.read("mute", false)) volume = 0;
+    if (musicHandler != NULL) {
+        musicHandler->SetVolume(volume);
+    }
+    std::map<std::string, Sound*>::iterator it;
+    for (it = soundMap.begin(); it != soundMap.end(); it++) {
+        it->second->sound->SetVolume(volume);
     }
 }
 

@@ -215,6 +215,10 @@ void World::loop() {
                     apps.activate(&world);
                     return;
                     break;
+                case sf::Key::M:
+                    save.add("mute", !save.read("mute", false));
+                    res.updateVolume();
+                    break;
             }
         }
     }

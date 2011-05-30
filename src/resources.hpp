@@ -102,12 +102,13 @@ class ResourceManager {
         String* string(std::string name);
         Sound* sound(std::string name);
         
-        void playMusic(std::string name, int volume = 100, bool loop = true);
+        void playMusic(std::string name, bool loop = true);
         void stopMusic();
         
         void clear();
         void cacheData();
         void recalcSizes(float metresPerScreen);
+        void updateVolume();
 };
 
 
