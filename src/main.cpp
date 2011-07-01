@@ -108,7 +108,7 @@ int main (int argc, char** argv) {
     res.cacheData();
     
     window.Create(sf::VideoMode(save.read<int>("videoWidth"), save.read<int>("videoHeight"), 24), "The Flying Penguin", sf::Style::Close);
-    window.UseVerticalSync(true);
+    window.EnableVerticalSync(true);
     sf::Image &icon = *res.image("icon.png");
     window.SetIcon(icon.GetWidth(), icon.GetHeight(), icon.GetPixelsPtr());
     

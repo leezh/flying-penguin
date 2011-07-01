@@ -216,11 +216,11 @@ void World::render() {
 
 void World::loop() {
     sf::Event Event;
-    while (window.GetEvent(Event)){
+    while (window.PollEvent(Event)){
         if (Event.Type == sf::Event::Closed)
             apps.deactivateAll();
         if (Event.Type == sf::Event::Resized) {
-            window.GetDefaultView().SetFromRect(sf::FloatRect(0, 0, Event.Size.Width, Event.Size.Height));
+            window.SetView(sf::View(sf::FloatRect(0, 0, Event.Size.Width, Event.Size.Height)));
             res.recalcSizes(world.metresPerScreen);
         }
         if (Event.Type == sf::Event::KeyPressed) {
@@ -247,7 +247,7 @@ void World::loop() {
     if (input.IsKeyDown(sf::Key::Right)) penguin->elevator -= 1;
     penguin->thrust = input.IsKeyDown(sf::Key::Space);
     
-    float frameTime = window.GetFrameTime();
+    float frameTime = window.GetFrameTime() / 1000.f;
     
     background.doPhysics(frameTime);
     entities.doPhysics(frameTime);

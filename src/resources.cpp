@@ -43,8 +43,8 @@ void Sprite::load(std::string buffer) {
             int y2 = util::from_string<int>(tokens[4]);
             float cx = util::from_string<float>(tokens[5]);
             float cy = util::from_string<float>(tokens[6]);
-            sprites[sprites.size() - 1]->SetSubRect(sf::IntRect(x1, y1, x2, y2));
-            sprites[sprites.size() - 1]->SetCenter((x2 - x1) * cx, (y2 - y1) * cy);
+            sprites[sprites.size() - 1]->SetSubRect(sf::IntRect(x1, y1, x2 - x1, y2 - y1));
+            sprites[sprites.size() - 1]->SetOrigin((x2 - x1) * cx, (y2 - y1) * cy);
         }
     }
 }
@@ -66,7 +66,7 @@ void Sprite::recalcSize(float metresPerScreen) {
     int screenSize = std::max(window.GetWidth(), window.GetHeight());
     if (size == -1) return;
     for (it = sprites.begin(); it != sprites.end(); it++) {
-        float scale = (size * screenSize) / ((*it)->GetSubRect().GetWidth() * metresPerScreen);
+        float scale = (size * screenSize) / ((*it)->GetSubRect().Width * metresPerScreen);
         (*it)->SetScale(scale, scale);
     }
 }
@@ -75,14 +75,14 @@ void Sprite::render(Vect pos, float angle, int frame, float alpha) {
     if (frame < 0 || frame >= sprites.size()) frame = 0;
     if (sprites.size() == 0) return;
     sprites[frame]->SetPosition(pos.x, pos.y);
-    sprites[frame]->SetRotation(angle);
+    sprites[frame]->SetRotation(-angle);
     sprites[frame]->SetColor(sf::Color(255, 255, 255, 255 * alpha));
     
     window.Draw(*sprites[frame]);
 }
 
 void String::load(std::string buffer) {
-    str = new sf::String();
+    str = new sf::Text();
     std::vector<string> tokens;
     util::tokenise(buffer, tokens);
     if (tokens.size() >= 3) {
@@ -90,8 +90,8 @@ void String::load(std::string buffer) {
         float size = util::from_string<float>(tokens[1]);
         sf::Color colour = util::to_colour(tokens[2]);
         
-        str->SetFont(*res.font(fontPath, size));
-        str->SetSize(size);
+        str->SetFont(*res.font(fontPath));
+        str->SetCharacterSize(size);
         str->SetColor(colour);
     }
 }
@@ -100,19 +100,11 @@ void String::unload() {
     delete str;
 }
 
-sf::FloatRect String::getRect() {
-    return str->GetRect();
-}
-
-int String::getCharPos(int pos) {
-    return str->GetCharacterPos(pos).x;
-}
-
 void String::render(Vect pos, std::string text, float cx, float cy, bool dummy) {
     if (str == NULL) return;
-    str->SetText(text);
+    str->SetString(text);
     sf::FloatRect rect = str->GetRect();
-    str->SetCenter(floor(rect.GetWidth() * cx), floor(rect.GetHeight() * cy));
+    str->SetOrigin(floor(rect.Width * cx), floor(rect.Height * cy));
     str->SetPosition(floor(pos.x), floor(pos.y));
     
     if (!dummy) {
@@ -169,14 +161,10 @@ sf::Image* ResourceManager::image(std::string name) {
     return imageMap[name];
 }
 
-sf::Font* ResourceManager::font(std::string name, float s) {
+sf::Font* ResourceManager::font(std::string name) {
     name = "fonts/" + name;
-    std::vector<std::string>::iterator extIt;
-    std::vector<std::string>::iterator dirIt;
-    FontDesc desc(name, s);
-    
-    if (fontMap.find(desc) == fontMap.end()) {
-        fontMap[desc] = new sf::Font();
+    if (fontMap.find(name) == fontMap.end()) {
+        fontMap[name] = new sf::Font();
         
         bool loaded = false;
         PHYSFS_File* file = PHYSFS_openRead(name.c_str());
@@ -185,7 +173,7 @@ sf::Font* ResourceManager::font(std::string name, float s) {
             char *buffer = new char [size];
             int count = PHYSFS_read(file, buffer, size, 1);
             if (count == 1) {
-                if (fontMap[desc]->LoadFromMemory(buffer, size, s)) {
+                if (fontMap[name]->LoadFromMemory(buffer, size)) {
                     loaded = true;
                 }
             }
@@ -197,7 +185,7 @@ sf::Font* ResourceManager::font(std::string name, float s) {
             std::cerr << "Font \"" << name << "\" could not be loaded" << std::endl;
         }
     }
-    return fontMap[desc];
+    return fontMap[name];
 }
 
 Sprite* ResourceManager::sprite(std::string name) {

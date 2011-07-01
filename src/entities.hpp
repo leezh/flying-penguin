@@ -32,33 +32,6 @@ class Entity {
         virtual bool alive() {return false;}
 };
 
-class Text: public Entity {
-    protected:
-        String* text;
-        
-    public:
-        std::string str;
-        Vect pos;
-        float cx;
-        float cy;
-        
-        virtual bool alive() {return true;}
-        virtual void render();
-        Text(std::string style);
-};
-
-class TextBox: public Text {
-    public:
-        int selStart, selEnd;
-        std::string editText;
-        sf::Color selColour;
-        
-        TextBox(std::string style);
-        virtual void render();
-        virtual void handleEvent(sf::Event &Event);
-        virtual void selectAll();
-};
-
 class EntityManager {
     private:
         std::vector<Entity*> entityArray;

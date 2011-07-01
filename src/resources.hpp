@@ -48,14 +48,11 @@ class Sprite {
 
 class String {
     private:
-        sf::String* str;
+        sf::Text* str;
         
         void load(std::string buffer);
         void unload();
     public:
-        sf::FloatRect getRect();
-        int getCharPos(int pos);
-        
         void render(Vect pos, std::string text, float cx = 0.f, float cy = 0.f, bool dummy = false);
         friend class ResourceManager;
 };
@@ -73,17 +70,6 @@ class Sound {
         friend class ResourceManager;
 };
 
-struct FontDesc {
-    std::string name;
-    float size;
-    FontDesc(std::string n, float s): name(n), size(s){}
-};
-inline bool operator< (const FontDesc &f1, const FontDesc &f2) {
-    if (f1.name < f2.name) return true;
-    if (f1.name == f2.name) return (f1.size < f2.size);
-    return false;
-}
-
 class ResourceManager {
     private:
         char* musicData;
@@ -91,13 +77,13 @@ class ResourceManager {
         std::string musicName;
         
         std::map<std::string, sf::Image*> imageMap;
-        std::map<FontDesc, sf::Font*> fontMap;
+        std::map<std::string, sf::Font*> fontMap;
         std::map<std::string, Sprite*> spriteMap;
         std::map<std::string, String*> stringMap;
         std::map<std::string, Sound*> soundMap;
     public:
         sf::Image* image(std::string name);
-        sf::Font* font(std::string name, float size);
+        sf::Font* font(std::string name);
         Sprite* sprite(std::string name);
         String* string(std::string name);
         Sound* sound(std::string name);
